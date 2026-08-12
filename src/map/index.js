@@ -21,6 +21,33 @@ export function createMapController(container, { onStationClick, onSleepClick } 
   })
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
 
+  // MapLibre measures its container once at construction and then only
+  // re-measures on a WINDOW resize event. Our container gets its real height
+  // from flex layout that settles after mount (and shifts again when the
+  // API-not-configured banner appears or the tab panel changes), and the
+  // window itself never resizes on a phone. Result: the map keeps a stale
+  // zero size, never requests a tile, and paints nothing at all -- which
+  // looks exactly like a broken basemap URL. Observe the element instead.
+  let resizeObserver = null
+  if (typeof ResizeObserver !== 'undefined') {
+    let lastW = 0
+    let lastH = 0
+    resizeObserver = new ResizeObserver((entries) => {
+      const box = entries[0]?.contentRect
+      if (!box) return
+      const w = Math.round(box.width)
+      const h = Math.round(box.height)
+      if (w === lastW && h === lastH) return
+      lastW = w
+      lastH = h
+      if (w > 0 && h > 0) map.resize()
+    })
+    resizeObserver.observe(container)
+  }
+  // Belt and braces for the very first paint, in case layout settles within
+  // the same frame and the observer's initial callback is a no-op.
+  requestAnimationFrame(() => map.resize())
+
   let ready = false
   const readyPromise = new Promise((resolve) => {
     map.on('load', () => {
@@ -130,6 +157,7 @@ export function createMapController(container, { onStationClick, onSleepClick } 
   function destroy() {
     clearMarkers(stationMarkers)
     clearMarkers(sleepMarkers)
+    if (resizeObserver) resizeObserver.disconnect()
     map.remove()
   }
 

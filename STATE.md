@@ -43,7 +43,9 @@ before any of them is recorded as passed below.
 | 2026-08-12 | Live AFDC fixture captured for the corridor; planner re-tested against real stations |
 | 2026-08-12 | **Reviewer pass 1** — gate 3 PASS, gates 5 & 6 PASS with gaps, gate 4 FAIL, gates 1 & 2 BLOCKED. 7 defects raised |
 | 2026-08-12 | All 7 reviewer defects fixed + 1 the review's own blocker had masked (basemap tiles 404'd on a literal `{r}` in the tile template). 76 tests |
-| 2026-08-12 | **Reviewer pass 2 in progress** — re-certification of all gates against the redeployed site |
+| 2026-08-12 | **Reviewer pass 2** — gate 3 PASS (re-fuzzed 269 plans against real AFDC data, zero floor violations), gate 4 PASS, gates 5 & 6 PASS, gates 1 & 2 still BLOCKED on the Worker. 6 of 7 defects confirmed closed |
+| 2026-08-12 | Worker `fetch`-handler tests added, closing the last open defect (rate-limit state now provably reachable). 83 tests |
+| 2026-08-12 | Reviewer's new HIGH "map never paints" defect investigated and **found to be a false positive** — WebGL capture artifact, see D-021. Map renders correctly on fresh load |
 
 ## In Progress
 
@@ -109,7 +111,8 @@ Surfaced at session 1. Work around them until cleared.
 | D-016 | 2026-08-12 | Corridor override reports `overrideDetail` (gap miles, ascent, share) alongside the reason label | A binary sparse-vs-elevation label lies on a leg that is both long and steep |
 | D-017 | 2026-08-12 | Planner excludes `kwSource: "unknown"` stations by default and says so in warnings | Never let a guess be treated as a 250 kW stop |
 | D-018 | 2026-08-12 | "API not configured" is a banner, not a full-screen replacement | Sleep spots are static files in this repo and the map works without any API. Hiding the whole app hid things that worked, and made gate 4 uncertifiable until the Worker exists |
-| D-019 | 2026-08-12 | Basemap tiles use `@2x`, never a `{r}` placeholder | `{r}` is a Leaflet convention. MapLibre passes it through literally and every tile 404s, which reads as a styling bug rather than a URL bug |
+| D-019 | 2026-08-12 | Basemap tiles use `@2x`, never a `{r}` placeholder | `{r}` is a Leaflet convention that MapLibre passes through literally. **Correction (same day):** the original commit message claimed those URLs 404'd. They did not — CARTO tolerates the malformed suffix and returns a valid non-retina PNG (verified by the reviewer and re-verified from inside the live page). `@2x` is still the correct retina URL, but it fixed nothing. The black map was solely D-018's CSS collapse. Do not reason from the old claim |
+| D-021 | 2026-08-12 | Map render is verified by screenshot, never by `getImageData` or canvas pixel sampling | A WebGL canvas without `preserveDrawingBuffer` reads back as uniform black regardless of what is on screen. Both a reviewer pass and the lead independently called the map "broken, renders black" on this false signal, and the second time it cost a wrong root cause and a wasted fix cycle. Screenshot capture is authoritative |
 | D-020 | 2026-08-12 | Malformed station coordinates are filtered in `annotateStations`, not allowed to throw | The Worker legitimately emits null coordinates for malformed upstream records. One bad record must not cost the trip every station |
 
 ---
