@@ -56,8 +56,11 @@ export function planTrip({
     departSocTarget = 50,
     taperCutoffKw = 100,
     reserveFloor = 8,
-    overheadMinPerStop = 5,
+    overheadMinPerStop: rawOverhead = 5,
   } = strategy
+  // A corrupted or hand-edited saved strategy must not be able to make a trip
+  // with stops report as faster than driving straight through.
+  const overheadMinPerStop = Math.max(0, Number(rawOverhead) || 0)
 
   // ---- candidate set -------------------------------------------------------
   const unknownKw = stations.filter((s) => s.maxKw == null || s.kwSource === 'unknown')

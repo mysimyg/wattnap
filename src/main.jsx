@@ -58,18 +58,13 @@ function App() {
     restoreLastTrip()
   }, [])
 
-  if (!api.isConfigured) {
-    return (
-      <div class="wn-app">
-        <Header onMenuToggle={() => {}} />
-        <ApiNotConfigured />
-      </div>
-    )
-  }
-
   return (
     <div class="wn-app">
       <Header onMenuToggle={() => setMenuOpen(true)} />
+      {/* A missing API base blocks routing and chargers, but sleep spots are
+          static files in this repo and the map still works. Show a banner, not
+          a wall -- hiding the whole app hides things that do work. */}
+      {!api.isConfigured ? <ApiNotConfigured /> : null}
       {!online ? (
         <div class="wn-offline-banner" role="status">
           Offline — showing the last loaded trip. Routing and charger lookups need a connection.

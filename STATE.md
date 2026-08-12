@@ -137,6 +137,9 @@ New ideas land here, never in the code mid-build.
 - Route alternates comparison
 - Share a plan by URL
 - Real-world consumption learning from logged trips
+- Collapse the trip form once a trip is planned, to give the map more of the
+  viewport (currently ~28% on a 812px phone; the wireframe wanted ~55%)
+- Vector basemap via Protomaps instead of CARTO raster (Q1 upgrade path)
 
 ---
 

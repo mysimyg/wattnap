@@ -45,9 +45,14 @@ function SleepDetail({ props, category, onClose }) {
         {props.source ? ` · via ${props.source}` : ''}
       </p>
       <div class="wn-card__actions">
-        {props.ioverlanderUrl ? (
-          <a class="wn-btn wn-btn--primary" href={props.ioverlanderUrl} target="_blank" rel="noopener noreferrer">
-            iOverlander
+        {props.ioverlanderUrl || props.sourceUrl ? (
+          <a
+            class="wn-btn wn-btn--primary"
+            href={props.ioverlanderUrl || props.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {props.ioverlanderUrl ? 'iOverlander' : 'source'}
           </a>
         ) : null}
         <button type="button" class="wn-btn wn-btn--ghost" onClick={onClose}>

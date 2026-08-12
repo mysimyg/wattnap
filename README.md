@@ -102,12 +102,17 @@ VITE_API_BASE=http://localhost:8787 npm run dev
 npx wrangler login
 ```
 
-Create the KV namespace for caching and paste the returned id into
-`worker/wrangler.toml`:
+Create the KV namespace for caching:
 
 ```bash
 npx wrangler kv namespace create CACHE
 ```
+
+Then **uncomment the `[[kv_namespaces]]` block in `worker/wrangler.toml` and
+paste in the returned id.** This step is easy to skip and matters more than it
+looks: without a KV binding the Worker still runs, but response caching and the
+per-IP rate limiting both silently no-op — which means a free-tier key is
+exposed to being drained, and the rate-limit UI state can never be reached.
 
 Set the secrets (these live in Cloudflare, never in git):
 

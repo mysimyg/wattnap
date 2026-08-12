@@ -233,9 +233,16 @@ a {
   min-height: 200px;
   background: var(--surface);
 }
-.wn-map {
+/* Specificity matters here. MapLibre's own stylesheet sets
+   `.maplibregl-map { position: relative }` and lands AFTER ours in the bundle,
+   so a bare `.wn-map` rule loses the tie and the map collapses to 0px. The
+   descendant selector outranks it. Verified against the built CSS, not just
+   the dev server. */
+.wn-map-wrap .wn-map {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
 }
 .maplibregl-ctrl-attrib {
   font-size: 11px;
@@ -339,6 +346,10 @@ a {
 
 .wn-tabpanel {
   flex: 45 1 0;
+  /* Without min-height:0 a flex item refuses to shrink below its content's
+     min-content height, so a long stop or sleep list steals the map's share
+     and the 55/45 split silently stops holding. */
+  min-height: 0;
   overflow-y: auto;
   padding: 12px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));
@@ -731,4 +742,10 @@ a {
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 4px;
+}
+
+/* DESIGN.md §6: every tap target is at least 44px. */
+.wn-header button,
+.wn-header .wn-btn {
+  min-height: 44px;
 }

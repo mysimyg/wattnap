@@ -15,7 +15,18 @@ import { simplify } from '@turf/simplify'
 export function annotateStations(stations, routeGeometry) {
   if (!routeGeometry || routeGeometry.length < 2) return []
   const line = lineString(routeGeometry.map((p) => [p[0], p[1]]))
+  // Upstream data really does carry null/NaN coordinates -- the Worker's
+  // normalizer says so itself. One bad record must drop itself, not take the
+  // whole corridor down with it.
   return stations
+    .filter(
+      (s) =>
+        s &&
+        Number.isFinite(s.lat) &&
+        Number.isFinite(s.lon) &&
+        Math.abs(s.lat) <= 90 &&
+        Math.abs(s.lon) <= 180
+    )
     .map((s) => {
       const snapped = nearestPointOnLine(line, point([s.lon, s.lat]), { units: 'meters' })
       return {

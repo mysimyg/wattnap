@@ -424,3 +424,48 @@ describe('planner against real AFDC station data', () => {
     expect(hop.summary.totalMinutes).toBeGreaterThan(hop.summary.driveMinutes)
   })
 })
+
+// ------------------------------------------------- regressions (reviewer) ---
+describe('regressions found by the gate review', () => {
+  it('one malformed station coordinate does not take the whole corridor down', () => {
+    // The Worker's normalizer legitimately emits null coordinates when
+    // upstream data is malformed. Previously this threw out of turf and the
+    // trip lost every station.
+    const good = read('./fixtures/stations-us395-live.json').stations
+    const poisoned = [
+      { ...good[0], id: 'bad:null', lat: null, lon: null },
+      { ...good[1], id: 'bad:nan', lat: NaN, lon: NaN },
+      { ...good[2], id: 'bad:range', lat: 999, lon: -999 },
+      ...good,
+    ]
+    const annotated = annotateStations(poisoned, ROUTES.tahoe.route.geometry)
+    expect(annotated.length).toBe(good.length)
+    expect(annotated.some((s) => String(s.id).startsWith('bad:'))).toBe(false)
+    expect(annotated.every((s) => Number.isFinite(s.distanceAlongRoute_m))).toBe(true)
+  })
+
+  it('a corrupted strategy cannot make stopping faster than not stopping', () => {
+    // Reachable via a hand-edited localStorage strategy, which nothing revalidates.
+    const plan = planTrip({
+      route: ROUTES.tahoe.route,
+      stations: corridor(ROUTES.tahoe.route),
+      vehicle: VEHICLE,
+      strategy: { ...STRATEGIES[0], overheadMinPerStop: -50 },
+      startSoc: 50,
+    })
+    expect(plan.summary.overheadMinutes).toBeGreaterThanOrEqual(0)
+    expect(plan.summary.totalMinutes).toBeGreaterThanOrEqual(plan.summary.driveMinutes)
+  })
+
+  it('a non-numeric overhead degrades to zero rather than to NaN', () => {
+    const plan = planTrip({
+      route: ROUTES.tahoe.route,
+      stations: corridor(ROUTES.tahoe.route),
+      vehicle: VEHICLE,
+      strategy: { ...STRATEGIES[0], overheadMinPerStop: 'oops' },
+      startSoc: 50,
+    })
+    expect(Number.isFinite(plan.summary.totalMinutes)).toBe(true)
+    expect(plan.summary.overheadMinutes).toBe(0)
+  })
+})

@@ -3,6 +3,8 @@ import { StateMessage, ApiErrorMessage } from './StateMessage.jsx'
 
 function kwLabel(station) {
   if (station.kwSource === 'unknown') return 'kW unknown'
+  // Never let an inferred figure read as a measured one, even in the list.
+  if (station.kwSource === 'inferred') return `~${station.maxKw} kW (inferred)`
   return `${station.maxKw} kW`
 }
 
