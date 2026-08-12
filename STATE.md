@@ -38,6 +38,9 @@ before any of them is recorded as passed below.
 | 2026-08-12 | PWA (phase 5): manifest, offline-shell service worker, generated icons |
 | 2026-08-12 | README (phase 6): setup, keys, deploy from zero, degradation table, caveats |
 | 2026-08-12 | DESIGN.md §2.1 corrected against live AFDC responses (see D-012) |
+| 2026-08-12 | Frontend built and integrated; **deployed live at https://mysimyg.github.io/wattnap/** |
+| 2026-08-12 | Sleep spot dataset curated: 19 pins, 16 verified, full provenance |
+| 2026-08-12 | Live AFDC fixture captured for the corridor; planner re-tested against real stations (30 planner tests) |
 
 ## In Progress
 
@@ -112,7 +115,7 @@ Full table with fallbacks in `DESIGN.md` §9. Summary:
 | # | Question | Needed by | Blocking? |
 |---|---|---|---|
 | ~~Q1~~ | **Answered (D-013)** — CARTO dark raster + OSM attribution | Phase 1 | Closed |
-| Q2 | AFDC `power_kw` coverage on the CA/NV corridor | Phase 2 | No — measure in phase 2 |
+| ~~Q2~~ | **Measured** — 90/90 stations on the corridor report power. Captured as a live fixture | Phase 2 | Closed |
 | Q3 | Connector defaults; does the car have a CCS adapter? | Phase 2 | No — default TESLA+CCS |
 | Q4 | ORS free tier exact quotas (page is JS-rendered, unreadable) | Phase 1 | No — read at signup |
 | ~~Q5~~ | **Answered** — Juniper 2025+. Curve is still an ESTIMATE needing validation | Phase 3 | Partly closed |

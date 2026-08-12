@@ -540,7 +540,7 @@ Usable for the return leg of the current Tahoe trip. `STATE.md` marked complete.
 | # | Question | Needed by | Fallback if unanswered |
 |---|---|---|---|
 | Q1 | Basemap tiles: MapLibre demo tiles are dev-only. Options: free MapTiler key (5k loads/mo, key goes in the Worker or is domain-locked), Protomaps PMTiles hosted in the repo (~no limits, larger repo), or OSM raster w/ attribution. Which? | Phase 1 | Protomaps regional extract — no key, no quota, no account |
-| Q2 | How complete is AFDC `power_kw` on the CA/NV corridor? Does `ev_power_kw_min` drop stations with null power? | Phase 2 | Measure it in phase 2, fetch unfiltered and filter client-side if coverage is poor |
+| ~~Q2~~ | **MEASURED 2026-08-12.** 90 DC fast stations on the Ventura→SLT corridor, **90/90 with reported `power_kw`** (46 at 250 kW+, 11 networks). Coverage is excellent here. The Worker still filters locally (D-011) since coverage elsewhere is not guaranteed | Phase 2 | Closed |
 | Q3 | Which connectors should default on? Does the car have a CCS adapter, or is it Superchargers + Magic Dock only? | Phase 2 | Default `TESLA,J1772COMBO`, expose as a toggle |
 | Q4 | ORS free tier exact quotas (per day / per minute) — the plans page is JS-rendered and unreadable programmatically | Phase 1 | Read at signup, record here, set cache TTLs accordingly |
 | Q5 | Model Y variant and year? (LR / Performance / RWD, and 2020-25 all differ in pack and curve.) Shipped curve is an estimate | Phase 3 | Ship the LR estimate, flag it in the UI as an estimate |

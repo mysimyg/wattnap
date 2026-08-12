@@ -350,3 +350,77 @@ describe('planner: the reserve floor holds under fuzzing', () => {
     expect(checked).toBeGreaterThan(40)
   })
 })
+
+// ------------------------------------------------------- live AFDC data ----
+/**
+ * These run against REAL station data captured from developer.nlr.gov on
+ * 2026-08-12 for the Ventura -> South Lake Tahoe corridor. The route geometry
+ * is still synthetic, but the stations, their networks and their power ratings
+ * are the genuine article -- which is what the phase 3 gate actually needs to
+ * be worth anything.
+ */
+describe('planner against real AFDC station data', () => {
+  const live = read('./fixtures/stations-us395-live.json')
+  const annotated = (route) => annotateStations(live.stations, route.geometry)
+  const corridorLive = (route, { minKw = 250, maxDetourMi = 5 } = {}) =>
+    annotated(route).filter((s) => s.detour_m / MILES <= maxDetourMi && (s.maxKw ?? 0) >= minKw)
+
+  it('the real corridor has meaningful 250 kW+ coverage', () => {
+    const fast = corridorLive(ROUTES.tahoe.route)
+    expect(fast.length).toBeGreaterThan(20)
+    expect(new Set(live.stations.map((s) => s.network)).size).toBeGreaterThan(5)
+  })
+
+  it('AFDC reported power for every station on this corridor (answers Q2)', () => {
+    // Measured, not assumed: 90/90 stations carried a real power_kw figure.
+    // If a future capture regresses, this test is where we find out.
+    const unknown = live.stations.filter((s) => s.kwSource === 'unknown')
+    expect(unknown.length).toBe(0)
+    expect(live.stations.every((s) => s.kwSource === 'reported')).toBe(true)
+  })
+
+  it.each(STRATEGIES)('$name produces a feasible plan that respects the reserve floor', (strategy) => {
+    const plan = planTrip({
+      route: ROUTES.tahoe.route,
+      stations: corridorLive(ROUTES.tahoe.route),
+      vehicle: VEHICLE,
+      strategy,
+      startSoc: strategiesFile.defaultStartSoc,
+    })
+    expect(plan.feasible).toBe(true)
+    expect(plan.summary.minSocReached).toBeGreaterThanOrEqual(strategy.reserveFloor - 1e-6)
+    for (const stop of plan.stops) {
+      expect(stop.arriveSoc).toBeGreaterThanOrEqual(strategy.reserveFloor - 1e-6)
+      expect(stop.chargeMinutes).toBeGreaterThan(0)
+    }
+  })
+
+  it('charge minutes stay in a physically credible range on real hardware', () => {
+    const plan = planTrip({
+      route: ROUTES.tahoe.route,
+      stations: corridorLive(ROUTES.tahoe.route),
+      vehicle: VEHICLE,
+      strategy: STRATEGIES[0],
+      startSoc: 50,
+    })
+    for (const stop of plan.stops) {
+      // A 78 kWh pack on a 250 kW+ post cannot take an hour for a 38-point
+      // window, and cannot do it in under two minutes either.
+      expect(stop.chargeMinutes).toBeGreaterThan(1)
+      expect(stop.chargeMinutes).toBeLessThan(45)
+      expect(stop.avgKw).toBeGreaterThan(40)
+      expect(stop.avgKw).toBeLessThanOrEqual(stop.station.maxKw)
+    }
+  })
+
+  it('the shallow window is competitive with the classic one on the real corridor', () => {
+    const stations = corridorLive(ROUTES.tahoe.route)
+    const hop = planTrip({ route: ROUTES.tahoe.route, stations, vehicle: VEHICLE, strategy: STRATEGIES[0], startSoc: 50 })
+    const classic = planTrip({ route: ROUTES.tahoe.route, stations, vehicle: VEHICLE, strategy: STRATEGIES[1], startSoc: 50 })
+    // Neither should be absurdly better; the whole point of strategy compare is
+    // that the answer is close and worth actually looking at.
+    const deltaMin = Math.abs(hop.summary.totalMinutes - classic.summary.totalMinutes)
+    expect(deltaMin).toBeLessThan(60)
+    expect(hop.summary.totalMinutes).toBeGreaterThan(hop.summary.driveMinutes)
+  })
+})
