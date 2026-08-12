@@ -56,7 +56,15 @@ a {
   background: var(--bg);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  overflow: hidden;
+  /* Not `hidden`: fixed-height content above the flexible map/tabpanel
+     split (the offline banner, the API-not-configured notice, a long
+     "from"/"to" suggestion list) can outgrow the viewport. `hidden` would
+     silently clip the tab panel to nothing below it -- happened during
+     testing. Auto lets the whole app scroll as a fallback while the
+     55/45 map/tabpanel split still holds on any viewport where the fixed
+     content fits, which is the common case. */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 @media (min-width: 720px) {
@@ -346,10 +354,15 @@ a {
 
 .wn-tabpanel {
   flex: 45 1 0;
-  /* Without min-height:0 a flex item refuses to shrink below its content's
-     min-content height, so a long stop or sleep list steals the map's share
-     and the 55/45 split silently stops holding. */
-  min-height: 0;
+  /* A flex item's default min-height is its content's min-content height, so
+     a long stop or sleep list would steal the map's share and the 55/45
+     split would silently stop holding. 180px overrides that default (so
+     internal overflow-y:auto below still does the scrolling) while keeping
+     a real floor: when fixed content above (the offline banner, the
+     API-not-configured notice) is tall enough to outgrow the viewport, this
+     is what stops the panel being squeezed to a literal 0px box that no
+     amount of page-scrolling could ever reveal. */
+  min-height: 180px;
   overflow-y: auto;
   padding: 12px;
   padding-bottom: calc(16px + env(safe-area-inset-bottom));

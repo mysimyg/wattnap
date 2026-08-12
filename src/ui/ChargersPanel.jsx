@@ -11,6 +11,12 @@ function kwLabel(station) {
 export function ChargersPanel() {
   const s = useWattnap()
 
+  {/* Must come before the !s.route branch -- a failed route fetch also
+      leaves s.route null, and without this order the failure would read
+      as "haven't planned a trip yet" instead of a real error. */}
+  if (s.routeStatus === 'error') {
+    return <ApiErrorMessage err={s.routeError} />
+  }
   if (!s.route) {
     return (
       <StateMessage tone="info" title="No route yet">

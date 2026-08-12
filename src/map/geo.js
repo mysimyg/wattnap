@@ -1,16 +1,14 @@
 /**
- * Geometry helpers used by the UI layer. NOT the trip planner — see the
- * note at the bottom of state.js about the temporary annotateStations
- * fallback. This file only ever does map/geo bookkeeping (route
- * simplification for the /v1/stations request, distance-along-route for
- * sorting/display), never SOC or charge-time math.
+ * Geometry helpers used by the UI layer. NOT the trip planner — this file
+ * only ever does map/geo bookkeeping (route simplification for the
+ * /v1/stations request, the corridor buffer overlay), never SOC or
+ * charge-time math or station annotation. That lives in src/planner/geo.js.
  */
 // Named imports from the individual turf packages (not the `@turf/turf`
 // meta-package) so the bundler can tree-shake the modules we don't use.
-import { lineString, point } from '@turf/helpers'
+import { lineString } from '@turf/helpers'
 import { simplify } from '@turf/simplify'
 import { buffer } from '@turf/buffer'
-import { nearestPointOnLine } from '@turf/nearest-point-on-line'
 
 /**
  * DESIGN.md §4.1: full ORS geometry -> simplify(tolerance ~0.01deg)
@@ -38,32 +36,4 @@ export function corridorBuffer(geometry, distanceMi) {
   const coords2d = geometry.map(([lon, lat]) => [lon, lat])
   const line = lineString(coords2d)
   return buffer(line, distanceMi, { units: 'miles' })
-}
-
-/**
- * Fallback for planner.annotateStations() when src/planner/index.js has not
- * landed yet. Adds distanceAlongRoute_m (for sort order) and detour_m (out
- * off the highway and back, approximated as 2x the perpendicular distance).
- * This is a stopgap for UI ordering only — the real annotateStations is
- * owned by the lead and this function should be deleted once it exists.
- */
-export function fallbackAnnotateStations(stations, routeGeometry) {
-  if (!Array.isArray(routeGeometry) || routeGeometry.length < 2) return stations
-  const line = lineString(routeGeometry.map(([lon, lat]) => [lon, lat]))
-  return stations.map((s) => {
-    try {
-      const snapped = nearestPointOnLine(line, point([s.lon, s.lat]), {
-        units: 'kilometers',
-      })
-      const alongKm = snapped.properties.location ?? 0
-      const detourKm = snapped.properties.dist ?? 0
-      return {
-        ...s,
-        distanceAlongRoute_m: Math.round(alongKm * 1000),
-        detour_m: Math.round(detourKm * 2 * 1000),
-      }
-    } catch {
-      return { ...s, distanceAlongRoute_m: null, detour_m: null }
-    }
-  })
 }

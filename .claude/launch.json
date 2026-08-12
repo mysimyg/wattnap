@@ -4,8 +4,8 @@
     {
       "name": "wattnap-preview",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "preview", "--port", "4173"],
-      "port": 4173
+      "runtimeArgs": ["vite", "preview", "--port", "4174"],
+      "port": 4174
     },
     {
       "name": "wattnap-dev",

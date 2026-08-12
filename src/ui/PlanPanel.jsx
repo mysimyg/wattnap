@@ -47,16 +47,19 @@ export function PlanPanel() {
   const [editingStrategy, setEditingStrategy] = useState(false)
   const [comparing, setComparing] = useState(false)
 
+  {/* routeStatus === 'error' must be checked before the !s.route branch --
+      a failed fetch leaves s.route null too, and without this ordering the
+      failure silently reads as "haven't tried yet" instead of an error. */}
+  if (s.routeStatus === 'error') {
+    return <ApiErrorMessage err={s.routeError} />
+  }
+
   if (!s.route) {
     return (
       <StateMessage tone="info" title="No route yet">
         <p>Enter a from and to above, then tap "plan trip" to see chargers and a stop plan.</p>
       </StateMessage>
     )
-  }
-
-  if (s.routeStatus === 'error') {
-    return <ApiErrorMessage err={s.routeError} />
   }
 
   if (s.routeStatus === 'loading' || s.stationsStatus === 'loading') {
