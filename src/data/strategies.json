@@ -1,0 +1,24 @@
+{
+  "defaultStartSoc": 50,
+  "defaultStrategy": "hop-12-50",
+  "strategies": [
+    {
+      "id": "hop-12-50",
+      "name": "12 to 50 hop",
+      "arriveSocTarget": 12,
+      "departSocTarget": 50,
+      "taperCutoffKw": 100,
+      "reserveFloor": 8,
+      "overheadMinPerStop": 5
+    },
+    {
+      "id": "classic-10-80",
+      "name": "10 to 80 classic",
+      "arriveSocTarget": 10,
+      "departSocTarget": 80,
+      "taperCutoffKw": 0,
+      "reserveFloor": 8,
+      "overheadMinPerStop": 5
+    }
+  ]
+}

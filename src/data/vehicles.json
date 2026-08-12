@@ -1,0 +1,37 @@
+{
+  "default": "tesla-model-y-juniper-2025",
+  "vehicles": [
+    {
+      "id": "tesla-model-y-juniper-2025",
+      "name": "Tesla Model Y Long Range AWD (Juniper, 2025+)",
+      "usableKwh": 78,
+      "consumptionWhPerMile": 235,
+      "regenEfficiency": 0.7,
+      "drivetrainEfficiency": 0.85,
+      "massKg": 2050,
+      "maxAcceptedKw": 250,
+      "estimated": true,
+      "estimateNote": "Curve and pack size are estimates for the 2025 Juniper refresh. Validate against a real Supercharger session and update.",
+      "chargeCurve": [
+        [0, 170], [5, 250], [22, 250], [30, 190], [40, 155],
+        [50, 128], [60, 102], [70, 82], [80, 66], [90, 46], [100, 20]
+      ]
+    },
+    {
+      "id": "tesla-model-y-lr-2023",
+      "name": "Tesla Model Y Long Range AWD (2020-2024)",
+      "usableKwh": 75,
+      "consumptionWhPerMile": 250,
+      "regenEfficiency": 0.7,
+      "drivetrainEfficiency": 0.85,
+      "massKg": 2000,
+      "maxAcceptedKw": 250,
+      "estimated": true,
+      "estimateNote": "Community-derived estimate. Validate before trusting.",
+      "chargeCurve": [
+        [0, 170], [5, 250], [20, 250], [30, 185], [40, 150],
+        [50, 125], [60, 100], [70, 80], [80, 65], [90, 45], [100, 20]
+      ]
+    }
+  ]
+}

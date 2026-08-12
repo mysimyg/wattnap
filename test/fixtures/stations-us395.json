@@ -1,0 +1,225 @@
+{
+  "_note": "SYNTHETIC fixture, not live API data. Approximates the real corridor for reproducible offline tests. Replace with captured live responses once API keys exist.",
+  "stations": [
+    {
+      "id": "afdc:mojave",
+      "source": "afdc",
+      "name": "Mojave Supercharger",
+      "network": "Tesla",
+      "lat": 35.051,
+      "lon": -118.158,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "TESLA",
+        "J1772COMBO"
+      ],
+      "maxKw": 250,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:lonepine",
+      "source": "afdc",
+      "name": "Lone Pine Supercharger",
+      "network": "Tesla",
+      "lat": 36.604,
+      "lon": -118.063,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "TESLA",
+        "J1772COMBO"
+      ],
+      "maxKw": 250,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:bigpine",
+      "source": "afdc",
+      "name": "Big Pine Supercharger",
+      "network": "Tesla",
+      "lat": 37.166,
+      "lon": -118.292,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "TESLA",
+        "J1772COMBO"
+      ],
+      "maxKw": 150,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:bishop-sc",
+      "source": "afdc",
+      "name": "Bishop Supercharger",
+      "network": "Tesla",
+      "lat": 37.365,
+      "lon": -118.396,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "TESLA",
+        "J1772COMBO"
+      ],
+      "maxKw": 250,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:bishop-ea",
+      "source": "afdc",
+      "name": "Bishop Electrify America",
+      "network": "Electrify America",
+      "lat": 37.369,
+      "lon": -118.393,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "J1772COMBO",
+        "CHADEMO"
+      ],
+      "maxKw": 350,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:mammoth",
+      "source": "afdc",
+      "name": "Mammoth Lakes Supercharger",
+      "network": "Tesla",
+      "lat": 37.648,
+      "lon": -118.972,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "TESLA",
+        "J1772COMBO"
+      ],
+      "maxKw": 250,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:leevining",
+      "source": "afdc",
+      "name": "Lee Vining Town Lot",
+      "network": "Non-Networked",
+      "lat": 37.957,
+      "lon": -119.118,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "J1772COMBO",
+        "CHADEMO"
+      ],
+      "maxKw": null,
+      "kwSource": "unknown",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:gardnerville",
+      "source": "afdc",
+      "name": "Gardnerville EVgo",
+      "network": "EVgo",
+      "lat": 38.942,
+      "lon": -119.75,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "J1772COMBO",
+        "CHADEMO"
+      ],
+      "maxKw": 200,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:carson",
+      "source": "afdc",
+      "name": "Carson City Supercharger",
+      "network": "Tesla",
+      "lat": 39.162,
+      "lon": -119.769,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "TESLA",
+        "J1772COMBO"
+      ],
+      "maxKw": 250,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:slt",
+      "source": "afdc",
+      "name": "South Lake Tahoe Supercharger",
+      "network": "Tesla",
+      "lat": 38.942,
+      "lon": -119.976,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "TESLA",
+        "J1772COMBO"
+      ],
+      "maxKw": 250,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    },
+    {
+      "id": "afdc:reno-ea",
+      "source": "afdc",
+      "name": "Reno Electrify America",
+      "network": "Electrify America",
+      "lat": 39.528,
+      "lon": -119.812,
+      "address": null,
+      "access": "public",
+      "status": "E",
+      "connectors": [
+        "J1772COMBO",
+        "CHADEMO"
+      ],
+      "maxKw": 350,
+      "kwSource": "reported",
+      "portCount": 8,
+      "pricing": null,
+      "url": null
+    }
+  ]
+}
