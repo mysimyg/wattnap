@@ -156,12 +156,12 @@ New ideas land here, never in the code mid-build.
 
 - **Model:** **Sonnet** for remaining build and fixes. Opus only if the charging
   math changes. Switch with `/model`.
-- **First task:**
-  - If approved → phase 1 scaffold: Vite + Preact + MapLibre skeleton, Worker
-    with origin allowlist and KV cache, Pages deploy via Actions, Worker deploy.
-    Gate: deployed URL renders a route between two typed addresses.
-  - If not approved → revise `DESIGN.md` against the user's notes, re-gate.
-- **Context needed:** `CLAUDE.md`, `STATE.md`, `DESIGN.md`. Nothing else exists yet.
-- **Blockers to clear first:** human tasks above — NREL key, ORS key,
-  `wrangler login`, GitHub repo. Phase 1 can scaffold without keys, but the
-  gate cannot pass without routing.
+- **First task:** deploy the Worker — `npx wrangler login`, create the KV
+  namespace, set the three secrets, `npm run worker:deploy` — then
+  `gh variable set VITE_API_BASE --body "<worker url>"` and push. That single
+  chain unblocks gates 1, 2 and 3 for live certification.
+- **Then:** re-run the reviewer pass against the live site and record gate
+  results in Done above.
+- **Context needed:** `CLAUDE.md`, `STATE.md`, `DESIGN.md`, `README.md` setup section.
+- **Blockers:** the human tasks above. The code is built, tested and deployed;
+  what is missing is account access I cannot grant myself.
