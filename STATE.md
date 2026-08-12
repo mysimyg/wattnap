@@ -15,9 +15,23 @@ standing instruction to continue autonomously and review on return.
 GitHub Pages is enabled (Actions build type). Deployed URL will be
 https://mysimyg.github.io/wattnap/ once the frontend entry point lands.
 
-**Gates are NOT yet certified.** Builders never certify their own work
-(`CLAUDE.md`), so a reviewer pass must verify gates 1-6 on the deployed URL
-before any of them is recorded as passed below.
+### Gate status — certified by the reviewer agent, 2026-08-12
+
+| Gate | Phase | Status | Evidence |
+|---|---|---|---|
+| 0 | DESIGN.md approval | **PASS** 2026-08-12 | User approved, answered Q5/Q6/Q8 |
+| 1 | Scaffold | **BLOCKED** | Site deploys and renders; routing needs the Worker |
+| 2 | Charger corridor | **BLOCKED** | Same. Filtering logic tested against real AFDC data offline |
+| 3 | Charging planner | **PASS** 2026-08-12 | Reviewer fuzzed 269 feasible plans over both routes against the real 90-station capture: zero reserve-floor violations. Override fires correctly and only on sparse legs |
+| 4 | Sleep layer | **PASS** 2026-08-12 | Verified live across all 3 categories: notes, confirmed dates, working source link-outs |
+| 5 | PWA | **PASS** 2026-08-12 | Manifest and SW register at the correct base path; a seeded trip survives reload. Real-phone install unverifiable by an agent |
+| 6 | Hardening | **PASS** 2026-08-12 | Error/empty/rate-limit states demonstrated; rate limit proven reachable through the real `fetch` handler; README verified as setup-from-zero |
+
+**Gates 1 and 2 are blocked only on the Worker deploy**, which needs the user's
+Cloudflare login. No code defect stands between them and passing.
+
+Three reviewer passes ran. 7 defects raised, all closed. One HIGH defect raised
+in pass 3 was investigated and **retracted as a false positive** (see D-021).
 
 ---
 
