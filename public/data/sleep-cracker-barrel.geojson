@@ -1,0 +1,85 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.068041,
+          34.2157158
+        ]
+      },
+      "properties": {
+        "id": "cb-camarillo-ca",
+        "name": "Cracker Barrel -- Camarillo",
+        "category": "cracker-barrel",
+        "notes": "560 E. Ventura Blvd, Camarillo, CA 93010, just off US-101 -- the closest Cracker Barrel to Ventura on this trip's corridor. AllStays reports no dedicated RV spaces at this location (regular lot only). Overnight parking is a store-by-store manager decision per Cracker Barrel corporate (see policyNote) -- ask inside before staying; this specific store's current stance was not independently confirmed. Lot grade, lighting and typical noise not stated by either source.",
+        "confirmed": "2026-08-12",
+        "source": "AllStays Cracker Barrel California directory, cross-checked via OpenStreetMap POI",
+        "sourceUrl": "https://www.allstays.com/c/cracker-barrel-california-locations.htm",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.8278423,
+          39.5288101
+        ]
+      },
+      "properties": {
+        "id": "cb-reno-nv",
+        "name": "Cracker Barrel -- Reno",
+        "category": "cracker-barrel",
+        "notes": "935 West 5th St, Reno, NV 89503 -- opened October 2023 per Cracker Barrel's own press release, the strongest-sourced location in this file. This is the trip's Reno-area endpoint stop. Overnight parking is store-by-store per Cracker Barrel corporate (see policyNote) -- ask inside; this store's current stance and any dedicated RV spaces not independently confirmed.",
+        "confirmed": "2026-08-12",
+        "source": "Cracker Barrel corporate newsroom press release",
+        "sourceUrl": "https://www.crackerbarrel.com/newsroom/news-releases/2023/oct/cracker-barrel-opens-new-location-in-reno-nevada",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.2080333,
+          38.799431
+        ]
+      },
+      "properties": {
+        "id": "cb-rocklin-ca",
+        "name": "Cracker Barrel -- Rocklin",
+        "category": "cracker-barrel",
+        "notes": "4630 Sierra College Blvd, Rocklin, CA 95677, at the Rocklin Station shopping center just off I-80 -- on the I-80 leg toward Truckee/Reno before the Sierra grade. AllStays reports 3 RV spaces at this location (unconfirmed by Cracker Barrel itself). Overnight parking is store-by-store per Cracker Barrel corporate (see policyNote) -- ask inside; this store's current stance not independently confirmed.",
+        "confirmed": "2026-08-12",
+        "source": "AllStays Cracker Barrel California directory, cross-checked via OpenStreetMap POI",
+        "sourceUrl": "https://www.allstays.com/c/cracker-barrel-california-locations.htm",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -117.3539166,
+          34.4619296
+        ]
+      },
+      "properties": {
+        "id": "cb-victorville-ca",
+        "name": "Cracker Barrel -- Victorville",
+        "category": "cracker-barrel",
+        "notes": "11612 Amargosa Rd, Victorville, CA 92392, on the I-15 corridor toward Barstow. OSM tags this exact address as a Cracker Barrel restaurant, confirming the location. Overnight parking is store-by-store per Cracker Barrel corporate (see policyNote) -- ask inside; this store's current stance not independently confirmed. RV space count, lot grade, lighting and noise not stated by source; expect I-15 corridor traffic noise.",
+        "confirmed": "2026-08-12",
+        "source": "Cracker Barrel address cross-checked via OpenStreetMap POI (amenity=restaurant, name=Cracker Barrel)",
+        "sourceUrl": "https://www.crackerbarrel.com/locations/states/ca/victorville/755",
+        "verified": true
+      }
+    }
+  ]
+}

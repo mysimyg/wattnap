@@ -2,7 +2,10 @@
  * The only part of the planner that touches turf. Kept separate so planner.js
  * stays dependency-free arithmetic and can be tested against frozen fixtures.
  */
-import { lineString, point, nearestPointOnLine, length, simplify } from '@turf/turf'
+import { lineString, point } from '@turf/helpers'
+import { nearestPointOnLine } from '@turf/nearest-point-on-line'
+import { length } from '@turf/length'
+import { simplify } from '@turf/simplify'
 
 /**
  * Attach distanceAlongRoute_m and detour_m to each station.

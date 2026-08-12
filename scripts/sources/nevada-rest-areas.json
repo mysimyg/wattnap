@@ -1,0 +1,20 @@
+{
+  "sourceName": "camping.org rest-area directory (secondary aggregator)",
+  "sourceUrl": "https://www.camping.org/campgrounds/nevada/reno/wadsworth-rest-stop-westbound",
+  "retrieved": "2026-08-12",
+  "method": "NDOT's own rest-areas-welcome-centers page (dot.nv.gov) returned HTTP 403 to a direct fetch, and an August 2026 Wayback Machine snapshot of that page contained only navigation chrome with no rest-area list or policy text -- the page is JS-rendered and its content did not resolve in the archive. Coordinates and facility notes below are therefore taken from a secondary rest-area directory site, not NDOT directly. This is flagged in verified/notes per the honesty rules.",
+  "records": [
+    {
+      "id": "rest-wadsworth-nv",
+      "name": "Wadsworth Rest Area (I-80 westbound, mile marker ~42-43)",
+      "category": "rest-area",
+      "lat": 39.6030944,
+      "lon": -119.3367889,
+      "confirmed": "2026-08-12",
+      "source": "camping.org rest-area directory",
+      "sourceUrl": "https://www.camping.org/campgrounds/nevada/reno/wadsworth-rest-stop-westbound",
+      "verified": false,
+      "notes": "Location and mile marker from camping.org and nevadarestareas.com (secondary/user-report aggregators), not NDOT's own site -- dot.nv.gov blocked automated fetch (403) and its Wayback snapshot had no usable content. Westbound-access-only, I-80 near Wadsworth, the last formal rest stop before the climb into Reno on this corridor. Overnight-policy reports directly conflict between sources: one summary (citing NDOT generally) states an 18-hour limit within any 2-week period with sleeping in the vehicle permitted; a different rest-area review site states a flat 24-hour limit with 'no overnight parking and no overnight camping,' napping only. Could not independently confirm either against an official NDOT source -- verify posted signage on arrival, do not assume either rule holds."
+    }
+  ]
+}

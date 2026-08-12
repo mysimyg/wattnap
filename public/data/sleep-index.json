@@ -1,0 +1,23 @@
+[
+  {
+    "category": "cracker-barrel",
+    "label": "Cracker Barrel",
+    "file": "sleep-cracker-barrel.geojson",
+    "icon": "utensils",
+    "color": "#d99a4e"
+  },
+  {
+    "category": "rest-area",
+    "label": "Rest Area",
+    "file": "sleep-rest-area.geojson",
+    "icon": "parking-circle",
+    "color": "#4ea1d9"
+  },
+  {
+    "category": "casino",
+    "label": "Casino",
+    "file": "sleep-casino.geojson",
+    "icon": "dice-5",
+    "color": "#b967ff"
+  }
+]

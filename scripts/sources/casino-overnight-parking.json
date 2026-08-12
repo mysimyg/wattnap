@@ -1,0 +1,44 @@
+{
+  "sourceName": "Mixed: RV-community aggregator sites (casinocamper.com, Good Sam Camping blog) and one casino's own site, addresses cross-checked via OpenStreetMap POIs",
+  "sourceUrl": "https://blog.goodsam.com/casino-camping-location-report-renotahoe/",
+  "retrieved": "2026-08-12",
+  "method": "Searched specifically for casinos on the trip's Reno/Carson-Valley/South-Lake-Tahoe corridors with a documented overnight-RV-parking stance. Two well-known Stateline/South Lake Tahoe casinos with historical RV policies -- Horizon Casino Resort and Lakeside Inn & Casino, both on US-50 at Stateline -- were investigated and excluded: both have permanently closed (confirmed via Yelp listing status and Wikipedia), so including them would be actively wrong. MontBleu (now Bally's Lake Tahoe) was investigated but no citable statement of its RV policy could be found either way, so it is not included -- ship fewer pins rather than guess. This leaves no confirmed casino overnight option directly at South Lake Tahoe/Stateline for this dataset; see the build report.",
+  "records": [
+    {
+      "id": "casino-boomtown-verdi-nv",
+      "name": "Boomtown Casino Hotel -- Verdi",
+      "category": "casino",
+      "lat": 39.5117225,
+      "lon": -119.9637265,
+      "confirmed": "2026-08-12",
+      "source": "casinocamper.com RV-community reports",
+      "sourceUrl": "https://www.casinocamper.com/boomtown-casino-2/",
+      "verified": false,
+      "notes": "2100 Garson Rd (Boomtown Garson Rd), Verdi, NV 89439, I-80 exit 4 -- the first stop entering Nevada from California on I-80 toward Reno. Sources conflict on the casino LOT itself: casinocamper.com (accessed 2026-08-12) says overnight parking in the casino lot is NOT allowed, but the affiliated Boomtown KOA next door permits one free night of dry camping (no hookups) in row H, with security enforcing the boundary and directing RVs there. A separate Good Sam Camping community roundup instead describes ongoing free overnight lot parking for 20+ RVs, which appears outdated or inconsistent with the casinocamper.com report. Do not assume free lot parking -- ask at the casino security desk or the KOA office (775-345-2444) on arrival."
+    },
+    {
+      "id": "casino-baldinis-sparks-nv",
+      "name": "Baldini's Sports Casino -- Sparks",
+      "category": "casino",
+      "lat": 39.5267601,
+      "lon": -119.7673443,
+      "confirmed": "2026-08-12",
+      "source": "Good Sam Camping blog, \"Casino Camping Location Report: Reno/Tahoe\"",
+      "sourceUrl": "https://blog.goodsam.com/casino-camping-location-report-renotahoe/",
+      "verified": false,
+      "notes": "865 S Rock Blvd, Sparks, NV 89431, near the I-80 corridor into Reno. Single secondary source (a Good Sam Camping community blog roundup) reports free overnight RV parking is allowed here; not corroborated by an official Baldini's statement or a second independent source. Confirm current policy at the casino before relying on it. Lot grade, lighting and typical noise not stated by source."
+    },
+    {
+      "id": "casino-carson-valley-inn-minden-nv",
+      "name": "Carson Valley Inn Casino -- Minden",
+      "category": "casino",
+      "lat": 38.9564898,
+      "lon": -119.7680525,
+      "confirmed": "2026-08-12",
+      "source": "Carson Valley Inn official site",
+      "sourceUrl": "https://www.carsonvalleyinn.com/accommodations/rv-resort",
+      "verified": true,
+      "notes": "1627 US Hwy 395 N, Minden, NV 89423, on US-395 in the Carson Valley -- about 20 min from South Lake Tahoe and 15 min from Carson City. This is a PAID 59-site full-hookup RV resort attached to the casino, not free lot boondocking: reservations required by phone (775-783-6629), $49-79/night depending on site type and date as posted 2026-08-12, no additional resort fee. RV Resort guests may use the hotel pool, spa and fitness room. Well-lit, paved resort lot per the operator's own site; not an anonymous overnight spot -- you check in like a campground."
+    }
+  ]
+}
