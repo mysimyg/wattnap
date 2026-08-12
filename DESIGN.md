@@ -83,21 +83,38 @@ Request params we use:
 | `distance` | corridor buffer in miles, 0–100, default 5 |
 | `fuel_type` | `ELEC` |
 | `ev_charging_level` | `dc_fast` |
-| `ev_power_kw_min` | from the kW slider — **server-side filtering, confirmed supported** |
+| ~~`ev_power_kw_min`~~ | **Deliberately not sent** — see the note below |
 | `ev_connector_type` | `TESLA,J1772COMBO` (see OPEN Q3) |
 | `status` | `E` (available) |
 | `access` | `public` |
 | `limit` | `all` |
 
 Response fields that matter: `ev_network`, `ev_connector_types[]`,
-`ev_dc_fast_num`, `ev_level2_evse_num`, and `ev_charging_units[]` which carries
-per-unit **`power_kw`**.
+`ev_dc_fast_num`, `ev_level2_evse_num`, and `ev_charging_units[]`.
 
-**Known data risk:** `power_kw` is not populated for every station.
-`ev_power_kw_min` server-side filtering may therefore silently drop stations
-with missing power data. Mitigation in §4.2 (`kwSource` flag). This is
-**OPEN Q2** — must be measured against the real corridor in phase 2, not
-assumed.
+**Corrected 2026-08-12 against live responses** (the docs and the wire disagree;
+the wire wins):
+
+- **`api_key` goes in the query string, not the form body.** Sending it in the
+  POST body returns `403 API_KEY_MISSING`.
+- **`ev_charging_units[]` nests power by connector type**, not flat. The real
+  shape is `unit.connectors.TESLA.power_kw`, *not* `unit.power_kw`. The
+  normalizer reads the nested shape and keeps a defensive fallback for the flat
+  one.
+- **There is no station URL field.** `Station.url` is honestly `null` for AFDC
+  rather than fabricated.
+
+**Known data risk, and how we handle it:** `power_kw` is not populated for
+every station. `ev_power_kw_min` filters server-side, which would silently drop
+stations whose power is merely *unrecorded* — indistinguishable, from the
+client, from stations that are genuinely slow.
+
+So the Worker **does not send `ev_power_kw_min`**. It fetches unfiltered (still
+`ev_charging_level=dc_fast`), normalizes, then filters locally, and returns
+`counts: {returned, beforeKwFilter, unknownKw}` so the UI can say plainly how
+many stations had no power data. `include_unknown_kw` (default `true`) controls
+whether they survive the filter. See §4.2 `kwSource`. Remaining measurement
+work is **OPEN Q2**.
 
 ### 2.2 OpenChargeMap — stations (fallback)
 

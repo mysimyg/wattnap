@@ -1,0 +1,37 @@
+name = "wattnap-api"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+
+# CORS allowlist for the Worker. Comma-separated, no spaces required.
+# Update this once the real Pages origin is known (see DESIGN.md Q8).
+[vars]
+ALLOWED_ORIGINS = "https://mysimyg.github.io,http://localhost:5173,http://localhost:4173"
+
+# ---------------------------------------------------------------------------
+# KV cache binding — OPTIONAL. worker/src/cache.js degrades to "no caching"
+# when this binding is absent, so the Worker runs fine before you've logged
+# into Cloudflare. Once you have run `wrangler login`, create the namespace:
+#
+#   npx wrangler kv namespace create CACHE
+#
+# That command prints an `id` (and, for `--preview`, a `preview_id`). Paste
+# them in below and uncomment this block:
+#
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "<id from `npx wrangler kv namespace create CACHE`>"
+# preview_id = "<id from `npx wrangler kv namespace create CACHE --preview`>"
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Secrets — NEVER put real values in this file (or anywhere in the repo).
+# Set them with `wrangler secret put`, which prompts for the value and
+# stores it only in Cloudflare:
+#
+#   npx wrangler secret put NREL_API_KEY --config worker/wrangler.toml
+#   npx wrangler secret put ORS_API_KEY  --config worker/wrangler.toml
+#   npx wrangler secret put OCM_API_KEY  --config worker/wrangler.toml
+#
+# All three are optional at runtime — see worker/README.md for exactly what
+# degrades (fallback upstream, DEMO_KEY, etc.) when a given key is unset.
+# ---------------------------------------------------------------------------
