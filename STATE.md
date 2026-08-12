@@ -40,7 +40,10 @@ before any of them is recorded as passed below.
 | 2026-08-12 | DESIGN.md §2.1 corrected against live AFDC responses (see D-012) |
 | 2026-08-12 | Frontend built and integrated; **deployed live at https://mysimyg.github.io/wattnap/** |
 | 2026-08-12 | Sleep spot dataset curated: 19 pins, 16 verified, full provenance |
-| 2026-08-12 | Live AFDC fixture captured for the corridor; planner re-tested against real stations (30 planner tests) |
+| 2026-08-12 | Live AFDC fixture captured for the corridor; planner re-tested against real stations |
+| 2026-08-12 | **Reviewer pass 1** — gate 3 PASS, gates 5 & 6 PASS with gaps, gate 4 FAIL, gates 1 & 2 BLOCKED. 7 defects raised |
+| 2026-08-12 | All 7 reviewer defects fixed + 1 the review's own blocker had masked (basemap tiles 404'd on a literal `{r}` in the tile template). 76 tests |
+| 2026-08-12 | **Reviewer pass 2 in progress** — re-certification of all gates against the redeployed site |
 
 ## In Progress
 
@@ -105,6 +108,9 @@ Surfaced at session 1. Work around them until cleared.
 | D-015 | 2026-08-12 | Service worker never caches API responses | Stale charger data in a car at night is worse than an honest offline message |
 | D-016 | 2026-08-12 | Corridor override reports `overrideDetail` (gap miles, ascent, share) alongside the reason label | A binary sparse-vs-elevation label lies on a leg that is both long and steep |
 | D-017 | 2026-08-12 | Planner excludes `kwSource: "unknown"` stations by default and says so in warnings | Never let a guess be treated as a 250 kW stop |
+| D-018 | 2026-08-12 | "API not configured" is a banner, not a full-screen replacement | Sleep spots are static files in this repo and the map works without any API. Hiding the whole app hid things that worked, and made gate 4 uncertifiable until the Worker exists |
+| D-019 | 2026-08-12 | Basemap tiles use `@2x`, never a `{r}` placeholder | `{r}` is a Leaflet convention. MapLibre passes it through literally and every tile 404s, which reads as a styling bug rather than a URL bug |
+| D-020 | 2026-08-12 | Malformed station coordinates are filtered in `annotateStations`, not allowed to throw | The Worker legitimately emits null coordinates for malformed upstream records. One bad record must not cost the trip every station |
 
 ---
 
