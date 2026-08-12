@@ -1,0 +1,734 @@
+/*
+ * wattnap dark theme — the only theme. No light mode, no toggle: this app is
+ * used at night, in a car, glancing quickly. No pure-white surfaces, body
+ * text >= 16px, SOC numbers >= 20px, tap targets >= 44px.
+ */
+
+:root {
+  --bg: #0b0f14;
+  --surface: #121820;
+  --surface-2: #1a222c;
+  --border: #2a3542;
+  --text: #e6edf3;
+  --text-dim: #9aa7b4;
+  --accent: #22d3ee;
+  --accent-2: #4ade80;
+  --warn: #f2c14e;
+  --danger: #f87171;
+  --radius: 10px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+a {
+  color: var(--accent);
+}
+
+.wn-app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 100vh;
+  background: var(--bg);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  overflow: hidden;
+}
+
+@media (min-width: 720px) {
+  .wn-app {
+    max-width: 920px;
+    margin: 0 auto;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+}
+
+/* Header */
+.wn-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  padding-top: calc(8px + env(safe-area-inset-top));
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  min-height: 44px;
+}
+.wn-header__title {
+  flex: 1;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+
+/* Buttons */
+.wn-icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+}
+.wn-icon-btn--small {
+  min-width: 36px;
+  min-height: 36px;
+}
+.wn-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.wn-btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.wn-btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #04141a;
+  font-weight: 700;
+}
+.wn-btn--ghost {
+  background: transparent;
+}
+.wn-btn--small {
+  min-height: 40px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+.wn-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Trip form */
+.wn-tripform {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 5;
+}
+.wn-geofield {
+  position: relative;
+}
+.wn-geofield__label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.wn-geofield__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wn-input {
+  flex: 1;
+  min-height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  padding: 0 12px;
+  font-size: 16px;
+}
+.wn-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.wn-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 4px 0 0;
+  max-height: 220px;
+  overflow-y: auto;
+  list-style: none;
+  padding: 4px;
+}
+.wn-suggestions li button {
+  width: 100%;
+  text-align: left;
+  min-height: 44px;
+  padding: 0 10px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.wn-suggestions li button:hover,
+.wn-suggestions li button:focus {
+  background: var(--bg);
+}
+.wn-geofield__error {
+  color: var(--danger);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.wn-tripform__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.wn-tripform__plan {
+  flex: 1;
+}
+
+/* Map — ~55% of the remaining flexible space, per DESIGN.md §6 */
+.wn-map-wrap {
+  position: relative;
+  flex: 55 1 0;
+  min-height: 200px;
+  background: var(--surface);
+}
+.wn-map {
+  position: absolute;
+  inset: 0;
+}
+.maplibregl-ctrl-attrib {
+  font-size: 11px;
+}
+.maplibregl-ctrl-attrib a {
+  color: #1a1a1a;
+}
+
+/* Filter bar */
+.wn-filterbar {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wn-filterbar__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wn-filterbar__label {
+  font-size: 13px;
+  color: var(--text-dim);
+  min-width: 52px;
+}
+.wn-filterbar__value {
+  font-size: 14px;
+  min-width: 44px;
+  text-align: right;
+}
+.wn-filterbar__value--kw {
+  font-weight: 700;
+  font-size: 17px;
+  min-width: 40px;
+}
+.wn-slider {
+  flex: 1;
+  height: 44px;
+  accent-color: var(--accent);
+}
+.wn-filterbar__row--chips {
+  align-items: flex-start;
+}
+.wn-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.wn-chip {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+}
+.wn-chip--on {
+  border-color: var(--accent);
+  color: var(--text);
+  background: rgba(34, 211, 238, 0.12);
+}
+.wn-filterbar__note {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 2px 0 0;
+}
+.wn-filterbar__note--warn {
+  color: var(--warn);
+}
+
+/* Tab bar */
+.wn-tabbar {
+  flex: 0 0 auto;
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.wn-tabbar__tab {
+  flex: 1;
+  min-height: 48px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+.wn-tabbar__tab--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.wn-tabpanel {
+  flex: 45 1 0;
+  overflow-y: auto;
+  padding: 12px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: var(--bg);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Plan panel */
+.wn-planpanel__toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.wn-planpanel__estimate-note {
+  font-size: 14px;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+.wn-summary__headline {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0;
+}
+.wn-summary__sub {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin: 4px 0 12px;
+}
+.wn-warnings {
+  margin-bottom: 12px;
+}
+.wn-warnings__item {
+  font-size: 14px;
+  color: var(--warn);
+  background: rgba(242, 193, 78, 0.08);
+  border: 1px solid rgba(242, 193, 78, 0.35);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  margin: 0 0 6px;
+}
+.wn-stoplist {
+  display: flex;
+  flex-direction: column;
+}
+.wn-stop {
+  padding: 10px 0;
+  border-top: 1px dashed var(--border);
+}
+.wn-stop:first-child {
+  border-top: none;
+}
+.wn-stop__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+.wn-stop__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  font-size: 13px;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+.wn-stop__name {
+  flex: 1;
+  font-weight: 600;
+}
+.wn-stop__kw {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+.wn-stop__socs {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+.wn-soc {
+  font-size: 20px;
+  color: var(--text);
+}
+.wn-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 13px;
+}
+.wn-badge--warn {
+  background: var(--warn);
+  color: #231a00;
+}
+.wn-stop__override {
+  font-size: 14px;
+  color: var(--warn);
+  margin: 4px 0 0;
+}
+.wn-planpanel__compare {
+  width: 100%;
+  margin-top: 14px;
+}
+
+/* Chargers / sleep / trip lists */
+.wn-chargerlist,
+.wn-sleeplist,
+.wn-triplist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.wn-chargerlist__item,
+.wn-sleeplist__item {
+  width: 100%;
+  text-align: left;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+}
+.wn-chargerlist__name,
+.wn-sleeplist__name {
+  font-size: 16px;
+  font-weight: 600;
+}
+.wn-chargerlist__meta,
+.wn-sleeplist__meta {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+/* Detail card */
+.wn-detailcard {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 10;
+}
+.wn-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.wn-card__title {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+.wn-card__meta {
+  margin: 0 0 6px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+.wn-card__line {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.wn-card__note {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 6px 0 0;
+}
+.wn-card__note--warn {
+  color: var(--warn);
+}
+.wn-card__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.wn-card__actions a,
+.wn-card__actions button {
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Modals / drawer */
+.wn-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+}
+.wn-modal,
+.wn-drawer {
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+.wn-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.wn-modal__head h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.wn-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.wn-modal__hint {
+  color: var(--text-dim);
+  font-size: 15px;
+}
+.wn-field {
+  display: block;
+  margin-bottom: 12px;
+}
+.wn-field__label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.wn-field__value {
+  color: var(--text);
+  font-weight: 700;
+}
+.wn-select {
+  width: 100%;
+  min-height: 44px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  padding: 0 10px;
+}
+.wn-comparetable table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
+.wn-comparetable th,
+.wn-comparetable td {
+  padding: 8px 6px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+.wn-comparetable th:first-child,
+.wn-comparetable td:first-child {
+  text-align: left;
+  color: var(--text-dim);
+}
+.wn-triplist__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wn-triplist__load {
+  flex: 1;
+  text-align: left;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+}
+.wn-triplist__route {
+  font-size: 15px;
+  font-weight: 600;
+}
+.wn-triplist__date {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* Pins */
+.wn-pin {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wn-pin--selected {
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.55));
+}
+
+/* State messages */
+.wn-state {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.wn-state--error {
+  border-color: rgba(248, 113, 113, 0.5);
+  background: rgba(248, 113, 113, 0.06);
+}
+.wn-state--warn {
+  border-color: rgba(242, 193, 78, 0.5);
+  background: rgba(242, 193, 78, 0.06);
+}
+.wn-state__title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+}
+.wn-state__body p {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+.wn-state__countdown {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.wn-notconfigured {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.wn-notconfigured .wn-state {
+  max-width: 440px;
+}
+.wn-notconfigured code {
+  background: var(--surface-2);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  word-break: break-all;
+}
+
+.wn-offline-banner {
+  background: var(--warn);
+  color: #231a00;
+  text-align: center;
+  font-size: 14px;
+  padding: 6px 10px;
+  flex: 0 0 auto;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
