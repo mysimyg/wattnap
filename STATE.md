@@ -30,6 +30,12 @@ https://mysimyg.github.io/wattnap/ once the frontend entry point lands.
 **Gates 1 and 2 are blocked only on the Worker deploy**, which needs the user's
 Cloudflare login. No code defect stands between them and passing.
 
+**Caveat on freshness:** gates 3-6 were certified against commit `9fe7dd0`. Two
+UI fixes landed after certification (route-error ordering in PlanPanel and
+ChargersPanel, and the `.wn-app` overflow/tabpanel floor). They were verified
+visually by the lead but **not re-certified by the reviewer**. They are small
+and additive, but the next reviewer pass should cover them rather than assume.
+
 Three reviewer passes ran. 7 defects raised, all closed. One HIGH defect raised
 in pass 3 was investigated and **retracted as a false positive** (see D-021).
 
