@@ -17,7 +17,7 @@
       "verified": true,
       "notes": "US-101 northbound, at the south end of the Gaviota Tunnel, Santa Barbara County. Closest official CA rest area to Ventura on the 101 corridor (~33 mi north). Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump station. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a). Lot grade, lighting and typical noise level are not stated by Caltrans -- expect Highway 101 tunnel traffic noise; unverified beyond that.",
       "status": "closed",
-      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12."
+      "statusNote": "Closed per the Caltrans live SRRA status feed, re-checked 2026-08-13 (feed timestamped 08/13/2026 6:11am): \"Closed due to Intermittent Closures, Expected to re-open 10/01/2026 08:01 AM\" (SRRA 90500017). Re-add as a live pin once the feed reports it Open -- do not restore on the expected date alone."
     },
     {
       "id": "rest-gaviota-s",
@@ -31,7 +31,7 @@
       "verified": true,
       "notes": "US-101 southbound counterpart to the northbound Gaviota rest area, same tunnel location, Santa Barbara County. Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a). Lighting/noise not stated by source.",
       "status": "closed",
-      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12."
+      "statusNote": "Closed per the Caltrans live SRRA status feed, re-checked 2026-08-13 (feed timestamped 08/13/2026 6:11am): \"Closed due to Intermittent Closures, Expected to re-open 10/01/2026 08:01 AM\" (SRRA 90500018). Re-add as a live pin once the feed reports it Open -- do not restore on the expected date alone."
     },
     {
       "id": "rest-tejon-pass-n",
@@ -45,7 +45,7 @@
       "verified": true,
       "notes": "I-5 northbound at the Tejon Pass/Grapevine summit, Kern County, 3.5 mi north of Gorman -- the I-5 waypoint on the way from the Ventura/LA basin area toward SR-14/US-395. Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump. Summit elevation ~4200 ft -- can be cold, windy, occasionally icy in winter (not covered by the Caltrans facility record; noted from general route knowledge, not a verified source claim). 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
       "status": "closed",
-      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12."
+      "statusNote": "Closed per the Caltrans live SRRA status feed, re-checked 2026-08-13 (feed timestamped 08/13/2026 6:11am): \"Closed due to Rest Area Maintenance, No estimate for when facility will re-open.\" (SRRA 90600067). Indefinite -- there is no date to re-check against, so re-run scripts/check-rest-area-status.mjs before any trip that would depend on it."
     },
     {
       "id": "rest-tejon-pass-s",
@@ -59,7 +59,7 @@
       "verified": true,
       "notes": "I-5 southbound counterpart at Tejon Pass, Kern County. Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
       "status": "closed",
-      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12. NOTE: the feed lists two Tejon Pass records BOTH labelled \"Northbound\" and both Closed; treating the southbound facility as closed too is the conservative reading of an apparent feed labelling error."
+      "statusNote": "Suppressed as a precaution -- the live SRRA feed carries NO status for this facility, re-checked 2026-08-13. Correction to the 2026-08-12 note: the feed's two Tejon Pass entries are not a mislabelling, they are an exact duplicate of the NORTHBOUND record (both SRRA 90600067, identical coordinates -118.87/34.8257). Southbound (SRRA 90600068 by the district's numbering, sitting between Tejon NB 90600067 and Philip S. Raine NB 90600069) is simply absent from all 84 feed placemarks, so its state is unknown, not confirmed open. Given the northbound side of the same summit complex is closed for indefinite maintenance, this stays suppressed until the feed publishes a southbound record."
     },
     {
       "id": "rest-coso-junction",
@@ -73,7 +73,7 @@
       "verified": true,
       "notes": "US-395, Olancha area, Inyo County, 17 mi south of the Rte 395/190 junction -- squarely on the Mojave-to-Bishop leg of the trip. Serves both directions (Caltrans lists N & S). Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a). Open high desert -- expect wind and highway noise; lighting not stated by source.",
       "status": "closed",
-      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12."
+      "statusNote": "Closed per the Caltrans live SRRA status feed, re-checked 2026-08-13 (feed timestamped 08/13/2026 6:11am): \"Closed due to Emergency Work, No estimate for when facility will re-open.\" (SRRA 90900017, serves both directions). Indefinite -- no date to re-check against; re-run scripts/check-rest-area-status.mjs before relying on US-395 coverage here."
     },
     {
       "id": "rest-division-creek",
@@ -151,14 +151,15 @@
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
       "notes": "I-80 westbound counterpart at Gold Run/Dutch Flat, Placer County. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
-      "status": "closed",
-      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12 (the EASTBOUND Gold Run facility is open and remains a live pin)."
+      "status": "open",
+      "statusNote": "REOPENED. Suppressed on 2026-08-12 after the live SRRA feed showed it Closed; the 2026-08-13 re-check shows SRRA 90300066 Open with full amenities, so it is a live pin again. The 08-12 closure was transient (same-day), which is why this record moved back on its own -- see statusCheck.note about closed records being invisible to the checker."
     }
   ],
   "statusCheck": {
     "source": "Caltrans QuickMap live SRRA status feed",
     "sourceUrl": "https://quickmap.dot.ca.gov/data/srra.kml",
-    "checked": "2026-08-12",
-    "note": "The static Caltrans GIS export carries no open/closed field; this live feed does. Re-check with scripts/check-rest-area-status.mjs."
+    "checked": "2026-08-13",
+    "feedTimestamp": "08/13/2026 6:11am",
+    "note": "The static Caltrans GIS export carries no open/closed field; this live feed does. Re-check with scripts/check-rest-area-status.mjs. KNOWN GAP: that script only compares SHIPPED pins (public/data/*.geojson) against the feed, so it catches open-pin-actually-closed but is blind to closed-record-actually-reopened -- Gold Run westbound sat wrongly suppressed for a day because of it. Until the checker reads this source file directly, diff the closed records here against the feed by hand."
   }
 }
