@@ -2,7 +2,7 @@
 
 **Single source of truth across sessions. Read before acting. Update before stopping.**
 
-Last updated: 2026-08-13 (rest-area live-status re-check)
+Last updated: 2026-08-13 (sleep-detour widening + jurisdiction advisories)
 
 ---
 
@@ -47,18 +47,18 @@ driver-facing correctness bugs:
   impossible negative destination SOC. Not reachable via the shipped UI
   slider, but reachable via localStorage tampering. **Fixed** — see D-025.
 
-**Open, not fixed — needs your decision, not a code fix:** one reviewer
-measured that on the real default corridor, the planner's "prefer the
-farthest reachable station" scoring routinely leaves as little as ~0.16 SOC
-points (~0.5 miles) of real margin above `reserveFloor` on some legs. This is
-not a bug — the invariant holds by construction — but it means there is
-effectively zero cushion between "the elevation/charge-curve model is
-slightly wrong" and "a real driver arrives below the stated safety floor."
-Compounds with the charge curve still being an unvalidated estimate. See
-"Open Questions" and the Decisions Log for detail — **this needs a product
-decision** (bias stop-selection to leave more margin? raise the effective
-internal floor above the displayed one? something else?), not something to
-silently pick a default for.
+**Resolved 2026-08-13 (Q9, D-039):** a reviewer had measured that the
+planner's "prefer the farthest reachable station" scoring leaves as little as
+~0.16 SOC points of real margin above `reserveFloor` on some legs, and flagged
+it as needing a product decision. Asked the user directly. Their answer
+redirected the question: charger/SOC precision matters less than assumed --
+the plan is "directional" and they'll adapt to whatever charger is actually
+there. The real anxiety was sleep availability, not charge margin. Reserve-
+floor scoring is unchanged; the actual fix was widening sleep-spot search
+(D-039) and adding jurisdiction advisories (D-040, Q11) instead. The charge
+curve is still an unvalidated estimate and still the largest remaining
+uncertainty in the charging math -- see Human Tasks and the charge-curve
+research prompt below -- but the margin question itself is closed.
 
 ---
 
@@ -93,6 +93,9 @@ silently pick a default for.
 | 2026-08-13 | Real route + station fixtures captured for both actual default corridors (SLT via Echo Summit, Reno via Donner Pass); 220 and 254 real DC fast stations respectively, 100% reporting power |
 | 2026-08-13 | Elevation smoothing bug found and fixed on real data: point-count window was inconsistent across ORS's wildly variable vertex spacing. Switched to distance-based, see D-023, D-024 |
 | 2026-08-13 | 91 tests passing (up from 83): 8 new — 2 for the point-density smoothing fix, 6 against the real default-route fixtures |
+| 2026-08-13 | Sleep spots: real route-proximity filtering added (previously none existed) plus a user-adjustable search radius, default 20mi, independent of the charger corridor. Resolves Q9 by redirection -- see D-039 |
+| 2026-08-13 | Jurisdiction advisories added for restricted-sleeping cities (South Lake Tahoe, Reno, Stateline/Douglas County), citing the ordinance and naming the nearest legal pin live. Resolves Q11 -- see D-040 |
+| 2026-08-13 | 106 tests passing (up from 98): 8 new covering proximity filtering and jurisdiction matching |
 | 2026-08-13 | **Gates 1-3 re-certified via a Workflow** (1 reviewer for gates 1-2 live on the deployed URL, 2 independent adversarial reviewers for gate 3). All PASS. **All six phase gates now PASS** |
 | 2026-08-13 | Fixed: stale resolved From/To coordinate silently reused after editing text past a picked suggestion (MEDIUM-HIGH, driver-facing) |
 | 2026-08-13 | Fixed: failed re-plan left the previous route line on the map while panels correctly showed an error (MEDIUM) |
@@ -198,6 +201,8 @@ Definition of Done.** What's left is hardening and one product decision:
 | D-033 | 2026-08-12 | Coverage is measured as LONGEST GAP along the real route, not pin count, and guarded by a test (<120mi) | 200 pins clustered in Sacramento still leaves the Central Valley empty. Only the gap metric answers the driver's actual question |
 | D-034 | 2026-08-12 | No pins at all in jurisdictions that ban vehicle sleeping outright — South Lake Tahoe (City Code Ch. 4.70, covers PRIVATE property) and Reno (RMC 8.22.035) | A pin implies "you may sleep here." Where an ordinance says otherwise, the honest dataset answer is absence. Note this means the reference trip's own destination has no pin — deliberate |
 | D-035 | 2026-08-12 | Los Banos Walmart downgraded from verified:true to verified:false by the integrating session | Its own research note rated confidence MEDIUM-LOW, three first-hand reports disagreed, and a citywide ordinance may ban vehicle sleeping 10pm-6am. That is not "confirmed policy". Kept as a pin (only option in a 175mi dead zone) but must not read as confirmed — same standard as D-034 |
+| D-039 | 2026-08-13 | Sleep-spot proximity filtering is now real (it wasn't at all before) and independently adjustable from the charger corridor, defaulting to 20mi | Resolves Q9. The user redirected the question: SOC/charger precision matters less than they'd assumed ("directional," they'll adapt), sleep availability is what actually worries them at 2am. Sleep spots had NO distance filtering before this -- every pin in an enabled category showed everywhere, which only looked right because the dataset happened to sit near one corridor. Reserve-floor scoring itself (D-029) left unchanged; this addresses the real underlying concern instead |
+| D-040 | 2026-08-13 | Jurisdiction advisories added: `src/data/restricted-jurisdictions.json` + a Sleep-tab notice when a trip endpoint falls in a restricted city, citing the ordinance, stating confidence honestly, and naming the nearest legal pin (computed live, not hardcoded) | Resolves Q11 (user: "I do think it's important to show those warnings"). Scope note: user clarified they will NOT sleep in the car at either reference destination (Tahoe/Reno) -- a hotel covers that. The advisory is about honesty when a driver browses those cities, not the load-bearing fix; D-039's wider search radius is |
 | D-038 | 2026-08-13 | Desktop is now a first-class target, not just mobile: two-column layout at >=1024px (controls left, map right full-height) plus a map expand/full-screen toggle at every width | User stated they will use this from a laptop/desktop as much as from a phone. DESIGN.md's "mobile first, one screen" constraint capped `.wn-app` at 920px, which wasted a laptop screen on the one element that most wants it. Deliberately STRUCTURAL only (layout + behaviour, no visual restyle) because a design overhaul is planned separately in Claude Design — this should survive it |
 | D-037 | 2026-08-13 | `check-rest-area-status.mjs` now reads `scripts/sources/*.json` instead of the built GeoJSON, and reports drift in BOTH directions | Reading the built output meant a `status:"closed"` record was invisible to the checker and could never be seen to reopen — exactly how Gold Run westbound stayed suppressed after coming back. A missed closure strands someone; a missed reopening quietly costs a stop. Closes Q14 |
 | D-036 | 2026-08-12 | Private-host networks (Boondockers Welcome, Harvest Hosts) will NOT be surfaced | Both explicitly exclude sleeping in a car/SUV in their own help centres — precisely wattnap's use case. Pointing users at services that name them ineligible would be misleading |
@@ -220,10 +225,11 @@ Full table with fallbacks in `DESIGN.md` §9. Summary:
 | ~~Q6~~ | **Answered** — 50% start SOC | Phase 3 | Closed |
 | Q7 | Include Level 2 for overnight sleep-spot charging? | Phase 4 | No — DC only |
 | ~~Q8~~ | **Answered (D-014)** — `mysimyg.github.io/wattnap/` | Phase 1 | Closed |
-| Q9 | Should stop-selection scoring leave more real-world margin above `reserveFloor` than "prefer the farthest reachable station" currently does (measured as low as ~0.16 SOC points on a real leg)? | Post-gate hardening | **User decision needed** — no safe default to silently pick, since it's a real time-vs-margin trade-off. See D-029 |
-| Q11 | Should the app WARN when a destination's jurisdiction bans vehicle sleeping (South Lake Tahoe, Reno)? Today it silently shows no pins, which is correct but uninformative — the driver doesn't learn that Minden, ~20min away, is the nearest legal option | Post-gate | **User decision needed.** Data supports it (ordinances captured in `policyNote`); it's a UI/product call |
+| ~~Q9~~ | **Answered 2026-08-13** — user de-prioritized this; SOC/charger precision matters less than assumed, sleep availability was the real concern. Addressed via D-039, not a planner change | Post-gate hardening | Closed |
+| ~~Q11~~ | **Answered 2026-08-13 — yes.** Built, see D-040 | Post-gate | Closed |
 | Q12 | `dispersed-nf` is effectively summer-only (Eldorado NF closes dirt roads Jan 1 - Mar 31; both dispersed pins sit in Caldor burn scar; Echo Lake Sno-Park inverts and needs a permit Nov-May). Should the category be hidden or hard-labelled seasonally? | Post-gate | **User decision needed.** A pin that reads identically in February and August is the actual hazard |
 | Q13 | Category-level `policyNote` (fire orders, stay limits, ordinance text) currently lives only in `scripts/sources/` where no driver will read it. Surface in-app? | Post-gate | No fallback picked |
+| Q15 | BLM dispersed camping — user has now raised interest in this twice. Still blocked by the `blm` allowlist rejection in `build-sleep-geojson.mjs`. Worth a dedicated research pass (same rigor as `dispersed-nf`: access rules, seasonal closures, passenger-car reachability), not a quick add | Post-gate | Candidate for the charge-curve-style dedicated research session, see NEXT SESSION |
 | ~~Q14~~ | `scripts/check-rest-area-status.mjs` only cross-checks SHIPPED pins against the live Caltrans feed, so a record suppressed as `status:"closed"` is invisible to it and can never come back automatically. Gold Run westbound sat wrongly suppressed for a day (found 2026-08-13 only because a human re-read the feed). Should the checker read `scripts/sources/*.json` directly and report BOTH directions of drift? | Post-gate | **Fixed 2026-08-13 (D-037)** |
 | ~~Q10~~ | **Fixed 2026-08-13 (D-030)** — user hit this live (screenshot: "Ventura, CA, USA" → "Tahoe City, CA, USA", `Upstream service unavailable`) | Post-gate hardening | Closed |
 

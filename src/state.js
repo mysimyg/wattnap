@@ -12,12 +12,15 @@ import * as storage from './storage.js'
 import { simplifyRouteForStations, corridorBuffer } from './map/geo.js'
 import vehiclesData from './data/vehicles.json'
 import strategiesData from './data/strategies.json'
-import { planTrip, annotateStations } from './planner/index.js'
+import { planTrip, annotateStations, haversineMeters } from './planner/index.js'
+import restrictedJurisdictions from './data/restricted-jurisdictions.json'
 
 // The planner ships in this build; it is imported directly. It is a pure
 // module (no network, no DOM, no clock) so importing it here is free.
 // ---------------------------------------------------------------------------
 const planTripSafe = (args) => planTrip(args)
+const MILES_PER_METER_DIVISOR = 1609.344
+
 const annotateStationsSafe = (stations, routeGeometry) =>
   annotateStations(stations, routeGeometry)
 
@@ -26,6 +29,12 @@ const annotateStationsSafe = (stations, routeGeometry) =>
 // ---------------------------------------------------------------------------
 
 const DEFAULT_CORRIDOR_MI = 5
+// Sleep spots get a wider default than chargers on purpose: the user is
+// far more willing to detour for somewhere to sleep at 2am than for a
+// marginally-closer charger, and said so explicitly (~10mi / ~30min was
+// their own example). Chargers stay tight because a detour there costs
+// real range on top of time.
+const DEFAULT_SLEEP_DETOUR_MI = 20
 const DEFAULT_MIN_KW = 250
 const DEFAULT_CONNECTORS = ['TESLA', 'J1772COMBO'] // DESIGN.md §9 Q3 fallback
 
@@ -49,6 +58,7 @@ function initialState() {
     stationsError: null,
     corridorMi: DEFAULT_CORRIDOR_MI,
     corridorPolygon: null,
+    sleepDetourMi: DEFAULT_SLEEP_DETOUR_MI,
 
     // client-side filters (no refetch)
     minKw: DEFAULT_MIN_KW,
@@ -381,8 +391,93 @@ export function toggleSleepCategory(category) {
   setState((s) => ({ sleepCategoryEnabled: { ...s.sleepCategoryEnabled, [category]: !s.sleepCategoryEnabled[category] } }))
 }
 
+export function setSleepDetourMi(mi) {
+  setState({ sleepDetourMi: mi })
+}
+
+/**
+ * Restricted-jurisdiction advisories for the trip's endpoints.
+ *
+ * The dataset correctly has no sleep pins in South Lake Tahoe or Reno --
+ * both ban vehicle sleeping outright, one even on private property. But
+ * "no pins" and "we don't know" look identical in the UI otherwise. This
+ * makes the absence explain itself, and points at the nearest real option
+ * from whatever sleep spots are actually loaded, rather than a hardcoded
+ * pin that could go stale.
+ */
+export function activeJurisdictionWarnings(s = getState()) {
+  const endpoints = [
+    s.from && { role: 'from', point: s.from },
+    s.to && { role: 'to', point: s.to },
+  ].filter(Boolean)
+  if (!endpoints.length) return []
+
+  const out = []
+  for (const { role, point } of endpoints) {
+    for (const jx of restrictedJurisdictions) {
+      const distMi = haversineMeters([point.lon, point.lat], [jx.lon, jx.lat]) / MILES_PER_METER_DIVISOR
+      if (distMi > jx.radiusMi) continue
+
+      let nearest = null
+      let nearestDistMi = Infinity
+      for (const f of s.sleepFeatures) {
+        const [lon, lat] = f.geometry.coordinates
+        const dMi = haversineMeters([jx.lon, jx.lat], [lon, lat]) / MILES_PER_METER_DIVISOR
+        if (dMi > jx.radiusMi && dMi < nearestDistMi) {
+          nearest = f
+          nearestDistMi = dMi
+        }
+      }
+
+      out.push({
+        ...jx,
+        role,
+        endpointLabel: point.label,
+        nearestOption: nearest ? { name: nearest.properties.name, distMi: nearestDistMi } : null,
+      })
+    }
+  }
+  return out
+}
+
+const SLEEP_ANNOTATE_CACHE = new WeakMap()
+
+/**
+ * Sleep spots were never filtered by distance from the route -- every pin in
+ * an enabled category showed everywhere, all the time. Harmless while the
+ * whole dataset happened to sit near one corridor; wrong in general, and the
+ * opposite of what the user actually wants once a trip is planned: "is there
+ * somewhere to sleep on THIS drive," not "here is every pin on the west
+ * coast." Reuses annotateStations, which only needs lat/lon -- a sleep spot
+ * and a charger are the same shape for this purpose.
+ */
 export function visibleSleepFeatures(s = getState()) {
-  return s.sleepFeatures.filter((f) => s.sleepCategoryEnabled[f.properties.category] !== false)
+  const byCategory = s.sleepFeatures.filter(
+    (f) => s.sleepCategoryEnabled[f.properties.category] !== false
+  )
+  if (!s.route) return byCategory
+
+  let annotated = SLEEP_ANNOTATE_CACHE.get(s.sleepFeatures)
+  if (!annotated || annotated.forRoute !== s.route) {
+    const points = s.sleepFeatures.map((f) => ({
+      ...f.properties,
+      lon: f.geometry.coordinates[0],
+      lat: f.geometry.coordinates[1],
+      __feature: f,
+    }))
+    const withDetour = annotateStations(points, s.route.geometry)
+    const detourById = new Map(withDetour.map((p) => [p.id, p.detour_m]))
+    annotated = { forRoute: s.route, detourById }
+    SLEEP_ANNOTATE_CACHE.set(s.sleepFeatures, annotated)
+  }
+
+  const maxDetourM = s.sleepDetourMi * MILES_PER_METER_DIVISOR
+  return byCategory.filter((f) => {
+    const detourM = annotated.detourById.get(f.properties.id)
+    // A pin annotateStations couldn't place (e.g. off the geometry entirely)
+    // is excluded rather than assumed in-range.
+    return detourM != null && detourM <= maxDetourM
+  })
 }
 
 // ---------------------------------------------------------------------------

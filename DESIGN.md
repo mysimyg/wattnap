@@ -345,8 +345,51 @@ driver actually asks. A pin count can't answer it. This is enforced by a test.
 a vehicle outright, including on private property — South Lake Tahoe (City
 Code Ch. 4.70) and Reno (§8.22.035) both do. In those places the correct
 dataset answer is **no pin at all**, not a pin with a caveat.
-Standard GeoJSON `FeatureCollection`, one file per category
-(`cracker-barrel`, `rest-area`, `casino`, `blm` in phase 2).
+
+#### 4.6.1 Sleep-spot search radius (Q9, D-039 — 2026-08-13)
+
+The 5-mile charger corridor was reused as the sleep-spot proximity filter by
+default, but the two should never have shared a number. Per the user: precise
+SOC/charger targeting matters far less than it might seem — the plan is
+"directional," and they'll adapt to whichever charger is actually available.
+What they said matters is knowing there's *somewhere to sleep*, even 30
+minutes off route, when it's midnight and the alternative is nothing.
+
+So `sleepDetourMi` is now a **separate, user-adjustable** value
+(`src/state.js`), defaulting to **20 miles**, independent of the charger
+corridor. Sleep spots were previously not distance-filtered at all — every pin
+in an enabled category showed everywhere, all the time, which happened to
+look correct only because the whole dataset was near one corridor. That was a
+latent bug as much as a missing feature; it's now genuine route-proximity
+filtering, reusing `annotateStations` (which only needs lat/lon, so a sleep
+pin and a charger are the same shape for this purpose).
+
+#### 4.6.2 Jurisdiction advisories (Q11, D-040 — 2026-08-13)
+
+`src/data/restricted-jurisdictions.json` — a small, separate dataset from the
+sleep pins themselves. When a trip's origin or destination falls within a
+known-restricted jurisdiction's radius, the Sleep tab shows why no pin exists
+there, cites the ordinance, states the finding's confidence honestly (some of
+these are secondary-source, not primary-text-confirmed), and — computed live,
+not hardcoded — names the nearest sleep pin actually outside that jurisdiction.
+
+**Scope note (2026-08-13):** the user clarified they will not sleep in the car
+at either reference trip's destination — a hotel/Airbnb covers Tahoe and Reno
+specifically. The sleep-spot problem is about the *legs between* origin and
+destination, not the destination itself. The advisory still ships because the
+user confirmed it's worth having (Q11 answered), but it is not the load-bearing
+feature; §4.6.1's wider search radius is.
+
+**BLM land, raised again by the user (still not built):** DESIGN.md's `blm`
+category block remains in place — `blm` is still rejected by
+`build-sleep-geojson.mjs`'s allowlist. The user has now flagged interest in it
+twice. Doing it properly means the same rigor as the National Forest dispersed
+research (a full agent pass verifying BLM-specific access rules, seasonal
+closures, and realistic passenger-car reachability) — not a quick add. Left
+for a dedicated research pass, not bundled into this change.
+
+Standard GeoJSON `FeatureCollection`, one file per category. See §4.6 above
+for the current category list.
 ```jsonc
 { "type": "Feature",
   "geometry": { "type": "Point", "coordinates": [-118.1745, 35.0525] },

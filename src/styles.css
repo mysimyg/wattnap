@@ -863,3 +863,19 @@ a {
   .wn-tabpanel { flex: 1 1 auto; }
   .wn-app--mapfull .wn-map-wrap { flex: 1 1 100%; }
 }
+
+/* Jurisdiction advisory in the sleep panel -- same warning treatment as an
+   unverified pin, but with a citation and confidence line since the stakes
+   (a whole city, not one pin) are higher. */
+.wn-jxnotice {
+  margin-bottom: 10px;
+}
+.wn-jxnotice__cite {
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.wn-jxnotice__nearest {
+  margin-top: 8px;
+  font-size: 14px;
+}
