@@ -96,6 +96,9 @@ research prompt below -- but the margin question itself is closed.
 | 2026-08-13 | Sleep spots: real route-proximity filtering added (previously none existed) plus a user-adjustable search radius, default 20mi, independent of the charger corridor. Resolves Q9 by redirection -- see D-039 |
 | 2026-08-13 | Jurisdiction advisories added for restricted-sleeping cities (South Lake Tahoe, Reno, Stateline/Douglas County), citing the ordinance and naming the nearest legal pin live. Resolves Q11 -- see D-040 |
 | 2026-08-13 | 106 tests passing (up from 98): 8 new covering proximity filtering and jurisdiction matching |
+| 2026-08-13 | **Reviewer pass 3 (Workflow)** on the sleep-detour + jurisdiction features: 3 HIGH, 2 MEDIUM, 1 LOW defect found. All 6 fixed same session, 3 HIGH ones re-verified live against the reviewer's exact repro cases post-deploy. See D-041 |
+| 2026-08-13 | Map-render investigation: a wattnap-independent, CDN-loaded MapLibre instance also fails to fire `load` in this session's test browser tool -- attributed to the same tooling limitation D-021 documented, not an app regression. Defensive fix kept regardless. **Needs real-device confirmation next session.** See D-042 |
+| 2026-08-13 | 108 tests passing (up from 106): 2 new covering the verified-first nearest-option fix |
 | 2026-08-13 | **Gates 1-3 re-certified via a Workflow** (1 reviewer for gates 1-2 live on the deployed URL, 2 independent adversarial reviewers for gate 3). All PASS. **All six phase gates now PASS** |
 | 2026-08-13 | Fixed: stale resolved From/To coordinate silently reused after editing text past a picked suggestion (MEDIUM-HIGH, driver-facing) |
 | 2026-08-13 | Fixed: failed re-plan left the previous route line on the map while panels correctly showed an error (MEDIUM) |
@@ -202,6 +205,8 @@ Definition of Done.** What's left is hardening and one product decision:
 | D-034 | 2026-08-12 | No pins at all in jurisdictions that ban vehicle sleeping outright — South Lake Tahoe (City Code Ch. 4.70, covers PRIVATE property) and Reno (RMC 8.22.035) | A pin implies "you may sleep here." Where an ordinance says otherwise, the honest dataset answer is absence. Note this means the reference trip's own destination has no pin — deliberate |
 | D-035 | 2026-08-12 | Los Banos Walmart downgraded from verified:true to verified:false by the integrating session | Its own research note rated confidence MEDIUM-LOW, three first-hand reports disagreed, and a citywide ordinance may ban vehicle sleeping 10pm-6am. That is not "confirmed policy". Kept as a pin (only option in a 175mi dead zone) but must not read as confirmed — same standard as D-034 |
 | D-039 | 2026-08-13 | Sleep-spot proximity filtering is now real (it wasn't at all before) and independently adjustable from the charger corridor, defaulting to 20mi | Resolves Q9. The user redirected the question: SOC/charger precision matters less than they'd assumed ("directional," they'll adapt), sleep availability is what actually worries them at 2am. Sleep spots had NO distance filtering before this -- every pin in an enabled category showed everywhere, which only looked right because the dataset happened to sit near one corridor. Reserve-floor scoring itself (D-029) left unchanged; this addresses the real underlying concern instead |
+| D-041 | 2026-08-13 | Fixed 6 defects an independent live-site reviewer found in D-039/D-040: MapView's sleep effect missing `s.route`/`s.sleepDetourMi` deps (map went stale on detour change), jurisdiction nearest-option now prefers verified pins (was recommending a source-conflicted unverified casino), `sleepDetourMi` now persists across save/reload, confidence tiers now visually distinct, a grounded (not fabricated) note added on the Douglas County "designated area" question, empty-state copy fixed. All 3 high-severity fixes re-verified live against the reviewer's exact repro cases post-deploy (Reno nearest-option now correctly names Gold Ranch not Boomtown; 10mi detour survives reload) |
+| D-042 | 2026-08-13 | **Map-render "black map" claim from the D-041 reviewer pass investigated and attributed to the test tool, not the app** -- extends D-021, does not reverse it | The reviewer found zero CARTO tile requests fire in the deployed app in this session's browser tool. Investigated hard: ruled out sizing (container/canvas correctly dimensioned), CORS (tiles load fine cross-origin with and without `crossOrigin=anonymous`), rate limiting, and a stale service worker. Decisive test: a MINIMAL MapLibre instance loaded fresh from a CDN, with zero wattnap code involved, ALSO never fires its own `load` event in this tool. That is strong evidence this is the same class of tooling limitation D-021 already documented (WebGL/canvas unreliability in this specific embedded browser pane), not a regression in the app. Kept the defensive fix anyway (`nudgeMap()` in `src/map/index.js` -- `map.resize()` plus a real `window` resize dispatch on every observed container-size change, since a bare `map.resize()` call was observed NOT to be reliably sufficient on its own) since it is low-risk and can only help. **Not independently confirmed working or broken on a real phone/desktop** -- next session should verify on real hardware before spending more time chasing this in-tool |
 | D-040 | 2026-08-13 | Jurisdiction advisories added: `src/data/restricted-jurisdictions.json` + a Sleep-tab notice when a trip endpoint falls in a restricted city, citing the ordinance, stating confidence honestly, and naming the nearest legal pin (computed live, not hardcoded) | Resolves Q11 (user: "I do think it's important to show those warnings"). Scope note: user clarified they will NOT sleep in the car at either reference destination (Tahoe/Reno) -- a hotel covers that. The advisory is about honesty when a driver browses those cities, not the load-bearing fix; D-039's wider search radius is |
 | D-038 | 2026-08-13 | Desktop is now a first-class target, not just mobile: two-column layout at >=1024px (controls left, map right full-height) plus a map expand/full-screen toggle at every width | User stated they will use this from a laptop/desktop as much as from a phone. DESIGN.md's "mobile first, one screen" constraint capped `.wn-app` at 920px, which wasted a laptop screen on the one element that most wants it. Deliberately STRUCTURAL only (layout + behaviour, no visual restyle) because a design overhaul is planned separately in Claude Design — this should survive it |
 | D-037 | 2026-08-13 | `check-rest-area-status.mjs` now reads `scripts/sources/*.json` instead of the built GeoJSON, and reports drift in BOTH directions | Reading the built output meant a `status:"closed"` record was invisible to the checker and could never be seen to reopen — exactly how Gold Run westbound stayed suppressed after coming back. A missed closure strands someone; a missed reopening quietly costs a stop. Closes Q14 |
@@ -272,13 +277,23 @@ New ideas land here, never in the code mid-build.
 **All six phase gates PASS as of 2026-08-13. The build meets DESIGN.md's
 Definition of Done.** This is a hardening/polish session, not a build session.
 
-- **Model:** Sonnet. Nothing left needs Opus-level charging-math design work.
-- **First task:** get the user's decision on Q9 (D-029) — whether
-  stop-selection should leave more real-world margin above `reserveFloor`.
-  This is the one open item that's a genuine product trade-off, not a code fix.
+- **Model:** Sonnet for build/fixes. See the standalone charge-curve research
+  prompt (given to the user 2026-08-13) if running that as its own session —
+  recommended Opus there, for different reasons (source reconciliation under
+  real safety stakes, not charging-math design).
+- **First task: confirm the map renders on a real phone or desktop Chrome**
+  (D-042). This tool's own test browser could not confirm map rendering
+  either way this session — even a wattnap-independent MapLibre instance
+  failed to load in it. Not urgent-feeling, but it's the one thing this
+  session could not close out with real confidence.
+- **Then:** Q15 (BLM dispersed camping) if the user wants that research pass
+  — see the pattern of the existing charge-curve/design-handoff prompts for
+  how to scope it (same rigor as `dispersed-nf` got, not a quick add).
 - **Then, if there's runway:** validate the charge curve against a real
-  Supercharger session (the largest remaining unvalidated input).
+  Supercharger session (the largest remaining unvalidated input) — unless a
+  dedicated session already ran the standalone research prompt for this.
 - **Context needed:** `CLAUDE.md`, `STATE.md` in full (Decisions Log D-018
-  onward covers everything from the Worker deploy through gate re-certification),
-  `DESIGN.md` §5.1.1, §8, §9.
+  onward covers everything from the Worker deploy through gate re-certification
+  and the sleep-detour/jurisdiction feature work), `DESIGN.md` §4.6.1, §4.6.2,
+  §5.1.1, §8, §9.
 - **Blockers:** none. Everything that needed account access is done.
