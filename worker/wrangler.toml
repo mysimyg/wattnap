@@ -17,10 +17,10 @@ ALLOWED_ORIGINS = "https://mysimyg.github.io,http://localhost:5173,http://localh
 # That command prints an `id` (and, for `--preview`, a `preview_id`). Paste
 # them in below and uncomment this block:
 #
-# [[kv_namespaces]]
-# binding = "CACHE"
-# id = "<id from `npx wrangler kv namespace create CACHE`>"
-# preview_id = "<id from `npx wrangler kv namespace create CACHE --preview`>"
+[[kv_namespaces]]
+binding = "CACHE"
+id = "5a9f2b9d8a6d41299ec0f769b16cdb55"
+preview_id = "c2c95707c8a8493e88cb4bfd06fa20bf"
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------

@@ -24,13 +24,52 @@ export function haversineMeters(a, b) {
 }
 
 /**
- * Smooth an elevation series with a centred moving average.
+ * Smooth an elevation series with a moving average over a fixed REAL-WORLD
+ * distance, not a fixed point count.
  *
- * Raw GPS/DEM elevation is noisy, and noise inflates cumulative ascent badly --
- * unsmoothed profiles routinely report double the real climb, which would make
- * every plan needlessly conservative. Smoothing plus the dead-band in
- * buildEnergyProfile is what keeps the ascent total honest.
+ * A real captured ORS route does not space its vertices evenly: on this
+ * project's own Ventura corridor, consecutive-point spacing ranged from 1.8m
+ * (tight curves, city streets) to 6.8km (straight desert highway). A
+ * point-count window is therefore not one filter -- it is a different filter
+ * at every point, over-smoothing real short climbs in dense sections and
+ * barely touching noise in sparse ones. Windowing by distance instead means
+ * the same real-world stretch of road gets the same treatment everywhere.
+ *
+ * `cumM` must be the non-decreasing cumulative distance for `eles`, i.e.
+ * cumM[i] is the distance travelled to reach eles[i]. Runs in O(n): both
+ * pointers only ever move forward.
  */
+export function smoothElevationsByDistance(eles, cumM, windowMeters) {
+  const n = eles.length
+  const out = new Array(n)
+  const half = windowMeters / 2
+  let lo = 0
+  let hi = 0
+  let sum = 0
+  let count = 0
+  for (let i = 0; i < n; i++) {
+    while (hi < n && cumM[hi] <= cumM[i] + half) {
+      if (eles[hi] != null && isFinite(eles[hi])) {
+        sum += eles[hi]
+        count++
+      }
+      hi++
+    }
+    while (lo < i && cumM[lo] < cumM[i] - half) {
+      if (eles[lo] != null && isFinite(eles[lo])) {
+        sum -= eles[lo]
+        count--
+      }
+      lo++
+    }
+    out[i] = count ? sum / count : null
+  }
+  return out
+}
+
+/** Point-count moving average. Kept for callers with evenly-spaced samples
+ * (e.g. hand-built test geometry); real captured routes should use the
+ * distance-based version above. */
 export function smoothElevations(eles, window = 5) {
   if (eles.length < window) return eles.slice()
   const half = Math.floor(window / 2)
@@ -56,13 +95,21 @@ export function smoothElevations(eles, window = 5) {
  */
 export function buildEnergyProfile(geometry, vehicle, opts = {}) {
   const deadBandM = opts.deadBandM ?? 2
-  const smoothWindow = opts.smoothWindow ?? 5
+  // 200m default, chosen against REAL captured ORS elevation data
+  // (test/fixtures/route-slt-default-live.json), not the synthetic profiles
+  // this was originally tuned against. The ascent total on that 491mi route
+  // never converges as the window grows -- it runs from 7458m unsmoothed
+  // down to 4029m at an 800m window, a continuous slide with no plateau, so
+  // there is no single "correct" answer to discover. Given that, this picks
+  // the smaller (higher-ascent) side of a defensible range on purpose: for a
+  // planner whose one hard invariant is never dropping below reserveFloor,
+  // under-counting a climb risks stranding a driver on a real grade, while
+  // over-counting only costs a few extra charge minutes. See D-023.
+  const smoothWindowM = opts.smoothWindowM ?? 200
   const n = geometry.length
   const hasEle =
     n > 0 && geometry.some((p) => p.length > 2 && p[2] != null && isFinite(p[2]))
-  const eles = hasEle
-    ? smoothElevations(geometry.map((p) => (p.length > 2 ? p[2] : null)), smoothWindow)
-    : null
+  const rawEles = hasEle ? geometry.map((p) => (p.length > 2 ? p[2] : null)) : null
 
   const flatKwhPerM = vehicle.consumptionWhPerMile / 1000 / M_PER_MILE
   const climbKwhPerM =
@@ -74,9 +121,16 @@ export function buildEnergyProfile(geometry, vehicle, opts = {}) {
   const cumAscent = new Float64Array(n)
   const cumDescent = new Float64Array(n)
 
+  // Distance must be known before elevation can be smoothed by distance, so
+  // this is a first pass; the second pass below does ascent/descent/energy.
+  for (let i = 1; i < n; i++) {
+    cumM[i] = cumM[i - 1] + haversineMeters(geometry[i - 1], geometry[i])
+  }
+  const eles = hasEle ? smoothElevationsByDistance(rawEles, cumM, smoothWindowM) : null
+
   let carriedEle = hasEle ? eles[0] : null
   for (let i = 1; i < n; i++) {
-    const segM = haversineMeters(geometry[i - 1], geometry[i])
+    const segM = cumM[i] - cumM[i - 1]
     let ascent = 0
     let descent = 0
     if (hasEle && eles[i] != null && carriedEle != null) {
@@ -93,7 +147,6 @@ export function buildEnergyProfile(geometry, vehicle, opts = {}) {
       carriedEle = eles[i]
     }
     const kwh = segM * flatKwhPerM + ascent * climbKwhPerM - descent * descentKwhPerM
-    cumM[i] = cumM[i - 1] + segM
     cumKwh[i] = cumKwh[i - 1] + kwh
     cumAscent[i] = cumAscent[i - 1] + ascent
     cumDescent[i] = cumDescent[i - 1] + descent

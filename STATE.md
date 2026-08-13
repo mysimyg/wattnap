@@ -20,21 +20,26 @@ https://mysimyg.github.io/wattnap/ once the frontend entry point lands.
 | Gate | Phase | Status | Evidence |
 |---|---|---|---|
 | 0 | DESIGN.md approval | **PASS** 2026-08-12 | User approved, answered Q5/Q6/Q8 |
-| 1 | Scaffold | **BLOCKED** | Site deploys and renders; routing needs the Worker |
-| 2 | Charger corridor | **BLOCKED** | Same. Filtering logic tested against real AFDC data offline |
+| 1 | Scaffold | **READY FOR RE-CERT** | Worker deployed 2026-08-13, `VITE_API_BASE` set and pushed. Live-smoke-tested by the lead (health, geocode, route with real elevation) but not yet certified by a reviewer who didn't build it |
+| 2 | Charger corridor | **READY FOR RE-CERT** | Same. Real station data flows end-to-end (verified via curl against the live Worker); slider/toggle behavior itself untouched since gate 4's cert |
 | 3 | Charging planner | **PASS** 2026-08-12 | Reviewer fuzzed 269 feasible plans over both routes against the real 90-station capture: zero reserve-floor violations. Override fires correctly and only on sparse legs |
 | 4 | Sleep layer | **PASS** 2026-08-12 | Verified live across all 3 categories: notes, confirmed dates, working source link-outs |
 | 5 | PWA | **PASS** 2026-08-12 | Manifest and SW register at the correct base path; a seeded trip survives reload. Real-phone install unverifiable by an agent |
 | 6 | Hardening | **PASS** 2026-08-12 | Error/empty/rate-limit states demonstrated; rate limit proven reachable through the real `fetch` handler; README verified as setup-from-zero |
 
-**Gates 1 and 2 are blocked only on the Worker deploy**, which needs the user's
-Cloudflare login. No code defect stands between them and passing.
+**The Worker is deployed as of 2026-08-13** — the thing gates 1 and 2 were
+waiting on. Nothing code-side stands between them and passing, but per
+CLAUDE.md, builders never certify their own work: a fresh reviewer pass must
+verify them on the live URL before they're recorded as PASS.
 
-**Caveat on freshness:** gates 3-6 were certified against commit `9fe7dd0`. Two
-UI fixes landed after certification (route-error ordering in PlanPanel and
-ChargersPanel, and the `.wn-app` overflow/tabpanel floor). They were verified
-visually by the lead but **not re-certified by the reviewer**. They are small
-and additive, but the next reviewer pass should cover them rather than assume.
+**Caveat on freshness:** gates 3-6 were certified against commit `9fe7dd0`.
+Since then: two UI fixes (route-error ordering, `.wn-app` overflow/tabpanel
+floor), the Worker deploy itself, and — material to gate 3 — the elevation
+smoothing algorithm changed (D-023) after real GPS/DEM data exposed a
+point-density bug, and the planner test fixtures were replaced with real
+captured default routes rather than the synthetic/395 ones gate 3 was
+originally certified against (D-022, D-024). **Gate 3 should be treated as
+uncertified pending re-review, not just gates 1-2.**
 
 Three reviewer passes ran. 7 defects raised, all closed. One HIGH defect raised
 in pass 3 was investigated and **retracted as a false positive** (see D-021).
@@ -66,6 +71,12 @@ in pass 3 was investigated and **retracted as a false positive** (see D-021).
 | 2026-08-12 | **Reviewer pass 2** — gate 3 PASS (re-fuzzed 269 plans against real AFDC data, zero floor violations), gate 4 PASS, gates 5 & 6 PASS, gates 1 & 2 still BLOCKED on the Worker. 6 of 7 defects confirmed closed |
 | 2026-08-12 | Worker `fetch`-handler tests added, closing the last open defect (rate-limit state now provably reachable). 83 tests |
 | 2026-08-12 | Reviewer's new HIGH "map never paints" defect investigated and **found to be a false positive** — WebGL capture artifact, see D-021. Map renders correctly on fresh load |
+| 2026-08-13 | Worker deployed live at https://wattnap-api.mattswartz.workers.dev, all three API keys configured, KV namespace wired up. `VITE_API_BASE` set as a repo variable and pushed |
+| 2026-08-13 | Housekeeping: a `.dev.vars.md` file with live keys was NOT covered by `.gitignore`'s `.dev.vars` pattern — moved to the correct `worker/.dev.vars` name and gitignore widened to `.dev.vars*`. A stray nested clone (`wattnap/`, clean, identical to the outer repo) removed |
+| 2026-08-13 | Live smoke test found neither Ventura trip's default ORS route takes US-395 — see D-022. User chose to accept the default route over adding via-waypoint routing |
+| 2026-08-13 | Real route + station fixtures captured for both actual default corridors (SLT via Echo Summit, Reno via Donner Pass); 220 and 254 real DC fast stations respectively, 100% reporting power |
+| 2026-08-13 | Elevation smoothing bug found and fixed on real data: point-count window was inconsistent across ORS's wildly variable vertex spacing. Switched to distance-based, see D-023, D-024 |
+| 2026-08-13 | 91 tests passing (up from 83): 8 new — 2 for the point-density smoothing fix, 6 against the real default-route fixtures |
 
 ## In Progress
 
@@ -134,6 +145,9 @@ Surfaced at session 1. Work around them until cleared.
 | D-019 | 2026-08-12 | Basemap tiles use `@2x`, never a `{r}` placeholder | `{r}` is a Leaflet convention that MapLibre passes through literally. **Correction (same day):** the original commit message claimed those URLs 404'd. They did not — CARTO tolerates the malformed suffix and returns a valid non-retina PNG (verified by the reviewer and re-verified from inside the live page). `@2x` is still the correct retina URL, but it fixed nothing. The black map was solely D-018's CSS collapse. Do not reason from the old claim |
 | D-021 | 2026-08-12 | Map render is verified by screenshot, never by `getImageData` or canvas pixel sampling | A WebGL canvas without `preserveDrawingBuffer` reads back as uniform black regardless of what is on screen. Both a reviewer pass and the lead independently called the map "broken, renders black" on this false signal, and the second time it cost a wrong root cause and a wasted fix cycle. Screenshot capture is authoritative |
 | D-020 | 2026-08-12 | Malformed station coordinates are filtered in `annotateStations`, not allowed to throw | The Worker legitimately emits null coordinates for malformed upstream records. One bad record must not cost the trip every station |
+| D-022 | 2026-08-13 | Accepted ORS's default routing (I-5+US-50 to SLT via Echo Summit, I-5+I-80 to Reno via Donner) rather than adding via-waypoint routing to force US-395 | Measured against the live Worker: neither trip's default route touches 395. User chose to ship the default behavior over building a route-forcing feature. DESIGN.md §8 gate 3 wording corrected; via-waypoint routing is not on the roadmap unless requested |
+| D-023 | 2026-08-13 | Elevation smoothing switched from a fixed point-count window (5 vertices) to a fixed real-world distance window (200m) | Real captured ORS geometry has vertex spacing from 1.8m to 6.8km on this project's own corridor; a point-count window was a different filter everywhere depending on local point density. Distance-based smoothing behaves consistently. The 200m default was chosen deliberately on the higher-ascent (more conservative) side of a genuinely non-converging sensitivity range — see DESIGN.md §5.1.1 |
+| D-024 | 2026-08-13 | Real Ventura corridor ascent measured at ~6,300m for both SLT and Reno, roughly double the original ~3,000m estimate | The real default route crosses two mountain ranges (Tejon + Sierra), not one. This is measured, not estimated — see test/fixtures/route-*-default-live.json |
 
 ---
 

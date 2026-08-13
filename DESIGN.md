@@ -338,13 +338,46 @@ leg_kWh      = flat_kWh + climb_kWh - descent_kWh
 ```
 
 For the Model Y numbers above that is **0.0064 kWh per meter climbed** and
-**0.0038 kWh recovered per meter descended**. Ventura → South Lake Tahoe has
-roughly 3,000 m of cumulative ascent — about **19 kWh, a quarter of the pack**.
-A flat Wh/mile model would put the driver on the shoulder at Echo Summit. This
-is the whole reason elevation is in phase 3 and not the icebox.
+**0.0038 kWh recovered per meter descended**. A flat Wh/mile model would put
+the driver on the shoulder at Echo Summit. This is the whole reason elevation
+is in phase 3 and not the icebox.
 
 Ascent and descent are summed **separately** across segments — net elevation
 change is wrong, because you do not get the climb back at 100%.
+
+**Measured 2026-08-13 against real captured ORS data** (not the estimate
+above): Ventura → South Lake Tahoe via the real default route is **~6,300 m**
+of cumulative ascent, ~53% of the pack in climb energy — roughly double the
+original ~3,000 m estimate, because the real route crosses two ranges (Tejon
+Pass then the Sierra via Echo Summit), not one. See §5.1.1 for how that
+figure was actually derived and why it is a deliberately conservative choice,
+not a discovered constant.
+
+#### 5.1.1 Elevation smoothing is distance-based, not point-count-based (D-023)
+
+Raw GPS/DEM elevation is noisy; naively summing every up-and-down would report
+roughly double the real climb. The original implementation smoothed over a
+fixed *point count* (5 vertices). Real captured ORS geometry broke that
+assumption: on the Ventura corridor, vertex spacing ranged from **1.8 m to
+6.8 km** between consecutive points, so a 5-point window was 5 different
+filters depending on where you were on the route — heavy over-smoothing on
+sparse straight highway, almost no smoothing at all through dense curvy
+sections.
+
+The fix smooths over a fixed **real-world distance** (`smoothWindowM`,
+default 200 m) instead, so the filter behaves the same regardless of how
+densely ORS happened to sample that stretch of road.
+
+There is no clean "correct" window size to discover. Measured on the real
+Ventura → South Lake Tahoe route, cumulative ascent runs continuously from
+7,458 m (no smoothing) down to 4,029 m (800 m window) with no plateau — it is
+a genuinely sensitive parameter, not one hiding a stable answer underneath
+noise. Given that, 200 m was chosen deliberately on the *smaller* (higher
+ascent, more conservative) side of the range: for a planner whose one hard
+invariant is never dropping below `reserveFloor`, under-counting a climb
+risks stranding a driver on a real grade, while over-counting only costs a
+few extra minutes of charging. Precision was not available here; the choice
+that fails safe was.
 
 ### 5.2 Charge time — closed form, not a simulation loop
 
@@ -507,7 +540,9 @@ wattnap/
     src/index.js       router, allowlist, KV cache
     wrangler.toml      NO secrets, secrets via `wrangler secret put`
   test/
-    planner.test.js    fixtures: Ventura->SLT, Ventura->Reno via US-395
+    planner.test.js    fixtures: real captured default routes (SLT, Reno);
+                        US-395 corridor kept as a supplementary dense-
+                        charging stress test, not the shipped default
     fixtures/*.json    frozen route + station responses, no network in CI
 ```
 
@@ -523,7 +558,19 @@ does not burn NREL quota or depend on a live corridor.
 | 0 | DESIGN.md | **Human approval. The only mandatory human gate.** |
 | 1 | Scaffold: repo, Pages deploy via Actions, Worker deploy | Deployed URL renders a route between two typed addresses |
 | 2 | Charger corridor: buffer, fetch, kW slider, network toggles, detail card | Slider and toggles filter live AFDC data on the deployed site, Ventura → South Lake Tahoe |
-| 3 | Charging strategy planner | Reviewer runs Ventura → South Lake Tahoe and Ventura → Reno via US-395 under both strategies. Override fires on sparse legs, time deltas are plausible, no plan ever dips below `reserveFloor` |
+| 3 | Charging strategy planner | Reviewer runs Ventura → South Lake Tahoe and Ventura → Reno under both strategies. Override fires on sparse legs, time deltas are plausible, no plan ever dips below `reserveFloor` |
+
+**Corrected 2026-08-13, gate criterion:** ORS's default routing does not take
+US-395 for either trip — verified against the live deployed Worker. Ventura →
+South Lake Tahoe goes via I-5 + US-50 (Echo Summit); Ventura → Reno goes via
+I-5 + I-80 (Donner Pass). Both are real mountain crossings this section
+already names as the reason elevation is modelled, so this is not a weaker
+test — if anything it validates §5.1's own examples better than a hand-built
+395 fixture would have. The app has no via-waypoint routing (From/To only),
+so it cannot force 395; the user chose to accept ORS's default rather than add
+that as a feature (D-022). "via US-395" in the original kickoff prompt most
+likely described the user's own real driving route, not a requirement that
+the routing engine reproduce it by default.
 | 4 | Sleep layer: GeoJSON overlays, icons, notes, iOverlander link-out | Pins render with notes and working link-outs on deploy |
 | 5 | PWA: manifest, offline shell, saved trips and strategies | Installs on a phone, a saved trip survives reload |
 | 6 | Hardening: error, empty, rate-limit states, README | All three states demonstrated, README covers setup, keys, and deploy from zero |

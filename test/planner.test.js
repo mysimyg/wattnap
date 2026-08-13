@@ -469,3 +469,107 @@ describe('regressions found by the gate review', () => {
     expect(plan.summary.overheadMinutes).toBe(0)
   })
 })
+
+// ---------------------------------------------------------- distance smoothing --
+describe('distance-based elevation smoothing (D-023)', () => {
+  it('gives the same result regardless of how densely the route is sampled', () => {
+    // The bug this replaced: a POINT-COUNT window is a different filter at
+    // every point when vertex spacing varies -- and real ORS routes vary from
+    // under 2m to nearly 7km between vertices on this project's own corridor.
+    // A real-distance window must not care how many vertices represent a
+    // given stretch of road.
+    const dense = []
+    const sparse = []
+    // Same 5km climb (500m over 5km, a 10% average grade), sampled every 10m
+    // vs every 200m.
+    for (let i = 0; i <= 500; i++) dense.push([-119 + i * 0.0001, 38, i * 1])
+    for (let i = 0; i <= 25; i++) sparse.push([-119 + i * 0.002, 38, i * 20])
+    const vehicle = { consumptionWhPerMile: 235, massKg: 2050, drivetrainEfficiency: 0.85, regenEfficiency: 0.7 }
+    const denseP = buildEnergyProfile(dense, vehicle)
+    const sparseP = buildEnergyProfile(sparse, vehicle)
+    // Within 5% of each other despite a 20x difference in point density.
+    expect(Math.abs(denseP.ascentM - sparseP.ascentM) / sparseP.ascentM).toBeLessThan(0.05)
+  })
+
+  it('a window far smaller than the point spacing degrades to no smoothing, not a crash', () => {
+    const sparse = []
+    for (let i = 0; i <= 20; i++) sparse.push([-119 + i * 0.01, 38, i % 2 === 0 ? 500 : 520])
+    const vehicle = { consumptionWhPerMile: 235, massKg: 2050, drivetrainEfficiency: 0.85, regenEfficiency: 0.7 }
+    const p = buildEnergyProfile(sparse, vehicle, { smoothWindowM: 1 })
+    expect(Number.isFinite(p.ascentM)).toBe(true)
+    expect(p.ascentM).toBeGreaterThan(0)
+  })
+})
+
+// ------------------------------------------------- real default-route data --
+/**
+ * These use REAL routes captured from the deployed Worker on 2026-08-12 --
+ * genuine ORS output, genuine elevation. Not the corridor DESIGN.md's gate
+ * text names ("via US-395"): ORS's default routing does not take US-395 for
+ * either trip. Ventura->South Lake Tahoe goes via I-5 + US-50 (Echo Summit);
+ * Ventura->Reno goes via I-5 + I-80 (Donner Pass). Both are real mountain
+ * crossings DESIGN.md's own §5.1 names as the reason elevation is modelled at
+ * all, so this is arguably a better real-world validation than a hand-built
+ * 395 fixture would have been. See D-022.
+ */
+describe('planner against real default-route data (not the US-395 corridor)', () => {
+  const fixtures = {
+    slt: {
+      route: read('./fixtures/route-slt-default-live.json'),
+      stations: read('./fixtures/stations-slt-default-route-live.json'),
+    },
+    reno: {
+      route: read('./fixtures/route-reno-default-live.json'),
+      stations: read('./fixtures/stations-reno-default-route-live.json'),
+    },
+  }
+
+  function realCorridor(key, { minKw = 250, maxDetourMi = 5 } = {}) {
+    const { route, stations } = fixtures[key]
+    return annotateStations(stations.stations, route.route.geometry).filter(
+      (s) => s.detour_m / MILES <= maxDetourMi && (s.maxKw ?? 0) >= minKw
+    )
+  }
+
+  it('both real corridors have dense 250kW+ coverage -- more than the 395 corridor', () => {
+    // I-5 and I-80 are major interstates; expect denser coverage than the
+    // US-395 mountain corridor's 46 stations.
+    expect(realCorridor('slt').length).toBeGreaterThan(60)
+    expect(realCorridor('reno').length).toBeGreaterThan(60)
+  })
+
+  it('every station on both real corridors reports power (further confirms Q2)', () => {
+    for (const key of ['slt', 'reno']) {
+      const all = fixtures[key].stations.stations
+      expect(all.every((s) => s.kwSource === 'reported')).toBe(true)
+    }
+  })
+
+  it.each(['slt', 'reno'])('%s: the real climb is substantial enough to matter', (key) => {
+    const { route } = fixtures[key]
+    const vehicle = VEHICLE
+    const profile = buildEnergyProfile(route.route.geometry, vehicle)
+    expect(profile.elevationAvailable).toBe(true)
+    expect(profile.ascentM).toBeGreaterThan(4000)
+    const climbKwh = profile.ascentM * profile.climbKwhPerM
+    expect(climbKwh / vehicle.usableKwh).toBeGreaterThan(0.3)
+  })
+
+  it.each(['slt', 'reno'])('%s: every strategy stays feasible and above the reserve floor', (key) => {
+    const { route } = fixtures[key]
+    for (const strategy of STRATEGIES) {
+      const plan = planTrip({
+        route: route.route,
+        stations: realCorridor(key),
+        vehicle: VEHICLE,
+        strategy,
+        startSoc: strategiesFile.defaultStartSoc,
+      })
+      expect(plan.feasible).toBe(true)
+      expect(plan.summary.minSocReached).toBeGreaterThanOrEqual(strategy.reserveFloor - 1e-6)
+      for (const stop of plan.stops) {
+        expect(stop.arriveSoc).toBeGreaterThanOrEqual(strategy.reserveFloor - 1e-6)
+      }
+    }
+  })
+})
