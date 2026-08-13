@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Cross-checks shipped rest-area pins against Caltrans' LIVE open/closed feed.
+ * Cross-checks EVERY rest-area record in scripts/sources/ against Caltrans'
+ * LIVE open/closed feed, and reports drift in BOTH directions.
  *
  * Why this exists: on 2026-08-12 a research pass found that five rest-area
  * pins we shipped as `verified: true` were in fact closed for construction --
@@ -12,6 +13,13 @@
  * answers "is it open right now?" -- so the staleness is measurable instead
  * of invisible.
  *
+ * It reads the SOURCES, not the built GeoJSON. An earlier version read the
+ * built output, which meant a record suppressed by status:"closed" was
+ * invisible to it and could never be seen to reopen -- exactly how Gold Run
+ * westbound stayed hidden after it came back. Both directions matter: a
+ * closure we missed strands someone, a reopening we missed quietly costs a
+ * stop.
+ *
  * The static Caltrans GIS export does NOT carry status; only this KML feed
  * does. Network required, so this is a maintenance tool, not a unit test.
  *
@@ -19,12 +27,12 @@
  *   node scripts/check-rest-area-status.mjs
  *   node scripts/check-rest-area-status.mjs --json
  */
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const dataDir = join(here, '..', 'public', 'data')
+const sourcesDir = join(here, '..', 'scripts', 'sources')
 
 const FEED_URL = 'https://quickmap.dot.ca.gov/data/srra.kml'
 
@@ -57,19 +65,32 @@ export function parseFeed(kml) {
   return out
 }
 
-/** Shipped rest-area pins, from the built GeoJSON. */
-export function loadShippedRestAreas(dir = dataDir) {
-  const index = JSON.parse(readFileSync(join(dir, 'sleep-index.json'), 'utf8'))
-  const entry = index.find((c) => c.category === 'rest-area')
-  if (!entry) return []
-  const fc = JSON.parse(readFileSync(join(dir, entry.file), 'utf8'))
-  return fc.features.map((f) => ({
-    id: f.properties.id,
-    name: f.properties.name,
-    key: normalizeName(f.properties.name),
-    verified: f.properties.verified,
-    status: f.properties.status ?? 'open',
-  }))
+/**
+ * Every rest-area record in the SOURCES, not just the ones that ship.
+ *
+ * Reading the built GeoJSON was a real blind spot: a record suppressed by
+ * status:"closed" never appears there, so once suppressed it could never be
+ * seen to reopen. Gold Run westbound was hidden that way from 2026-08-12
+ * until a manual re-check on 08-13. Drift runs in both directions, so the
+ * check has to look at both.
+ */
+export function loadSourceRestAreas(dir = sourcesDir) {
+  const records = []
+  for (const file of readdirSync(dir).filter((f) => f.endsWith('.json'))) {
+    const parsed = JSON.parse(readFileSync(join(dir, file), 'utf8'))
+    for (const r of parsed.records ?? []) {
+      if (r.category !== 'rest-area') continue
+      records.push({
+        id: r.id,
+        name: r.name,
+        key: normalizeName(r.name),
+        verified: r.verified,
+        status: r.status ?? 'open',
+        file,
+      })
+    }
+  }
+  return records
 }
 
 const DIRECTIONS = ['northbound', 'southbound', 'eastbound', 'westbound']
@@ -117,20 +138,25 @@ async function main() {
     process.exit(2)
   }
   const feed = parseFeed(await res.text())
-  const pins = loadShippedRestAreas()
+  const records = loadSourceRestAreas()
 
-  const report = pins.map((p) => {
+  const report = records.map((p) => {
     const m = matchStatus(p, feed)
+    const closedUpstream = m.status === 'Closed' || m.status === 'Partial'
+    let problem = null
+    if (closedUpstream && p.status !== 'closed') {
+      problem = 'SHIPPED AS AVAILABLE BUT CLOSED UPSTREAM'
+    } else if (m.status === 'Open' && p.status === 'closed') {
+      // The direction that used to be invisible.
+      problem = 'SUPPRESSED AS CLOSED BUT REOPENED UPSTREAM -- restore it'
+    }
     return {
       id: p.id,
       name: p.name,
-      shippedStatus: p.status,
+      recordStatus: p.status,
       liveStatus: m.status,
       matched: m.matched,
-      problem:
-        (m.status === 'Closed' || m.status === 'Partial') && p.status !== 'closed'
-          ? 'SHIPPED AS AVAILABLE BUT CLOSED UPSTREAM'
-          : null,
+      problem,
     }
   })
 
@@ -139,16 +165,20 @@ async function main() {
     return
   }
 
-  console.log(`\nCaltrans live status — ${feed.length} facilities in feed, ${pins.length} shipped rest-area pins\n`)
+  console.log(
+    `\nCaltrans live status — ${feed.length} facilities in feed, ` +
+      `${records.length} rest-area records in scripts/sources/\n`
+  )
   for (const r of report) {
     const tag = r.problem ? '  ** ' + r.problem : ''
-    console.log(`  [${r.liveStatus.padEnd(7)}] ${r.name}${tag}`)
+    const shown = r.recordStatus === 'closed' ? 'suppressed' : 'shipping'
+    console.log(`  [${r.liveStatus.padEnd(7)}] ${shown.padEnd(10)} ${r.name}${tag}`)
   }
   const problems = report.filter((r) => r.problem)
   console.log(
     problems.length
       ? `\n${problems.length} pin(s) need attention.\n`
-      : `\nAll shipped rest-area pins are open upstream.\n`
+      : `\nNo drift: every open record ships, every suppressed record is still closed.\n`
   )
   if (problems.length) process.exitCode = 1
 }
