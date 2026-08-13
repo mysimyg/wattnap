@@ -10,7 +10,7 @@ import {
   filterStationsByKw,
   inferMaxKw,
 } from '../worker/src/normalize.js';
-import { buildWkt, UpstreamError } from '../worker/src/upstream.js';
+import { buildWkt, buildOrsDirectionsBody, UpstreamError } from '../worker/src/upstream.js';
 import {
   isOriginAllowed,
   parseAllowedOrigins,
@@ -378,5 +378,25 @@ describe('buildWkt', () => {
   it('rejects malformed points', () => {
     expect(() => buildWkt([[-119.229, 34.274], ['bad', 1]])).toThrow(UpstreamError);
     expect(() => buildWkt([[-119.229, 34.274], [1]])).toThrow(UpstreamError);
+  });
+});
+
+describe('buildOrsDirectionsBody', () => {
+  it('sets a generous snap radius on both waypoints', () => {
+    // Regression test: a bare Pelias administrative-centroid geocode result
+    // (e.g. "Ventura, CA, USA" -> a beach point) previously failed with
+    // ORS "Could not find routable point within a radius of 350.0 meters"
+    // because no radiuses param was sent at all, so ORS used its tight
+    // default. Confirmed live: [-119.29342, 34.262734] -> [-119.98435,
+    // 38.93324] 502'd before this fix and 200's after it.
+    const body = buildOrsDirectionsBody([-119.29342, 34.262734], [-119.98435, 38.93324]);
+    expect(body.coordinates).toEqual([
+      [-119.29342, 34.262734],
+      [-119.98435, 38.93324],
+    ]);
+    expect(body.elevation).toBe(true);
+    expect(body.radiuses).toHaveLength(2);
+    expect(body.radiuses[0]).toBeGreaterThan(350);
+    expect(body.radiuses[1]).toBeGreaterThan(350);
   });
 });

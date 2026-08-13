@@ -116,6 +116,19 @@ function isCoordPair(c) {
   return Array.isArray(c) && c.length >= 2 && typeof c[0] === 'number' && typeof c[1] === 'number';
 }
 
+/**
+ * radiuses: how far ORS will search from each coordinate for a routable
+ * road. The default (~350m) is too tight for a Pelias administrative-
+ * centroid result -- e.g. "Ventura, CA, USA" resolves to a point on the
+ * beach, and ORS's default radius can't reach the nearest real street from
+ * there. 5km comfortably covers a city/county centroid landing in a park,
+ * beach, or waterway near a town, without being so large it could snap a
+ * genuinely bad coordinate to an unrelated road far away.
+ */
+export function buildOrsDirectionsBody(from, to) {
+  return { coordinates: [from, to], elevation: true, radiuses: [5000, 5000] }
+}
+
 async function routeOrs(env, from, to) {
   let res;
   try {
@@ -125,7 +138,7 @@ async function routeOrs(env, from, to) {
         'Content-Type': 'application/json',
         Authorization: env.ORS_API_KEY,
       },
-      body: JSON.stringify({ coordinates: [from, to], elevation: true }),
+      body: JSON.stringify(buildOrsDirectionsBody(from, to)),
     });
   } catch (err) {
     console.error('ORS directions network error', err);

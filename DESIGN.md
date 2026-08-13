@@ -138,7 +138,14 @@ required in the UI footer.
 OSRM stays wired as a **dev-only fallback** behind an env flag, so the app still
 works before the ORS key exists.
 
-- Directions: `POST /v2/directions/driving-car/geojson`, body `{coordinates, elevation:true}`
+- Directions: `POST /v2/directions/driving-car/geojson`, body
+  `{coordinates, elevation:true, radiuses:[5000,5000]}`.
+  **`radiuses` corrected 2026-08-13 (D-030):** without it, ORS's default
+  point-snap search (~350m) fails on a Pelias administrative-centroid
+  geocode result that lands off the road network — e.g. "Ventura, CA, USA"
+  resolves to a beach point. A real user hit this live. 5km per waypoint
+  fixes it without being so large it risks snapping a genuinely bad
+  coordinate to an unrelated road.
 - Geocoding: `GET /geocode/search` (Pelias)
 - Free tier quota: **OPEN Q4** — the plans page is JS-rendered and could not be
   read programmatically. Must be read by a human at signup and recorded here

@@ -102,6 +102,7 @@ silently pick a default for.
 | 2026-08-13 | Fixed: DESIGN.md §5.1.1 cited sensitivity numbers (800m → 4029m) that two independent reviewers could not reproduce against the shipped code (actual: ~5,101m). Corrected with a full table, actually verified |
 | 2026-08-13 | 94 tests passing (up from 91): 3 new regressions matching the reviewers' exact repros |
 | 2026-08-13 | **Open, unresolved:** reserve-floor margin on the real corridor measured as low as ~0.16 SOC points on some legs — an inherent property of the "prefer farthest reachable" scoring, not a bug. Needs a product decision, not a code fix. See Open Questions Q9 |
+| 2026-08-13 | **User hit a live bug** (screenshot: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable") — this was Q10. Root-caused and fixed same session: ORS's default point-snap radius (~350m) couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (geocodes to a beach). Worker now sends `radiuses: [5000, 5000]`. Confirmed live before/after on the exact failing request; 95 tests |
 
 ## In Progress
 
@@ -122,9 +123,7 @@ Definition of Done.** What's left is hardening and one product decision:
    the largest remaining unvalidated input in the charging math (see Human
    Tasks). Everything else in the math has now been checked against real
    captured data.
-3. Consider Q10 (bare city-name geocode results that don't route) — not a
-   blocker, but a real first-time-user friction point.
-4. Low-priority polish logged but not done: inverted-SOC-target strategies
+3. Low-priority polish logged but not done: inverted-SOC-target strategies
    produce a slow ~26-stop degenerate plan before correctly failing, with no
    upfront validation message (cosmetic, not a safety issue).
 
@@ -187,6 +186,7 @@ Definition of Done.** What's left is hardening and one product decision:
 | D-027 | 2026-08-13 | A failed re-plan now clears the map's route line and corridor overlay, not just the text panels | Previously the map kept showing the last successful route while PLAN/CHARGERS correctly showed an error — a driver glancing only at the map would think a route still existed |
 | D-028 | 2026-08-13 | `planTripFlow` guards against concurrent invocation at the function level, not just via the disabled button attribute | The DOM `disabled` state lags one render behind a click; a rapid double-tap could still fire two real requests against shared NREL/ORS quota before the button visually disabled |
 | D-029 | 2026-08-13 | **Open — not resolved.** Reviewer measured the planner's stop-selection scoring ("prefer the farthest reachable candidate") leaves as little as ~0.16 SOC points of real margin above `reserveFloor` on the actual default corridor | This isn't a bug — the floor invariant holds by construction, proven under ~19,000 fuzzed trials — but it means there is effectively zero cushion between "the elevation or charge-curve model is slightly wrong" and "a real driver arrives below the stated safety floor." Whether to bias the scoring toward more margin (fewer, closer-in stops) is a real product trade-off (more conservative = more/longer stops), not a code-correctness fix. See Open Questions Q9 |
+| D-030 | 2026-08-13 | ORS directions requests now send `radiuses: [5000, 5000]` (5 km point-snap search radius per waypoint), not ORS's tight ~350 m default | The user hit this live: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable." Root cause: ORS's default snap radius couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (it geocodes to a beach). Confirmed live before/after on the exact failing request. Body construction extracted to `buildOrsDirectionsBody` so this is now unit-tested without live network |
 
 ---
 
@@ -205,7 +205,7 @@ Full table with fallbacks in `DESIGN.md` §9. Summary:
 | Q7 | Include Level 2 for overnight sleep-spot charging? | Phase 4 | No — DC only |
 | ~~Q8~~ | **Answered (D-014)** — `mysimyg.github.io/wattnap/` | Phase 1 | Closed |
 | Q9 | Should stop-selection scoring leave more real-world margin above `reserveFloor` than "prefer the farthest reachable station" currently does (measured as low as ~0.16 SOC points on a real leg)? | Post-gate hardening | **User decision needed** — no safe default to silently pick, since it's a real time-vs-margin trade-off. See D-029 |
-| Q10 | Bare city-name geocode results (e.g. "Ventura, CA, USA") resolve to Pelias administrative centroids that ORS often can't route from (confirmed: both "Ventura, CA" and "Ventura County, CA" fail). A specific street/intersection query always works. Fix how? | Post-gate hardening | No fallback picked yet — options include filtering non-routable result types, a clearer inline hint to pick a specific address, or a pre-flight routability check before enabling `plan trip` |
+| ~~Q10~~ | **Fixed 2026-08-13 (D-030)** — user hit this live (screenshot: "Ventura, CA, USA" → "Tahoe City, CA, USA", `Upstream service unavailable`) | Post-gate hardening | Closed |
 
 ---
 
@@ -249,9 +249,7 @@ Definition of Done.** This is a hardening/polish session, not a build session.
   stop-selection should leave more real-world margin above `reserveFloor`.
   This is the one open item that's a genuine product trade-off, not a code fix.
 - **Then, if there's runway:** validate the charge curve against a real
-  Supercharger session (the largest remaining unvalidated input), and/or
-  address Q10 (bare city-name geocode results that don't route — a real
-  first-session friction point, not a safety issue).
+  Supercharger session (the largest remaining unvalidated input).
 - **Context needed:** `CLAUDE.md`, `STATE.md` in full (Decisions Log D-018
   onward covers everything from the Worker deploy through gate re-certification),
   `DESIGN.md` §5.1.1, §8, §9.
