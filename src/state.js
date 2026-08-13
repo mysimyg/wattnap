@@ -139,6 +139,11 @@ export function swapFromTo() {
 export async function planTripFlow() {
   const s = getState()
   if (!s.from || !s.to) return
+  // The button's disabled state lags one render behind this call, so a
+  // rapid double-tap can still land here twice before it updates -- guard
+  // at the source instead. NREL/ORS quota is real and shared (DESIGN.md
+  // section 10).
+  if (s.routeStatus === 'loading') return
   setState({
     routeStatus: 'loading',
     routeError: null,
@@ -159,7 +164,11 @@ export async function planTripFlow() {
     await fetchStationsFlow()
   } catch (err) {
     if (err && err.code === 'ABORTED') return
-    setState({ routeStatus: 'error', routeError: err })
+    // Also clear the stale route/corridor -- otherwise a failed re-plan
+    // leaves the PREVIOUS trip's line on the map while the panels correctly
+    // report an error, and a driver glancing only at the map would think a
+    // route still exists.
+    setState({ routeStatus: 'error', routeError: err, route: null, corridorPolygon: null })
   }
 }
 

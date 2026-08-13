@@ -370,13 +370,31 @@ densely ORS happened to sample that stretch of road.
 
 There is no clean "correct" window size to discover. Measured on the real
 Ventura → South Lake Tahoe route, cumulative ascent runs continuously from
-7,458 m (no smoothing) down to 4,029 m (800 m window) with no plateau — it is
-a genuinely sensitive parameter, not one hiding a stable answer underneath
-noise. Given that, 200 m was chosen deliberately on the *smaller* (higher
-ascent, more conservative) side of the range: for a planner whose one hard
-invariant is never dropping below `reserveFloor`, under-counting a climb
-risks stranding a driver on a real grade, while over-counting only costs a
-few extra minutes of charging. Precision was not available here; the choice
+**7,458 m (no smoothing, no dead-band) down to 4,467 m (2,000 m window)**
+with no plateau — it is a genuinely sensitive parameter, not one hiding a
+stable answer underneath noise:
+
+| Window | Ascent |
+|---|---|
+| 0 m (unsmoothed) | 7,458 m |
+| 200 m (shipped default) | 6,268 m |
+| 400 m | 5,736 m |
+| 800 m | 5,101 m |
+| 1,600 m | 4,601 m |
+| 2,000 m | 4,467 m |
+
+**Corrected 2026-08-13:** an earlier version of this table cited a value of
+4,029 m at an 800 m window. Two independent reviewers could not reproduce
+that figure against the shipped `smoothElevationsByDistance` (both measured
+~5,100 m at 800 m instead, matching the table above) — it was almost
+certainly computed with a throwaway diagnostic script during tuning, not the
+function that shipped. The qualitative conclusion (continuous, non-converging
+decline) holds either way; only the specific cited number was wrong. Given
+that, 200 m was chosen deliberately on the *smaller* (higher ascent, more
+conservative) side of the range: for a planner whose one hard invariant is
+never dropping below `reserveFloor`, under-counting a climb risks stranding a
+driver on a real grade, while over-counting only costs a few extra minutes of
+charging. Precision was not available here; the choice
 that fails safe was.
 
 ### 5.2 Charge time — closed form, not a simulation loop

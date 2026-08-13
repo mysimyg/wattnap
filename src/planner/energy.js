@@ -42,7 +42,9 @@ export function haversineMeters(a, b) {
 export function smoothElevationsByDistance(eles, cumM, windowMeters) {
   const n = eles.length
   const out = new Array(n)
-  const half = windowMeters / 2
+  // A negative half-width breaks the two-pointer invariant (lo could advance
+  // past hi), producing silently-wrong averages rather than a crash.
+  const half = Math.max(0, windowMeters) / 2
   let lo = 0
   let hi = 0
   let sum = 0

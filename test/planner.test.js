@@ -573,3 +573,49 @@ describe('planner against real default-route data (not the US-395 corridor)', ()
     }
   })
 })
+
+// ------------------------------------------------- gate re-cert regressions --
+describe('regressions found by the gate 1-3 re-certification', () => {
+  it('a negative reserveFloor in a corrupted strategy cannot produce a negative destination SOC', () => {
+    // The exact repro from the reviewer: a hand-edited/corrupted saved
+    // strategy with reserveFloor: -20 previously let the loop exit at
+    // summary.arriveSocAtDestination = -19 -- the literal invariant held
+    // against itself (-19 >= -20) but the safety intent (never dip below a
+    // real floor) was defeated. reserveFloor must clamp into [0, 100].
+    const stations = corridor(ROUTES.tahoe.route)
+    const plan = planTrip({
+      route: ROUTES.tahoe.route,
+      stations,
+      vehicle: VEHICLE,
+      strategy: { arriveSocTarget: 12, departSocTarget: 50, taperCutoffKw: 100, reserveFloor: -20, overheadMinPerStop: 5 },
+      startSoc: 50,
+    })
+    if (plan.feasible) {
+      expect(plan.summary.minSocReached).toBeGreaterThanOrEqual(0)
+      expect(plan.summary.arriveSocAtDestination).toBeGreaterThanOrEqual(0)
+    }
+  })
+
+  it('a null reserveFloor falls back to the documented default, not to an effective 0', () => {
+    // Destructuring defaults only trigger on `undefined`. `x >= null` numeric-
+    // coerces null to 0, so a genuinely-null value previously produced an
+    // effective 0% floor instead of the intended default of 8.
+    const stations = corridor(ROUTES.tahoe.route)
+    const plan = planTrip({
+      route: ROUTES.tahoe.route,
+      stations,
+      vehicle: VEHICLE,
+      strategy: { arriveSocTarget: 12, departSocTarget: 50, taperCutoffKw: 100, reserveFloor: null, overheadMinPerStop: 5 },
+      startSoc: 50,
+    })
+    expect(plan.summary.minSocReached).toBeGreaterThanOrEqual(8 - 1e-6)
+  })
+
+  it('smoothElevationsByDistance does not misbehave on a negative window', () => {
+    const geom = ROUTES.tahoe.route.geometry.slice(0, 50)
+    const vehicle = VEHICLE
+    const p = buildEnergyProfile(geom, vehicle, { smoothWindowM: -500 })
+    expect(Number.isFinite(p.ascentM)).toBe(true)
+    expect(p.ascentM).toBeGreaterThanOrEqual(0)
+  })
+})

@@ -25,8 +25,12 @@ export function MapView() {
   }, [])
 
   useEffect(() => {
-    if (!controllerRef.current || !s.route) return
-    controllerRef.current.setRoute(s.route.geometry, s.route.bbox)
+    if (!controllerRef.current) return
+    // Call this even when s.route is falsy (e.g. a failed re-plan) --
+    // setRoute(null) clears the line. Skipping the call here was the bug:
+    // the PREVIOUS route stayed drawn while the panels correctly showed an
+    // error.
+    controllerRef.current.setRoute(s.route?.geometry, s.route?.bbox)
   }, [s.route])
 
   useEffect(() => {

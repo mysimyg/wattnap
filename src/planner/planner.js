@@ -52,12 +52,30 @@ export function planTrip({
   const socToKwh = (soc) => (usable * soc) / 100
 
   const {
-    arriveSocTarget = 12,
-    departSocTarget = 50,
-    taperCutoffKw = 100,
-    reserveFloor = 8,
+    arriveSocTarget: rawArriveSocTarget = 12,
+    departSocTarget: rawDepartSocTarget = 50,
+    taperCutoffKw: rawTaperCutoffKw = 100,
+    reserveFloor: rawReserveFloor = 8,
     overheadMinPerStop: rawOverhead = 5,
   } = strategy
+  // A hand-edited or corrupted saved strategy (localStorage isn't validated
+  // on load) must not be able to defeat the one hard invariant this planner
+  // has. Destructuring defaults only catch `undefined` -- a `null` or
+  // non-numeric value would otherwise pass through untouched. Worked repro:
+  // reserveFloor: -20 let the loop exit at a genuinely negative destination
+  // SOC, because `destSoc >= reserveFloor` was faithfully honouring an unsafe
+  // floor rather than defending one. SOC below 0% is physically meaningless,
+  // so 0 is the real safety boundary, not a stricter arbitrary one.
+  const clamp = (v, lo, hi, fallback) => {
+    const n = Number(v)
+    return v == null || !Number.isFinite(n) ? fallback : Math.min(hi, Math.max(lo, n))
+  }
+  const reserveFloor = clamp(rawReserveFloor, 0, 100, 8)
+  // DESIGN.md documents this range explicitly (5-25); the others don't have
+  // a stated product range, so only their physically-necessary bound applies.
+  const arriveSocTarget = clamp(rawArriveSocTarget, 5, 25, 12)
+  const departSocTarget = clamp(rawDepartSocTarget, 0, 100, 50)
+  const taperCutoffKw = Math.max(0, Number(rawTaperCutoffKw) || 0)
   // A corrupted or hand-edited saved strategy must not be able to make a trip
   // with stops report as faster than driving straight through.
   const overheadMinPerStop = Math.max(0, Number(rawOverhead) || 0)

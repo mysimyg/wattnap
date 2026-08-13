@@ -9,8 +9,16 @@ function GeoField({ label, field, value, onSelect, placeholder }) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState(null)
   const debounceRef = useRef(null)
+  // Set right before this component invalidates its own resolved value (see
+  // handleInput below) so the value->query sync effect doesn't then stomp
+  // the text the user is actively typing back to empty.
+  const selfInvalidatedRef = useRef(false)
 
   useEffect(() => {
+    if (selfInvalidatedRef.current) {
+      selfInvalidatedRef.current = false
+      return
+    }
     setQuery(value ? value.label : '')
   }, [value])
 
@@ -18,6 +26,15 @@ function GeoField({ label, field, value, onSelect, placeholder }) {
     const q = e.currentTarget.value
     setQuery(q)
     setError(null)
+    // A resolved selection is only valid for the exact label it came from.
+    // Without this, editing past a picked suggestion leaves the old
+    // coordinate live in the store -- "plan trip" stays enabled and silently
+    // plans against wherever the user WAS pointed, not wherever the visible
+    // text now says.
+    if (value && q !== value.label) {
+      selfInvalidatedRef.current = true
+      onSelect(null)
+    }
     if (debounceRef.current) clearTimeout(debounceRef.current)
     if (q.trim().length < 3) {
       setSuggestions([])
