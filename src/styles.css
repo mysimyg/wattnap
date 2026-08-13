@@ -879,3 +879,46 @@ a {
   margin-top: 8px;
   font-size: 14px;
 }
+
+/* Confidence tiers on jurisdiction advisories. The words already say "low
+   confidence" vs "high confidence" -- the border/opacity should agree, or a
+   hedge reads exactly as authoritative as a confirmed fact. */
+.wn-jxnotice--high {
+  border-color: var(--warn-border, #8a6d3b);
+}
+.wn-jxnotice--medium {
+  border-style: dashed;
+  opacity: 0.92;
+}
+.wn-jxnotice--low {
+  border-style: dashed;
+  opacity: 0.82;
+}
+.wn-jxnotice__confidence {
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.wn-badge--confidence-high,
+.wn-badge--confidence-medium,
+.wn-badge--confidence-low {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.wn-badge--confidence-high {
+  background: rgba(163, 230, 53, 0.18);
+  color: #a3e635;
+}
+.wn-badge--confidence-medium {
+  background: rgba(240, 201, 135, 0.18);
+  color: var(--warn-text, #f0c987);
+}
+.wn-badge--confidence-low {
+  background: rgba(244, 114, 182, 0.18);
+  color: #f472b6;
+}

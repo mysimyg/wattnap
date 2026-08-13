@@ -52,7 +52,11 @@ export function MapView({ expanded = false, onToggleExpand }) {
     })
     const selectedId = s.selectedPin && s.selectedPin.kind === 'sleep' ? s.selectedPin.data.id : null
     controllerRef.current.setSleepFeatures(visibleSleepFeatures(s), categoryById, selectedId)
-  }, [s.sleepFeatures, s.sleepCategoryEnabled, s.sleepCategories, s.selectedPin])
+    // visibleSleepFeatures(s) also reads s.route and s.sleepDetourMi (route-
+    // proximity filtering, added alongside the detour stepper) -- without
+    // them here, moving the stepper or re-planning a route updated the
+    // sleep LIST but left the MAP showing the previous, stale pin set.
+  }, [s.sleepFeatures, s.sleepCategoryEnabled, s.sleepCategories, s.selectedPin, s.route, s.sleepDetourMi])
 
   return (
     <div class="wn-map-wrap">

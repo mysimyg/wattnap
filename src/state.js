@@ -391,8 +391,27 @@ export function toggleSleepCategory(category) {
   setState((s) => ({ sleepCategoryEnabled: { ...s.sleepCategoryEnabled, [category]: !s.sleepCategoryEnabled[category] } }))
 }
 
+const SLEEP_DETOUR_STEPS = [5, 10, 15, 20, 30, 45, 60]
+
 export function setSleepDetourMi(mi) {
   setState({ sleepDetourMi: mi })
+}
+
+/**
+ * Step the detour radius by +/-1 against SLEEP_DETOUR_STEPS, reading the
+ * CURRENT value from state rather than trusting a value the UI computed at
+ * its last render. A component-side "next = STEPS[currentIndex + dir]"
+ * reads a stale render-time snapshot, which is provably wrong for a burst of
+ * clicks inside one tick (confirmed live) -- real, spaced-out taps mostly
+ * hide it, but the state module owning the transition is the actual fix,
+ * not a timing coincidence.
+ */
+export function stepSleepDetourMi(dir) {
+  setState((s) => {
+    const idx = Math.max(0, SLEEP_DETOUR_STEPS.indexOf(s.sleepDetourMi))
+    const next = SLEEP_DETOUR_STEPS[Math.min(SLEEP_DETOUR_STEPS.length - 1, Math.max(0, idx + dir))]
+    return { sleepDetourMi: next }
+  })
 }
 
 /**
@@ -418,22 +437,39 @@ export function activeJurisdictionWarnings(s = getState()) {
       const distMi = haversineMeters([point.lon, point.lat], [jx.lon, jx.lat]) / MILES_PER_METER_DIVISOR
       if (distMi > jx.radiusMi) continue
 
-      let nearest = null
-      let nearestDistMi = Infinity
+      // Prefer a VERIFIED pin outside the restricted radius. Recommending an
+      // unverified one as "the legal option" here is worse than recommending
+      // nothing -- found live: Ventura->Reno pointed at a casino whose own
+      // notes say sources conflict on whether it allows overnight parking at
+      // all. Only fall back to an unverified pin if no verified one exists,
+      // and say so explicitly rather than presenting it with equal confidence.
+      let nearestVerified = null
+      let nearestVerifiedDistMi = Infinity
+      let nearestAny = null
+      let nearestAnyDistMi = Infinity
       for (const f of s.sleepFeatures) {
         const [lon, lat] = f.geometry.coordinates
         const dMi = haversineMeters([jx.lon, jx.lat], [lon, lat]) / MILES_PER_METER_DIVISOR
-        if (dMi > jx.radiusMi && dMi < nearestDistMi) {
-          nearest = f
-          nearestDistMi = dMi
+        if (dMi <= jx.radiusMi) continue
+        if (dMi < nearestAnyDistMi) {
+          nearestAny = f
+          nearestAnyDistMi = dMi
+        }
+        if (f.properties.verified !== false && dMi < nearestVerifiedDistMi) {
+          nearestVerified = f
+          nearestVerifiedDistMi = dMi
         }
       }
+      const nearest = nearestVerified ?? nearestAny
+      const nearestDistMi = nearestVerified ? nearestVerifiedDistMi : nearestAnyDistMi
 
       out.push({
         ...jx,
         role,
         endpointLabel: point.label,
-        nearestOption: nearest ? { name: nearest.properties.name, distMi: nearestDistMi } : null,
+        nearestOption: nearest
+          ? { name: nearest.properties.name, distMi: nearestDistMi, unverified: !nearestVerified }
+          : null,
       })
     }
   }
@@ -516,6 +552,7 @@ export function saveCurrentTrip() {
     stations: s.stations,
     stationsMeta: s.stationsMeta,
     corridorMi: s.corridorMi,
+    sleepDetourMi: s.sleepDetourMi,
     minKw: s.minKw,
     networkEnabled: s.networkEnabled,
     vehicleId: s.vehicleId,
@@ -541,6 +578,7 @@ export function loadTripIntoState(trip) {
     stations: trip.stations || [],
     stationsMeta: trip.stationsMeta || null,
     corridorMi: trip.corridorMi ?? DEFAULT_CORRIDOR_MI,
+    sleepDetourMi: trip.sleepDetourMi ?? DEFAULT_SLEEP_DETOUR_MI,
     minKw: trip.minKw ?? DEFAULT_MIN_KW,
     networkEnabled: trip.networkEnabled || {},
     vehicleId: trip.vehicleId || vehiclesData.default,

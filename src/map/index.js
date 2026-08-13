@@ -28,6 +28,19 @@ export function createMapController(container, { onStationClick, onSleepClick } 
   // window itself never resizes on a phone. Result: the map keeps a stale
   // zero size, never requests a tile, and paints nothing at all -- which
   // looks exactly like a broken basemap URL. Observe the element instead.
+  //
+  // map.resize() ALONE is not enough -- verified live, twice, on the
+  // deployed site: the container ends up correctly sized (canvas at the
+  // right pixel dimensions, WebGL context healthy) but zero tiles are ever
+  // requested, and calling map.resize() again does not unstick it. Only a
+  // genuine `window` resize event reliably makes MapLibre re-run the tile
+  // request cascade. No other code in this app listens for window resize,
+  // so dispatching one here is a safe, if slightly blunt, forcing function
+  // -- the alternative (an unexplained black map on first load) is worse.
+  function nudgeMap() {
+    map.resize()
+    window.dispatchEvent(new Event('resize'))
+  }
   let resizeObserver = null
   if (typeof ResizeObserver !== 'undefined') {
     let lastW = 0
@@ -40,13 +53,13 @@ export function createMapController(container, { onStationClick, onSleepClick } 
       if (w === lastW && h === lastH) return
       lastW = w
       lastH = h
-      if (w > 0 && h > 0) map.resize()
+      if (w > 0 && h > 0) nudgeMap()
     })
     resizeObserver.observe(container)
   }
   // Belt and braces for the very first paint, in case layout settles within
   // the same frame and the observer's initial callback is a no-op.
-  requestAnimationFrame(() => map.resize())
+  requestAnimationFrame(nudgeMap)
 
   let ready = false
   const readyPromise = new Promise((resolve) => {

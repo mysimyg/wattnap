@@ -8,6 +8,7 @@
     "summary": "Sleeping in a vehicle is prohibited citywide, including on private property. A cooperative parking-lot owner does not change this.",
     "citation": "South Lake Tahoe City Code Ch. 4.70 (camping ordinance, effective 2019-06-06) — defines \"camp\" to include sleeping or preparing to sleep, and expressly extends that to a vehicle parked in a public space, public street, or private property, engine running or not.",
     "confidence": "medium-high — ordinance chapter and effective date confirmed by a prior research pass; full statute text not independently re-verified this session",
+    "confidenceTier": "high",
     "confirmed": "2026-08-12"
   },
   {
@@ -19,6 +20,7 @@
     "summary": "Using a vehicle for dwelling or sleeping outside a licensed RV park is a citywide nuisance per se. Casino lots have enforced an overnight-parking restriction against RVs and car campers since 2008.",
     "citation": "Reno Municipal Code §8.22.035.",
     "confidence": "medium — code section and enforcement pattern found via two independent search-engine extracts (Municode itself would not serve fetchable text); not confirmed against a primary source directly",
+    "confidenceTier": "medium",
     "confirmed": "2026-08-12"
   },
   {
@@ -28,8 +30,9 @@
     "lon": -119.9424,
     "radiusMi": 5,
     "summary": "No casino property here has a citable overnight-parking policy for car sleepers, and a county \"illegal camping\" ordinance exists whose exact reach to vehicles on private commercial property is unresolved. Treat as off-limits until that's settled.",
-    "citation": "Douglas County Code Ch. 9.44 \"Illegal Camping,\" §9.44.030 \"Camping Outside Designated Area\" — chapter and section confirmed to exist; operative text could not be retrieved (Municode/ecode360/codepublishing all blocked automated access).",
+    "citation": "Douglas County Code Ch. 9.44 \"Illegal Camping,\" §9.44.030 \"Camping Outside Designated Area\" — chapter and section confirmed to exist; operative text could not be retrieved (Municode/ecode360/codepublishing all blocked automated access). NOTE: the section's own title, \"Camping Outside Designated Area,\" suggests camping AT a designated/licensed area (e.g. a permitted RV resort) may be exempt rather than covered by this restriction -- Carson Valley Inn (recommended below) is a paid, licensed RV resort, which is plausibly such a designated area. This reading is NOT confirmed against the operative text and should not be treated as settled.",
     "confidence": "low-medium — this is a caution based on an unresolved ordinance plus an absence of positive evidence, not a confirmed prohibition",
+    "confidenceTier": "low",
     "confirmed": "2026-08-12"
   }
 ]

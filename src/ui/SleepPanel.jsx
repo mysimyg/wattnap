@@ -3,26 +3,32 @@ import {
   toggleSleepCategory,
   visibleSleepFeatures,
   selectSleepPin,
-  setSleepDetourMi,
+  stepSleepDetourMi,
   activeJurisdictionWarnings,
 } from '../state.js'
 import { StateMessage } from './StateMessage.jsx'
 
-const DETOUR_STEPS = [5, 10, 15, 20, 30, 45, 60]
-
 function JurisdictionNotice({ warning }) {
+  const tier = warning.confidenceTier || 'medium'
   return (
-    <div class="wn-card__warn wn-jxnotice" role="note">
+    <div class={`wn-card__warn wn-jxnotice wn-jxnotice--${tier}`} role="note">
       <strong>
         {warning.role === 'to' ? 'Destination' : 'Start'} — {warning.name}:
       </strong>{' '}
       {warning.summary}
       <div class="wn-jxnotice__cite">{warning.citation}</div>
-      <div class="wn-jxnotice__cite">Confidence: {warning.confidence}</div>
+      <div class="wn-jxnotice__confidence">
+        <span class={`wn-badge wn-badge--confidence-${tier}`}>{tier} confidence</span>{' '}
+        {warning.confidence}
+      </div>
       {warning.nearestOption ? (
         <div class="wn-jxnotice__nearest">
-          Nearest option in this dataset: <strong>{warning.nearestOption.name}</strong>,{' '}
+          Nearest {warning.nearestOption.unverified ? 'known (unverified)' : 'verified'} option in
+          this dataset: <strong>{warning.nearestOption.name}</strong>,{' '}
           ~{Math.round(warning.nearestOption.distMi)} mi away.
+          {warning.nearestOption.unverified ? (
+            <span class="wn-badge wn-badge--warn"> unverified — check before relying on it</span>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -46,12 +52,6 @@ export function SleepPanel() {
 
   const features = visibleSleepFeatures(s)
   const jxWarnings = activeJurisdictionWarnings(s)
-  const detourStepIndex = Math.max(0, DETOUR_STEPS.indexOf(s.sleepDetourMi))
-
-  function stepDetour(dir) {
-    const next = DETOUR_STEPS[Math.min(DETOUR_STEPS.length - 1, Math.max(0, detourStepIndex + dir))]
-    if (next !== s.sleepDetourMi) setSleepDetourMi(next)
-  }
 
   return (
     <div class="wn-sleeppanel">
@@ -65,7 +65,7 @@ export function SleepPanel() {
           <button
             type="button"
             class="wn-icon-btn wn-icon-btn--small"
-            onClick={() => stepDetour(-1)}
+            onClick={() => stepSleepDetourMi(-1)}
             aria-label="Narrower sleep search"
           >
             −
@@ -74,7 +74,7 @@ export function SleepPanel() {
           <button
             type="button"
             class="wn-icon-btn wn-icon-btn--small"
-            onClick={() => stepDetour(1)}
+            onClick={() => stepSleepDetourMi(1)}
             aria-label="Wider sleep search"
           >
             +
@@ -99,9 +99,14 @@ export function SleepPanel() {
       {features.length === 0 ? (
         <StateMessage tone="info" title="No sleep spots visible">
           <p>
-            {s.route
-              ? `None fall within ${s.sleepDetourMi} mi of the route — widen "sleep detour" above, or enable a category.`
-              : 'Enable a category above, or plan a trip to see spots along the corridor.'}
+            {(() => {
+              const anyCategoryOn = s.sleepCategories.some((c) => s.sleepCategoryEnabled[c.category] !== false)
+              if (!anyCategoryOn) return 'No category is enabled — turn one on above.'
+              if (s.route) {
+                return `None fall within ${s.sleepDetourMi} mi of the route — widen "sleep detour" above, or enable another category.`
+              }
+              return 'Enable a category above, or plan a trip to see spots along the corridor.'
+            })()}
           </p>
         </StateMessage>
       ) : (

@@ -111,4 +111,45 @@ describe('activeJurisdictionWarnings', () => {
     const warnings = activeJurisdictionWarnings(s)
     expect(warnings.some((w) => w.id === 'jx-reno' && w.role === 'from')).toBe(true)
   })
+
+  it('prefers a verified option over a closer unverified one', () => {
+    // Live repro: Ventura->Reno recommended "Boomtown Casino Hotel -- Verdi"
+    // (verified:false, its own notes say sources conflict on whether
+    // overnight parking is even allowed) over "Gold Ranch" (verified:true),
+    // which was only ~2mi farther. A "legal alternative" must not be a
+    // coin flip.
+    const s = {
+      from: null,
+      to: { label: 'Reno, NV', lat: 39.5296, lon: -119.8138 },
+      sleepFeatures: [
+        feature('boomtown', 'casino', -119.99, 39.52, {
+          name: 'Boomtown Casino Hotel -- Verdi',
+          verified: false,
+        }),
+        feature('gold-ranch', 'casino', -120.0, 39.53, {
+          name: 'Gold Ranch Casino & RV Resort -- Verdi',
+          verified: true,
+        }),
+      ],
+    }
+    const reno = activeJurisdictionWarnings(s).find((w) => w.id === 'jx-reno')
+    expect(reno.nearestOption.name).toBe('Gold Ranch Casino & RV Resort -- Verdi')
+    expect(reno.nearestOption.unverified).toBe(false)
+  })
+
+  it('falls back to an unverified option when no verified one exists, and says so', () => {
+    const s = {
+      from: null,
+      to: { label: 'Reno, NV', lat: 39.5296, lon: -119.8138 },
+      sleepFeatures: [
+        feature('only-option', 'casino', -119.99, 39.52, {
+          name: 'Only Unverified Option',
+          verified: false,
+        }),
+      ],
+    }
+    const reno = activeJurisdictionWarnings(s).find((w) => w.id === 'jx-reno')
+    expect(reno.nearestOption.name).toBe('Only Unverified Option')
+    expect(reno.nearestOption.unverified).toBe(true)
+  })
 })
