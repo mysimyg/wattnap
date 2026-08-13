@@ -310,6 +310,41 @@ Ships with two presets: `12→50 hop` and `10→80 classic`.
 returning a plan that dips below `reserveFloor`.
 
 ### 4.6 Sleep spots — `public/data/sleep-<category>.geojson`
+
+**Expanded 2026-08-12.** The original three categories (cracker-barrel,
+rest-area, casino) left **414 consecutive miles** of the real Ventura → South
+Lake Tahoe route with no sleep spot within 5 miles — they had been curated for
+a US-395 corridor the router no longer returns. Categories are now:
+
+`rest-area`, `truck-stop`, `walmart`, `cracker-barrel`, `casino`,
+`outdoor-retail`, `dispersed-nf`, `host-network`.
+
+`blm` remains blocked (phase 2 / icebox). `dispersed-nf` is National Forest
+land, kept as a separate self-contained slug so it can be dropped as one set.
+
+Two fields were added, and the distinction between them matters:
+
+- **`verified`** (existing) — *was this real when we checked?* Location AND
+  overnight policy both confirmed.
+- **`status`** (`"open"` | `"closed"`, default `"open"`) — *is it open right
+  now?* A closed record keeps its provenance in `scripts/sources/` but is
+  **never emitted as a pin**. Closed records require a `statusNote`.
+
+Why `status` exists: on 2026-08-12, six shipped pins were `verified: true`
+**and closed for construction**, including both Tejon Pass records — at the
+time the only coverage within 5 miles of the entire 491-mile Tahoe route. The
+static Caltrans GIS export carries no open/closed field; the QuickMap KML feed
+does. `verified` decays silently; `status` makes the decay checkable via
+`scripts/check-rest-area-status.mjs`.
+
+**Coverage is measured, not assumed.** `scripts/audit-sleep-coverage.mjs`
+reports the *longest stretch of route with nowhere to sleep* — the question a
+driver actually asks. A pin count can't answer it. This is enforced by a test.
+
+**Jurisdiction matters as much as location.** Some cities prohibit sleeping in
+a vehicle outright, including on private property — South Lake Tahoe (City
+Code Ch. 4.70) and Reno (§8.22.035) both do. In those places the correct
+dataset answer is **no pin at all**, not a pin with a caveat.
 Standard GeoJSON `FeatureCollection`, one file per category
 (`cracker-barrel`, `rest-area`, `casino`, `blm` in phase 2).
 ```jsonc

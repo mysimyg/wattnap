@@ -15,7 +15,9 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "US-101 northbound, at the south end of the Gaviota Tunnel, Santa Barbara County. Closest official CA rest area to Ventura on the 101 corridor (~33 mi north). Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump station. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b)). Lot grade, lighting and typical noise level are not stated by Caltrans -- expect Highway 101 tunnel traffic noise; unverified beyond that."
+      "notes": "US-101 northbound, at the south end of the Gaviota Tunnel, Santa Barbara County. Closest official CA rest area to Ventura on the 101 corridor (~33 mi north). Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump station. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a). Lot grade, lighting and typical noise level are not stated by Caltrans -- expect Highway 101 tunnel traffic noise; unverified beyond that.",
+      "status": "closed",
+      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12."
     },
     {
       "id": "rest-gaviota-s",
@@ -27,7 +29,9 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "US-101 southbound counterpart to the northbound Gaviota rest area, same tunnel location, Santa Barbara County. Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b)). Lighting/noise not stated by source."
+      "notes": "US-101 southbound counterpart to the northbound Gaviota rest area, same tunnel location, Santa Barbara County. Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a). Lighting/noise not stated by source.",
+      "status": "closed",
+      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12."
     },
     {
       "id": "rest-tejon-pass-n",
@@ -39,7 +43,9 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "I-5 northbound at the Tejon Pass/Grapevine summit, Kern County, 3.5 mi north of Gorman -- the I-5 waypoint on the way from the Ventura/LA basin area toward SR-14/US-395. Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump. Summit elevation ~4200 ft -- can be cold, windy, occasionally icy in winter (not covered by the Caltrans facility record; noted from general route knowledge, not a verified source claim). 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b))."
+      "notes": "I-5 northbound at the Tejon Pass/Grapevine summit, Kern County, 3.5 mi north of Gorman -- the I-5 waypoint on the way from the Ventura/LA basin area toward SR-14/US-395. Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump. Summit elevation ~4200 ft -- can be cold, windy, occasionally icy in winter (not covered by the Caltrans facility record; noted from general route knowledge, not a verified source claim). 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
+      "status": "closed",
+      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12."
     },
     {
       "id": "rest-tejon-pass-s",
@@ -51,7 +57,9 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "I-5 southbound counterpart at Tejon Pass, Kern County. Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b))."
+      "notes": "I-5 southbound counterpart at Tejon Pass, Kern County. Restrooms, water, picnic tables, phone, ADA access per Caltrans; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
+      "status": "closed",
+      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12. NOTE: the feed lists two Tejon Pass records BOTH labelled \"Northbound\" and both Closed; treating the southbound facility as closed too is the conservative reading of an apparent feed labelling error."
     },
     {
       "id": "rest-coso-junction",
@@ -63,7 +71,9 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "US-395, Olancha area, Inyo County, 17 mi south of the Rte 395/190 junction -- squarely on the Mojave-to-Bishop leg of the trip. Serves both directions (Caltrans lists N & S). Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b)). Open high desert -- expect wind and highway noise; lighting not stated by source."
+      "notes": "US-395, Olancha area, Inyo County, 17 mi south of the Rte 395/190 junction -- squarely on the Mojave-to-Bishop leg of the trip. Serves both directions (Caltrans lists N & S). Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a). Open high desert -- expect wind and highway noise; lighting not stated by source.",
+      "status": "closed",
+      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12."
     },
     {
       "id": "rest-division-creek",
@@ -75,7 +85,8 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "US-395, Inyo County, 10 mi north of Independence -- between Bishop and Lee Vining. Serves both directions. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b))."
+      "notes": "US-395, Inyo County, 10 mi north of Independence -- between Bishop and Lee Vining. Serves both directions. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
+      "status": "open"
     },
     {
       "id": "rest-crestview",
@@ -87,7 +98,8 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "US-395, Mono County, 6.4 mi north of the June Lake Junction (SR-203) -- the closest official CA rest area to Lee Vining on the 395 corridor. Serves both directions. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b)). High desert, ~7000 ft -- can be cold at night even in summer; not confirmed by source, general route knowledge."
+      "notes": "US-395, Mono County, 6.4 mi north of the June Lake Junction (SR-203) -- the closest official CA rest area to Lee Vining on the 395 corridor. Serves both directions. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a). High desert, ~7000 ft -- can be cold at night even in summer; not confirmed by source, general route knowledge.",
+      "status": "open"
     },
     {
       "id": "rest-donner-summit-e",
@@ -99,7 +111,8 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "I-80 eastbound on Donner Pass, Nevada County -- high-Sierra stop on the I-80 leg into Reno. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b)). Summit elevation ~7200 ft: snow/ice possible outside summer, chain control zone -- not part of the Caltrans facility record, noted from general route knowledge."
+      "notes": "I-80 eastbound on Donner Pass, Nevada County -- high-Sierra stop on the I-80 leg into Reno. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a). Summit elevation ~7200 ft: snow/ice possible outside summer, chain control zone -- not part of the Caltrans facility record, noted from general route knowledge.",
+      "status": "open"
     },
     {
       "id": "rest-donner-summit-w",
@@ -111,7 +124,8 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "I-80 westbound counterpart on Donner Pass, Nevada County. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b))."
+      "notes": "I-80 westbound counterpart on Donner Pass, Nevada County. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
+      "status": "open"
     },
     {
       "id": "rest-gold-run-e",
@@ -123,7 +137,8 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "I-80 eastbound between the Sawmill and Gold Run overcrossings, Placer County (near Dutch Flat) -- foothill stop on I-80 before the climb to Donner Summit and Reno. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b))."
+      "notes": "I-80 eastbound between the Sawmill and Gold Run overcrossings, Placer County (near Dutch Flat) -- foothill stop on I-80 before the climb to Donner Summit and Reno. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
+      "status": "open"
     },
     {
       "id": "rest-gold-run-w",
@@ -135,7 +150,15 @@
       "source": "Caltrans Safety Roadside Rest Areas (GIS)",
       "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
       "verified": true,
-      "notes": "I-80 westbound counterpart at Gold Run/Dutch Flat, Placer County. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour/24-hour limit, sleeping in vehicle OK, no camping (21 CCR 2205(b))."
+      "notes": "I-80 westbound counterpart at Gold Run/Dutch Flat, Placer County. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
+      "status": "closed",
+      "statusNote": "Closed per the Caltrans live SRRA status feed, checked 2026-08-12 (the EASTBOUND Gold Run facility is open and remains a live pin)."
     }
-  ]
+  ],
+  "statusCheck": {
+    "source": "Caltrans QuickMap live SRRA status feed",
+    "sourceUrl": "https://quickmap.dot.ca.gov/data/srra.kml",
+    "checked": "2026-08-12",
+    "note": "The static Caltrans GIS export carries no open/closed field; this live feed does. Re-check with scripts/check-rest-area-status.mjs."
+  }
 }

@@ -14,10 +14,30 @@
         "id": "casino-baldinis-sparks-nv",
         "name": "Baldini's Sports Casino -- Sparks",
         "category": "casino",
-        "notes": "865 S Rock Blvd, Sparks, NV 89431, near the I-80 corridor into Reno. Single secondary source (a Good Sam Camping community blog roundup) reports free overnight RV parking is allowed here; not corroborated by an official Baldini's statement or a second independent source. Confirm current policy at the casino before relying on it. Lot grade, lighting and typical noise not stated by source.",
+        "notes": "865 S Rock Blvd, Sparks, NV 89431, near the I-80 corridor into Reno. Single secondary source (a Good Sam Camping community blog roundup) reports free overnight RV parking is allowed here; not corroborated by an official Baldini's statement or a second independent source. Confirm current policy at the casino before relying on it. Lot grade, lighting and typical noise not stated by source. CAVEATS ADDED 2026-08-12: (1) the sourceUrl backing this record is a Good Sam blog post dated 2008-08-08 -- eighteen years old -- so treat the specific details as unconfirmed. A second independent community source (casinocamper.com) does corroborate that overnight is allowed, free, on the paved and level west side of the lot. (2) casinocamper user reviews from 2012-2019 repeatedly describe semi-permanent, derelict-looking rigs in that lot, with reviewers reluctant to leave their vehicle -- worth knowing before arriving tired at midnight. (3) Jurisdictionally this is still the safest FREE option on the corridor: Sparks Municipal Code 10.48.250 restricts vehicle-sleeping only on PUBLIC lots, not private ones like this.",
         "confirmed": "2026-08-12",
         "source": "Good Sam Camping blog, \"Casino Camping Location Report: Reno/Tahoe\"",
         "sourceUrl": "https://blog.goodsam.com/casino-camping-location-report-renotahoe/",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.8254922,
+          39.5710874
+        ]
+      },
+      "properties": {
+        "id": "casino-bonanza-reno-nv",
+        "name": "Bonanza Casino -- Reno",
+        "category": "casino",
+        "notes": "4720 N Virginia St, Reno, NV 89506 -- north Reno on US-395, about 3 mi from the Reno endpoint. Property status confirmed CURRENTLY OPERATING and open 24 hours on 2026-08-12 (Yelp and the casino's own site; 24-hour Branding Iron Cafe on site, so there is somewhere to sit at 3am). Overnight parking: casinocamper.com lists overnight RV parking as allowed, with a user report saying to park by the back wall up a slight hill behind employee parking, to let security know you are staying, and that one night is OK. The same report says the lot is NOT level and the usable area is small -- bad for a big rig, fine for a car. LEGAL WARNING, READ BEFORE USING THIS PIN: this lot is inside CITY OF RENO limits, and Reno Municipal Code section 8.22.035 declares using any vehicle for dwelling or sleeping purposes outside a licensed RV park to be a nuisance per se; Reno has also enforced a 1996 overnight-parking restriction against RVers in casino lots since 2008. Casino security tolerating you does not make the city ordinance go away. CONFIDENCE: LOW. The permission side rests on a single undated community listing with one user report; the ordinance side rests on search-engine extracts of the Municode-hosted code that could not be fetched directly. Deliberately left verified:false. Phone the casino at (775) 323-2724 and ask security before committing, and prefer casino-gold-ranch-verdi-nv (paid, legal, 10 mi west on I-80) if you have the option.",
+        "confirmed": "2026-08-12",
+        "source": "casinocamper.com RV-community listing and user report (secondary, undated listing)",
+        "sourceUrl": "https://www.casinocamper.com/bonanza-casino/",
         "verified": false
       }
     },
@@ -58,6 +78,26 @@
         "confirmed": "2026-08-12",
         "source": "Carson Valley Inn official site",
         "sourceUrl": "https://www.carsonvalleyinn.com/accommodations/rv-resort",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.0000468,
+          39.5023593
+        ]
+      },
+      "properties": {
+        "id": "casino-gold-ranch-verdi-nv",
+        "name": "Gold Ranch Casino & RV Resort -- Verdi",
+        "category": "casino",
+        "notes": "350 Gold Ranch Rd, Verdi, NV 89439 -- I-80 exit 2, the first Nevada exit eastbound off Donner Pass and about 10 mi west of the Reno endpoint. This is a PAID, reservation-based RV resort attached to the casino, NOT free lot boondocking: 105 fully paved sites, 64 of them extra-wide pull-throughs, full hookups with 20/30/50 amp, wi-fi at every site. Rates posted on the operator's own site on 2026-08-12 for the summer season (May 1 - Sept 30, 2026): $60 back-in / $65 pull-through Mon-Thu, $65 / $70 Fri-Sun, premium sites $70-75, and $85-100 during Hot August Nights (Jul 30 - Aug 9). Valid credit card required, 48-hour cancellation notice or you are charged one night. Reservations (775) 345-8880. Amenities: remodeled restrooms, laundry, clubhouse with fireplace, seasonal heated pool, year-round jacuzzi, pet-friendly (up to two dogs), 24-hour convenience store, Sinclair gas station, three food options on site. RELEVANT TO AN EV: there is a 16-stall Tesla V3 Supercharger (up to 250 kW, open to non-Tesla EVs via NACS/CCS adapter, 24 hours) at this same 350 Gold Ranch Rd address, confirmed 2026-08-12 via OpenStreetMap POI plus PlugShare and DCFC Tracker listings -- so this is one of the few spots on the corridor where you can charge and legally sleep on the same lot. JURISDICTION: unincorporated Washoe County, not Reno city, so the Reno vehicle-dwelling nuisance ordinance does not apply, and Washoe County's 2024 camping ban covers public/county property rather than a licensed private RV park. CONFIDENCE: HIGH on the resort operating, its rates and its legality -- all from the operator's own current site. Lot lighting and overnight noise are not stated by the operator; it sits immediately alongside I-80, so expect freeway noise. Not an anonymous pull-in-and-sleep spot: you check in like a campground.",
+        "confirmed": "2026-08-12",
+        "source": "Gold Ranch Casino & RV Resort official site (RV Resort page)",
+        "sourceUrl": "https://goldranchrvcasino.com/rv-resort/",
         "verified": true
       }
     }

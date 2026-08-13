@@ -1,0 +1,65 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.034081,
+          38.824064
+        ]
+      },
+      "properties": {
+        "id": "nf-echo-lake-snopark",
+        "name": "Echo Lake SNO-PARK (US-50, Echo Summit)",
+        "category": "dispersed-nf",
+        "notes": "Paved, plowed lot about half a mile in on Echo Lake Road / Johnson Pass Road, north side of US-50, roughly one mile west of Echo Summit, ~7,400 ft, Eldorado National Forest. ROAD: fully paved from US-50 -- a normal low-clearance car makes it, this is the only pin in this file that needs no dirt driving at all. SEASON: the one spot on this corridor that is BETTER in winter than in summer, because it is a plowed SNO-PARK. A California SNO-PARK permit is required for every vehicle November 1 through May 30 ($15/day or $40/season, displayed on the left dashboard; sold at the Kyburz Silverfork Store westbound and Sunrise Ski and Snowboard in South Lake Tahoe eastbound). Outside that window no permit is needed but it is just an unplowed Forest Service trailhead lot. WINTER CAVEAT: US-50 over Echo Summit is a chain-control and closure route -- the pin can be legal and still unreachable, and the state's own guidance is to avoid overnight parking here during active snow removal so you do not block a plow. There is no parking on the entry road (Johnson Pass Rd) itself. OVERNIGHT: permitted -- the statewide SNO-PARK rule is 'overnight parking, including in-vehicle camping is allowed except where noted or signed', and unlike Donner Summit and Blackwood Canyon this site carries no posted prohibition; the state page instead discusses how to park overnight here. Sleeping OUTSIDE the vehicle or pitching a tent in the lot is prohibited at all SNO-PARKs. Vehicles left overnight are supposed to be staked at all four corners with 1x2-inch by 8-foot poles. STAY LIMIT: 10 days per calendar year in the Eldorado's undeveloped locations (Forest Order 03-25-08). FIRE: as of 2026-08-12 Eldorado Forest Order 03-26-05 bans all flame outside listed developed sites including gas stoves and lanterns -- sleeping in the car is fine, cooking is not. CONFIDENCE: high on location (coordinate is the state's own, 38 deg 49' 26.63\" N / 120 deg 2' 2.69\" W) and high on legality of in-vehicle overnight use, since it rests on the published statewide SNO-PARK rule plus the absence of the site-specific ban that comparable sites do carry. Not personally visited; conditions, signage and the permit window can change.",
+        "confirmed": "2026-08-12",
+        "source": "California State Parks OHMVR Division -- Echo Lake SNO-PARK",
+        "sourceUrl": "https://ohv.parks.ca.gov/?page_id=23070",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.158093,
+          38.766643
+        ]
+      },
+      "properties": {
+        "id": "nf-packsaddle-pass-dispersed",
+        "name": "Packsaddle Pass Road dispersed area (US-50 near Strawberry)",
+        "category": "dispersed-nf",
+        "notes": "Dispersed camping on the ridge above Strawberry Valley, reached from US-50 near Strawberry / Twin Bridges, Eldorado National Forest, roughly 3-4 road miles off the highway and about 20 miles short of Echo Summit. ROAD: users describe a PAVED main road up the ridge with dirt spurs branching off to the sites, and it is a drive-in where you park next to your spot -- the best road profile of the two dispersed entries here for a low-clearance car, though one reviewer flags it as a bad idea after rain. SEASON: summer and early fall only in practice. This is a high ridge on the west side of Echo Summit; the spurs are unplowed and the Eldorado closes all dirt roads and trails to motor vehicles January 1 through March 31. Do not plan on this pin between roughly November and June. BURN SCAR AND LOGGING: reviewers note recent clearing and 'deforestation' with wide open cleared areas -- this is Caldor Fire salvage country, so expect exposure, dust, log trucks on weekdays, and dead standing timber. Some road noise from US-50 carries up. STAY LIMIT: 10 days per calendar year in undeveloped locations per ranger district (Eldorado Forest Order 03-25-08). RULES: 100 ft from water, outside developed campground boundaries, vehicle on a designated MVUM road and parked within one vehicle length of the road edge. FIRE: as of 2026-08-12 all flame including gas stoves and lanterns is banned outside listed developed sites (Forest Order 03-26-05); a free California Campfire Permit is required at other times. CONFIDENCE: medium-low. The coordinate is community-sourced and marks the area entrance, not a site; it was not corroborated against the Eldorado MVUM and no posted signage was verified. Dispersed camping in this general area is consistent with Eldorado NF policy and no closure order covers it as of 2026-08-12.",
+        "confirmed": "2026-08-12",
+        "source": "The Dyrt (community) -- Packsaddle Pass, El Dorado National Forest Dispersed; area legality cross-checked against Eldorado NF official camping rules",
+        "sourceUrl": "https://thedyrt.com/camping/california/el-dorado-national-forest-ca",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.290122,
+          38.767247
+        ]
+      },
+      "properties": {
+        "id": "nf-silver-fork-road-dispersed",
+        "name": "Silver Fork Road dispersed area (US-50 at Kyburz)",
+        "category": "dispersed-nf",
+        "notes": "Dispersed camping corridor along Silver Fork Road, which leaves US-50 at Kyburz and follows the Silver Fork of the American River southeast, Eldorado National Forest, Placerville Ranger District, ~4,000-5,000 ft. The coordinate is the entrance to the area, roughly a mile up from US-50 -- NOT a specific site. ROAD: the lower road is a paved forest/county road; the actual camping is on dirt spurs off it, described by users as well-maintained but 'slightly tricky with a car' and likely bad after rain. For a low-clearance car the realistic play is to stay on the paved section and use a pullout within one vehicle length of the road edge, which is what the Eldorado's own rule requires anyway; do not commit to a dirt spur in the dark. SEASON: shoulder-season usable and one user reports camping here in December, but all dirt roads and trails on the Eldorado are closed to motor vehicles January 1 through March 31, and Silver Fork Road can hold snow and is not a priority plow route. Treat it as summer/early-fall only for a Model Y. BURN SCAR: this drainage burned in the 2021 Caldor Fire -- expect standing dead timber, and do not park under it in wind. STAY LIMIT: 10 days per calendar year in undeveloped locations per ranger district (Eldorado Forest Order 03-25-08). RULES: at least 100 ft from the creek, outside the marked boundary of Silver Fork and China Flat campgrounds, vehicle on a designated MVUM road. FIRE: as of 2026-08-12 all flame including gas stoves and lanterns is banned outside listed developed sites (Forest Order 03-26-05); when restrictions lift you still need a free California Campfire Permit. CONFIDENCE: medium-low. The area is named as a dispersed camping area by local sources and general dispersed camping here is consistent with Eldorado NF policy, but the coordinate is community-sourced and was not corroborated against the MVUM, and no specific legal site was confirmed. Some third-party listings claim a Recreation.gov permit is needed here -- that appears to be wrong; the Eldorado's own page says dispersed camping is free and permit-free apart from the campfire permit. Verify on the ground.",
+        "confirmed": "2026-08-12",
+        "source": "The Dyrt (community) -- USFS Silver Fork Dispersed; area legality cross-checked against Eldorado NF official camping rules",
+        "sourceUrl": "https://thedyrt.com/camping/california/usfs-silver-fork-dispersed",
+        "verified": false
+      }
+    }
+  ]
+}

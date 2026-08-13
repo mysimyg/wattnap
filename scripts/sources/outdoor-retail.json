@@ -1,0 +1,33 @@
+{
+  "sourceName": "Bass Pro Shops store locator pages, cross-checked against OpenStreetMap POIs, with overnight-parking signal from TheDyrt.com camping listings",
+  "sourceUrl": "https://stores.basspro.com/us/ca/",
+  "retrieved": "2026-08-12",
+  "method": "Searched for Cabela's and Bass Pro Shops locations near the corridor, focused on the Sacramento/Rocklin/Manteca area per task guidance. No Cabela's-branded store exists near this corridor (Cabela's and Bass Pro Shops merged in 2017 and California's Cabela's-branded stores are in Rocklin -- now operating under the Bass Pro Shops brand -- so 'Cabela's' as a separate chain has no unique CA presence). Found two Bass Pro Shops locations that land on or very near the route: Manteca (I-5 corridor, near the mile-327 Tracy/Lathrop anchor) and Rocklin (I-80 corridor, essentially the same interchange area as the existing Rocklin Cracker Barrel pin already in the dataset). Each address was confirmed via the store's own stores.basspro.com page and independently geocoded via OpenStreetMap/Nominatim, which returned a POI literally tagged shop=outdoor, name='Bass Pro Shops' at that exact address for both -- a strong existence confirmation. Overnight-parking evidence comes from TheDyrt.com's camping listings for each specific store (a crowd-sourced RV-travel directory, not Bass Pro corporate), supplemented by general-practice reporting from Jalopnik/SlashGear confirming Bass Pro Shops has no single company-wide RV parking policy -- it is store-by-store, manager's discretion, call ahead.",
+  "policyNote": "Bass Pro Shops/Cabela's has no published company-wide overnight parking policy (confirmed via Jalopnik and SlashGear reporting, both citing years of RVer first-hand reports rather than a corporate statement). Practice is store-by-store and at manager discretion; always call or check in before staying. Both stores below are worth surfacing: Manteca fills real need in the under-served I-5 Central Valley stretch, and Rocklin sits at the same interchange as the existing Cracker Barrel pin, giving that stop two independent overnight options.",
+  "records": [
+    {
+      "id": "retail-manteca",
+      "name": "Bass Pro Shops -- Manteca",
+      "category": "outdoor-retail",
+      "lat": 37.7822484,
+      "lon": -121.2261786,
+      "confirmed": "2026-08-12",
+      "source": "stores.basspro.com store page, cross-checked via OpenStreetMap POI (shop=outdoor, name=Bass Pro Shops)",
+      "sourceUrl": "https://stores.basspro.com/us/ca/manteca/1356-bass-pro-dr.html",
+      "verified": true,
+      "notes": "1356 Bass Pro Dr, Manteca, CA 95337, at the Promenade Shops at Orchard Valley, ~1 mi off I-5/CA-120/CA-99 interchange area near Lathrop -- about 7 miles from the mile-327 Tracy/Lathrop route anchor, squarely in the under-served I-5 Central Valley gap. TheDyrt.com's store-specific listing states the location 'provides overnight parking for RVs and travelers along major Central Valley routes' and 'allows camping in designated areas of its parking lot' with restroom access during business hours -- this is a third-party aggregator claim, not a Bass Pro corporate policy, so call ahead (209-825-8400) and check with the manager on arrival. Lot grade, lighting, and exact designated-area location not stated by any source; expect commercial-plaza traffic noise, not highway noise."
+    },
+    {
+      "id": "retail-rocklin",
+      "name": "Bass Pro Shops -- Rocklin",
+      "category": "outdoor-retail",
+      "lat": 38.8045539,
+      "lon": -121.2010772,
+      "confirmed": "2026-08-12",
+      "source": "stores.basspro.com store page, cross-checked via OpenStreetMap POI (shop=outdoor, name=Bass Pro Shops)",
+      "sourceUrl": "https://stores.basspro.com/us/ca/rocklin/5472-crossings-dr.html",
+      "verified": true,
+      "notes": "5472 Crossings Dr, Rocklin, CA 95677, at Rocklin Crossings -- about 0.5 mi from the existing Cracker Barrel -- Rocklin pin already in the dataset, both just off the I-80 Rocklin exit toward Truckee/Reno. TheDyrt.com's store-specific listing describes it as 'an overnight parking stop... for road-trippers who need a quick layover' but flags 'highway noise is part of the experience here' with a camper review calling it 'Little noisy beside the hwy' -- real evidence, but a noise downside not present at the Manteca store. Third-party aggregator claim, not Bass Pro corporate policy; call ahead (916-251-3800) and check with the manager on arrival. Lot grade and lighting not stated by any source."
+    }
+  ]
+}

@@ -762,3 +762,20 @@ a {
 .wn-header .wn-btn {
   min-height: 44px;
 }
+
+/* Unverified sleep spots must never read like confirmed ones. Same principle
+   as kwSource on chargers: a guess may not wear the clothes of a fact. */
+.wn-card__warn {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--warn-border, #8a6d3b);
+  border-radius: 8px;
+  background: var(--warn-bg, rgba(217, 154, 78, 0.12));
+  color: var(--warn-text, #f0c987);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.wn-badge--warn {
+  color: var(--warn-text, #f0c987);
+  font-weight: 600;
+}

@@ -14,10 +14,14 @@
  *   - a missing or non-numeric coordinate
  *   - a coordinate outside the CA/NV bounding box
  *   - a confirmed date that isn't a valid ISO YYYY-MM-DD date
- *   - a category outside the v0 allowlist (cracker-barrel, rest-area, casino)
+ *   - a category outside the allowlist in CATEGORY_META below
  *     -- "blm" is explicitly phase 2 / icebox per DESIGN.md and must never
  *     be built by this script, even if a source file contains one.
  *   - a verified field that isn't a strict boolean
+ *   - a status that isn't "open"/"closed", or a closed record with no statusNote
+ *
+ * Records marked status:"closed" are kept in scripts/sources/ for provenance
+ * but are NOT emitted as pins -- see the note at the status check below.
  *
  * Deterministic: no Date.now(), no random ids, no host-dependent readdir
  * order relied upon -- everything is sorted by id before it's written, and
@@ -31,13 +35,28 @@ const here = dirname(fileURLToPath(import.meta.url))
 const sourcesDir = join(here, 'sources')
 const outDir = join(here, '..', 'public', 'data')
 
-// v0 categories only. "blm" is phase 2 / icebox -- DESIGN.md §4.6 -- and is
-// deliberately excluded from this allowlist so a stray record can never slip
-// through, even if someone drops a blm-tagged source file in by mistake.
+// Category allowlist. Expanded 2026-08-12: the original three categories left
+// 414 consecutive miles of the real Ventura->Tahoe route with nowhere to
+// sleep (see scripts/audit-sleep-coverage.mjs), so the user asked for the
+// commercial and public-land categories that actually cover I-5.
+//
+// "blm" is STILL blocked -- it remains phase 2 / icebox per DESIGN.md. The
+// public-land category built here is "dispersed-nf" (National Forest), which
+// is a deliberately separate, self-contained slug so it can be adopted or
+// dropped as one clean set without touching anything else.
+//
+// NOTE: `icon` is currently metadata only. src/map/pins.js renders every
+// sleep pin as the same moon glyph tinted by `color`, so a distinct COLOR is
+// what actually distinguishes a category on the map -- not the icon name.
 const CATEGORY_META = {
-  'cracker-barrel': { label: 'Cracker Barrel', icon: 'utensils', color: '#d99a4e' },
   'rest-area': { label: 'Rest Area', icon: 'parking-circle', color: '#4ea1d9' },
+  'truck-stop': { label: 'Truck Stop', icon: 'truck', color: '#f472b6' },
+  walmart: { label: 'Walmart', icon: 'shopping-cart', color: '#4ade80' },
+  'cracker-barrel': { label: 'Cracker Barrel', icon: 'utensils', color: '#d99a4e' },
   casino: { label: 'Casino', icon: 'dice-5', color: '#b967ff' },
+  'outdoor-retail': { label: 'Outdoor Retail', icon: 'tent', color: '#2dd4bf' },
+  'dispersed-nf': { label: 'Dispersed (Nat. Forest)', icon: 'tree-pine', color: '#a3e635' },
+  'host-network': { label: 'Host Network', icon: 'handshake', color: '#94a3b8' },
 }
 
 // Loose CA/NV bounding box, generous enough to not clip real corridor points
@@ -122,6 +141,7 @@ function loadRecords() {
 function validateAndNormalize(records) {
   const seenIds = new Map()
   const features = []
+  const skippedClosed = []
 
   for (const record of records) {
     const context = `${record.__file} / id=${record.id ?? '<missing>'}`
@@ -156,6 +176,23 @@ function validateAndNormalize(records) {
       assertNonEmptyString(record.ioverlanderUrl, 'ioverlanderUrl', context)
     }
 
+    // `status` is separate from `verified` on purpose. `verified` answers
+    // "was this real when we checked?"; `status` answers "is it open right
+    // now?". On 2026-08-12 six shipped pins were verified:true AND closed for
+    // construction -- including Tejon Pass, which was the only coverage
+    // within 5 miles of the entire Ventura->Tahoe route. Sending a tired
+    // driver to a locked gate is worse than showing nothing, so a closed
+    // record stays in the source file for provenance and is dropped here.
+    const status = record.status ?? 'open'
+    if (status !== 'open' && status !== 'closed') {
+      fail(`${context}: "status" must be "open" or "closed", got ${JSON.stringify(record.status)}`)
+    }
+    if (status === 'closed') {
+      assertNonEmptyString(record.statusNote, 'statusNote', context)
+      skippedClosed.push({ id: record.id, name: record.name, note: record.statusNote })
+      continue
+    }
+
     const properties = {
       id: record.id,
       name: record.name,
@@ -179,7 +216,7 @@ function validateAndNormalize(records) {
 
   // Stable, deterministic order regardless of source file read order.
   features.sort((a, b) => (a.properties.id < b.properties.id ? -1 : a.properties.id > b.properties.id ? 1 : 0))
-  return features
+  return { features, skippedClosed }
 }
 
 function groupByCategory(features) {
@@ -219,7 +256,7 @@ function writeIndex(categoriesPresent) {
 
 function main() {
   const records = loadRecords()
-  const features = validateAndNormalize(records)
+  const { features, skippedClosed } = validateAndNormalize(records)
   const byCategory = groupByCategory(features)
 
   const summary = []
@@ -234,6 +271,13 @@ function main() {
   console.log(`[build-sleep-geojson] wrote ${byCategory.size} category file(s):`)
   console.log(summary.join('\n'))
   console.log(`[build-sleep-geojson] wrote sleep-index.json with ${index.length} entries`)
+  if (skippedClosed.length) {
+    console.log(
+      `[build-sleep-geojson] SKIPPED ${skippedClosed.length} record(s) marked status:"closed" ` +
+        `-- kept in scripts/sources/ for provenance, not shipped as pins:`
+    )
+    for (const s of skippedClosed) console.log(`  - ${s.id}: ${s.name}`)
+  }
 }
 
 main()

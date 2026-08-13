@@ -14,7 +14,19 @@ const REQUIRED_PROPS = ['id', 'name', 'category', 'notes', 'confirmed', 'source'
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 // Same bounding box the build script enforces -- CA/NV with a small buffer.
 const BBOX = { minLon: -124.6, maxLon: -113.9, minLat: 32.0, maxLat: 42.1 }
-const ALLOWED_CATEGORIES = ['cracker-barrel', 'rest-area', 'casino']
+// Kept in sync with CATEGORY_META in scripts/build-sleep-geojson.mjs.
+// Expanded 2026-08-12 to cover the I-5 corridor; "blm" stays excluded
+// (phase 2 / icebox per DESIGN.md) and is asserted against below.
+const ALLOWED_CATEGORIES = [
+  'rest-area',
+  'truck-stop',
+  'walmart',
+  'cracker-barrel',
+  'casino',
+  'outdoor-retail',
+  'dispersed-nf',
+  'host-network',
+]
 
 function isValidIsoDate(value) {
   if (typeof value !== 'string' || !ISO_DATE_RE.test(value)) return false
@@ -197,5 +209,50 @@ describe('sleep spot data (public/data/sleep-*.geojson + sleep-index.json)', () 
       const sortedIds = [...ids].sort()
       expect(ids, `${file}: feature order is not sorted by id`).toEqual(sortedIds)
     }
+  })
+})
+
+// --------------------------------------------------------- corridor coverage --
+/**
+ * The dataset's whole purpose is answering "where can I sleep on THIS drive?"
+ * A pin count can't answer that -- 200 pins around Sacramento still leaves the
+ * Central Valley empty. On 2026-08-12 the shipped data had 19 pins and left
+ * 414 consecutive miles of the Ventura->Tahoe route with nothing within 5
+ * miles. These guard the property that actually matters: the longest stretch
+ * of road with nowhere to stop.
+ */
+describe('sleep coverage along the real reference routes', () => {
+  const MAX_ACCEPTABLE_GAP_MI = 120
+
+  it.each([
+    ['route-slt-default-live.json', 'Ventura -> South Lake Tahoe'],
+    ['route-reno-default-live.json', 'Ventura -> Reno'],
+  ])('%s has no catastrophic sleep gap', async (file, _label) => {
+    const { auditRoute, loadRouteGeometry, loadSleepPins } = await import(
+      '../scripts/audit-sleep-coverage.mjs'
+    )
+    const audit = auditRoute(loadRouteGeometry(file), loadSleepPins(), { maxDetourMi: 5 })
+    expect(audit.longestGapMi).toBeLessThan(MAX_ACCEPTABLE_GAP_MI)
+    expect(audit.inCorridorCount).toBeGreaterThan(12)
+  })
+
+  it('never ships a facility known to be closed', async () => {
+    // Six rest areas were shipped as verified:true while closed for
+    // construction, including the only coverage on the Tahoe route.
+    const { loadSleepPins } = await import('../scripts/audit-sleep-coverage.mjs')
+    const pins = loadSleepPins()
+    const closedIds = [
+      'rest-tejon-pass-n',
+      'rest-tejon-pass-s',
+      'rest-gaviota-n',
+      'rest-gaviota-s',
+      'rest-coso-junction',
+      'rest-gold-run-w',
+    ]
+    for (const id of closedIds) {
+      expect(pins.find((p) => p.id === id)).toBeUndefined()
+    }
+    // ...but the open direction of a partially-closed facility must survive.
+    expect(pins.find((p) => p.id === 'rest-gold-run-e')).toBeTruthy()
   })
 })

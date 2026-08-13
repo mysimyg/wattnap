@@ -1,0 +1,45 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.2261786,
+          37.7822484
+        ]
+      },
+      "properties": {
+        "id": "retail-manteca",
+        "name": "Bass Pro Shops -- Manteca",
+        "category": "outdoor-retail",
+        "notes": "1356 Bass Pro Dr, Manteca, CA 95337, at the Promenade Shops at Orchard Valley, ~1 mi off I-5/CA-120/CA-99 interchange area near Lathrop -- about 7 miles from the mile-327 Tracy/Lathrop route anchor, squarely in the under-served I-5 Central Valley gap. TheDyrt.com's store-specific listing states the location 'provides overnight parking for RVs and travelers along major Central Valley routes' and 'allows camping in designated areas of its parking lot' with restroom access during business hours -- this is a third-party aggregator claim, not a Bass Pro corporate policy, so call ahead (209-825-8400) and check with the manager on arrival. Lot grade, lighting, and exact designated-area location not stated by any source; expect commercial-plaza traffic noise, not highway noise.",
+        "confirmed": "2026-08-12",
+        "source": "stores.basspro.com store page, cross-checked via OpenStreetMap POI (shop=outdoor, name=Bass Pro Shops)",
+        "sourceUrl": "https://stores.basspro.com/us/ca/manteca/1356-bass-pro-dr.html",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.2010772,
+          38.8045539
+        ]
+      },
+      "properties": {
+        "id": "retail-rocklin",
+        "name": "Bass Pro Shops -- Rocklin",
+        "category": "outdoor-retail",
+        "notes": "5472 Crossings Dr, Rocklin, CA 95677, at Rocklin Crossings -- about 0.5 mi from the existing Cracker Barrel -- Rocklin pin already in the dataset, both just off the I-80 Rocklin exit toward Truckee/Reno. TheDyrt.com's store-specific listing describes it as 'an overnight parking stop... for road-trippers who need a quick layover' but flags 'highway noise is part of the experience here' with a camper review calling it 'Little noisy beside the hwy' -- real evidence, but a noise downside not present at the Manteca store. Third-party aggregator claim, not Bass Pro corporate policy; call ahead (916-251-3800) and check with the manager on arrival. Lot grade and lighting not stated by any source.",
+        "confirmed": "2026-08-12",
+        "source": "stores.basspro.com store page, cross-checked via OpenStreetMap POI (shop=outdoor, name=Bass Pro Shops)",
+        "sourceUrl": "https://stores.basspro.com/us/ca/rocklin/5472-crossings-dr.html",
+        "verified": true
+      }
+    }
+  ]
+}

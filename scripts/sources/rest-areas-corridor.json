@@ -1,0 +1,85 @@
+{
+  "sourceName": "Caltrans Safety Roadside Rest Areas (GIS Open Data) + Caltrans QuickMap live SRRA status feed",
+  "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
+  "retrieved": "2026-08-12",
+  "method": "Downloaded the same Caltrans open-data GeoJSON export the existing caltrans-rest-areas.json cites (hub.arcgis.com/api/download/v1/items/82e6f835427a4035a354ba1df47f603b/geojson?layers=0, 87 statewide records), filtered to ROUTE values 5, 50, 89, 267, 80, 99, 205 to check every route the I-5 Central Valley / US-50 / Tahoe segment of the corridor could plausibly touch. Cross-checked every I-5 Central Valley candidate plus the existing dataset's I-5/US-101 records against Caltrans' live QuickMap SRRA status feed (https://quickmap.dot.ca.gov/data/srra.kml, an operational open/closed feed with per-facility 'Last updated' timestamps -- fetched 2026-08-12, timestamps read 08/12/2026), which carries real-time-ish closure status Caltrans' own static GIS export does not.",
+  "policyNote": "California: 8-hour parking limit in any 24-hour period at a Safety Roadside Rest Area is Cal. Code Regs. tit. 21, section 2205(b) -- confirmed by fetching the regulation text (law.cornell.edu/regulations/california/21-CCR-2205) and reading its lettered subsections directly on 2026-08-12: (b) is specifically the 8-hour/24-hour parking-and-remaining limit ('Vehicles shall not be parked and persons shall not remain for more than eight (8) hours in any twenty-four (24) hour period'). Camping is a SEPARATE subsection, 2205(a) ('Camping is prohibited'), with tent/shelter pitching barred by 2205(d) and campfires by 2205(e). The existing caltrans-rest-areas.json in this repo cites '2205(b)' for the combined 8-hour-limit-plus-no-camping statement; that compresses two adjacent subsections into one citation. It is not wrong about what the rule says, but the precise cite for the camping ban is (a), not (b) -- flagging so it can be tightened. Sleeping in the vehicle itself is not separately regulated; it is permitted as an ordinary use of the parking allowance up to the 8-hour/24-hour cap. Nevada: NDOT's own rest-areas-welcome-centers page on dot.nv.gov returned HTTP 403 to a direct automated fetch here too (same block the existing scripts/sources/nevada-rest-areas.json hit), so this could not be confirmed against NDOT's own text. Secondary sources (regulations.justia.com mirror of the Nevada Administrative Code) point to NAC 408.595 ('Occupancy'), which sets an 18-hour limit in any 2-week period for parking/camping/occupancy in a roadside park or safety rest area, and NAC 408.615 ('Prohibited acts'), both adopted under NRS 408.215 and 408.275; several secondary rest-area sites describe sleeping in the vehicle as permitted (rest areas exist to promote safe driving) within that occupancy limit. This is a secondary-source citation, not a direct NDOT confirmation -- treat as informative, not verified, consistent with how nevada-rest-areas.json already flags its Wadsworth record.",
+  "excludedClosedFacilities": [
+    {
+      "name": "Coalinga-Avenal Safety Roadside Rest Area (northbound and southbound)",
+      "lat": 36.089676,
+      "lon": -120.113156,
+      "route": "I-5, Fresno County, 1.2 mi N of Lassen Ave (near Avenal) -- would sit ~9 mi from the route's mile-200 Coalinga waypoint (36.1958/-120.2069)",
+      "reason": "Deliberately excluded, not just flagged. Live Caltrans QuickMap SRRA feed (quickmap.dot.ca.gov/data/srra.kml, checked 2026-08-12 23:20 per the feed's own 'Last updated' timestamp) shows both directions status 'Closed due to Utility Work, Expected to re-open 09/01/2026 03:01 PM'. The build script (scripts/build-sleep-geojson.mjs) has no closed/open field and renders every record in this file as a live pin regardless of the 'verified' flag, so an included-but-closed record would show a driver a sleep spot that does not currently exist. A documented gap is safer than a pin to a locked gate. Re-check after 2026-09-01 and add rest-coalinga-avenal-n / rest-coalinga-avenal-s (ids reserved, not yet used anywhere) once the feed shows 'Open'.",
+      "source": "Caltrans QuickMap live SRRA status feed",
+      "sourceUrl": "https://quickmap.dot.ca.gov/data/srra.kml"
+    },
+    {
+      "name": "Westley Safety Roadside Rest Area (northbound and southbound)",
+      "lat": 37.583942,
+      "lon": -121.322368,
+      "route": "I-5, Stanislaus County, 0.9 mi S of the San Joaquin county line -- would sit ~11-13 mi from the route between the mile-300 Patterson and mile-327 Tracy/Lathrop waypoints, roughly the midpoint of that stretch",
+      "reason": "Deliberately excluded, same reasoning as Coalinga-Avenal. Live Caltrans QuickMap SRRA feed (checked 2026-08-12) shows both directions status 'Closed due to Rest Area Work, Expected to re-open 08/31/2026 05:59 PM' -- a long-term full closure that (per Caltrans District 10 traffic advisories dated as late as 07/24/2026) began July 1, 2024 for a $27.9M comfort-station rebuild and slipped well past its original fall-2025 target. Re-check after 2026-08-31 and add rest-westley-n / rest-westley-s (ids reserved, not yet used anywhere) once the feed shows 'Open'.",
+      "source": "Caltrans QuickMap live SRRA status feed",
+      "sourceUrl": "https://quickmap.dot.ca.gov/data/srra.kml"
+    }
+  ],
+  "confirmedGaps": [
+    "I-5 Buttonwillow (mile ~126) to Santa Nella (mile ~250): no official Caltrans SRRA in between -- the full statewide Caltrans GIS export (87 records) has nothing on I-5 in this stretch. ~124 route miles with no official rest area even before accounting for the Coalinga-Avenal closure above.",
+    "I-5 Santa Nella (mile ~250) to Sacramento (mile ~375, covering Patterson, Tracy/Lathrop, Stockton, Elk Grove): the only official facility in this stretch is Westley (currently closed, see above); the next official I-5 SRRA north of Westley in the Caltrans export is Dunnigan, well north of Sacramento near Williams/Yolo County -- off this corridor entirely. So Stockton and the Sacramento approach on I-5 have zero official rest areas, closure or no closure.",
+    "US-50 Sacramento to South Lake Tahoe (mile ~400-491, the entire SLT-leg climb through Placerville and Echo Summit): the Caltrans GIS export contains zero SRRA records with ROUTE=50 anywhere in California. This is not a data gap on my end -- Caltrans simply does not operate a Safety Roadside Rest Area on US-50. Genuinely nothing official for this entire leg.",
+    "CA-89 and CA-267 near Lake Tahoe: zero SRRA records for ROUTE=89 or ROUTE=267 in the Caltrans export. No official CA rest areas on either road.",
+    "I-80 Sacramento/Auburn (mile ~400-450 on the Reno leg) to Gold Run (~mile 450): the Caltrans export has nothing on I-80 between the Bay Area (Hunter Hill, Solano County, well off this corridor) and Gold Run/Dutch Flat -- no official rest area covers the Sacramento-to-foothills stretch of the Reno leg.",
+    "I-80/US-395 Nevada, California line (Verdi/Boomtown) through Reno and Sparks: NDOT's own page is blocked to automated fetch (403, same as scripts/sources/nevada-rest-areas.json hit), but every secondary source checked (interstaterestareas.com's own I-80 Nevada rest-area list, which enumerates all NDOT I-80 rest areas by name) agrees the westbound-only Wadsworth facility already in nevada-rest-areas.json (~30 mi east of Reno, mile marker ~42) is the nearest official NDOT rest area to Reno on I-80 in either direction -- meaning there is no NDOT rest area at all between the state line and Reno, and Wadsworth's westbound-only access means it does not serve an eastbound (Sacramento-to-Reno) driver at all, only the return leg. Looked for a distinct 'Fernley' rest area (mile marker ~48) that turned up in one search summary, but could not confirm it as a real, separately-sited facility against a citable source (interstaterestareas.com's own list does not include it) -- did not add it rather than invent a coordinate."
+  ],
+  "records": [
+    {
+      "id": "rest-buttonwillow-n",
+      "name": "Buttonwillow Safety Roadside Rest Area (northbound)",
+      "category": "rest-area",
+      "lat": 35.418690,
+      "lon": -119.421944,
+      "confirmed": "2026-08-12",
+      "source": "Caltrans Safety Roadside Rest Areas (GIS) + Caltrans QuickMap live status",
+      "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
+      "verified": true,
+      "notes": "I-5 northbound, Kern County, 2 mi north of the SR-58 interchange -- about 5 mi from the route's mile-126 I-5 waypoint (35.3733/-119.3617), the first Central Valley I-5 rest stop north of Bakersfield and south of the long Coalinga gap. Restrooms, water, picnic tables, phone, ADA access, vending, pet area per Caltrans; no RV dump. Live Caltrans QuickMap SRRA feed (quickmap.dot.ca.gov/data/srra.kml, checked 2026-08-12) shows this facility status 'Open'. 8-hour/24-hour parking limit, sleeping in vehicle permitted within that limit, camping prohibited (21 CCR 2205(b) parking limit, 2205(a) camping ban). Lighting and typical noise level not stated by Caltrans; open Central Valley truck route -- expect I-5 truck noise, flat terrain, no shade cover noted in the facility record."
+    },
+    {
+      "id": "rest-buttonwillow-s",
+      "name": "Buttonwillow Safety Roadside Rest Area (southbound)",
+      "category": "rest-area",
+      "lat": 35.417053,
+      "lon": -119.424538,
+      "confirmed": "2026-08-12",
+      "source": "Caltrans Safety Roadside Rest Areas (GIS) + Caltrans QuickMap live status",
+      "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
+      "verified": true,
+      "notes": "I-5 southbound counterpart to Buttonwillow northbound, same interchange, Kern County. Restrooms, water, picnic tables, phone, ADA access, vending, pet area per Caltrans; no RV dump. Live Caltrans QuickMap SRRA feed (checked 2026-08-12) shows status 'Open'. 8-hour/24-hour parking limit, sleeping in vehicle permitted within that limit, camping prohibited (21 CCR 2205(b), 2205(a)). Lighting/noise not stated by source; same open, flat, truck-traffic setting as the northbound facility."
+    },
+    {
+      "id": "rest-santa-nella-n",
+      "name": "John \"Chuck\" Erreca Safety Roadside Rest Area, Santa Nella (northbound)",
+      "category": "rest-area",
+      "lat": 36.864618,
+      "lon": -120.782260,
+      "confirmed": "2026-08-12",
+      "source": "Caltrans Safety Roadside Rest Areas (GIS) + Caltrans QuickMap live status",
+      "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
+      "verified": true,
+      "notes": "I-5 northbound, Merced County, 0.7 mi north of the Fresno county line at Santa Nella -- about 7 mi from the route's mile-250 Los Banos/Santa Nella waypoint (36.7801/-120.7255), and the only official I-5 rest stop between Coalinga and the Stockton/Sacramento area. Restrooms, water, picnic tables, phone, ADA access, vending, pet area per Caltrans; no RV dump. Just finished a ~$30M comfort-station replacement (closed for construction on the southbound side from Apr 2022, reopened 5/5/2026 per Caltrans District 10's own release, which also states the rebuild added EV charging capacity) -- both directions confirmed 'Open' on the live Caltrans QuickMap SRRA feed checked 2026-08-12. 8-hour/24-hour parking limit, sleeping in vehicle permitted within that limit, camping prohibited (21 CCR 2205(b), 2205(a)). Lighting/noise not stated by Caltrans; I-5/CA-152 junction area, expect truck and highway noise, flat open Central Valley setting."
+    },
+    {
+      "id": "rest-santa-nella-s",
+      "name": "John \"Chuck\" Erreca Safety Roadside Rest Area, Santa Nella (southbound)",
+      "category": "rest-area",
+      "lat": 36.862440,
+      "lon": -120.783818,
+      "confirmed": "2026-08-12",
+      "source": "Caltrans Safety Roadside Rest Areas (GIS) + Caltrans QuickMap live status",
+      "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
+      "verified": true,
+      "notes": "I-5 southbound counterpart at Santa Nella, Merced County. Restrooms, water, picnic tables, phone, ADA access, vending, pet area per Caltrans; no RV dump. This was the side under long-term closure (Apr 2022 - 5/5/2026) for the comfort-station rebuild noted on the northbound record; Caltrans District 10 announced the reopening and the live QuickMap SRRA feed (checked 2026-08-12) confirms status 'Open' for both directions now, with added EV charging capacity from the rebuild. 8-hour/24-hour parking limit, sleeping in vehicle permitted within that limit, camping prohibited (21 CCR 2205(b), 2205(a)). Lighting/noise not stated by source."
+    }
+  ]
+}

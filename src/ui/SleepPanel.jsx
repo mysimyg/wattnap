@@ -46,6 +46,9 @@ export function SleepPanel() {
                 <span class="wn-sleeplist__name">{f.properties.name}</span>
                 <span class="wn-sleeplist__meta">
                   confirmed {f.properties.confirmed || 'unknown'}
+                  {f.properties.verified === false ? (
+                    <span class="wn-badge wn-badge--warn"> unverified</span>
+                  ) : null}
                 </span>
               </button>
             </li>

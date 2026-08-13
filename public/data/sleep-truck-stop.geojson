@@ -1,0 +1,345 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.7782925,
+          36.8549578
+        ]
+      },
+      "properties": {
+        "id": "truckstop-firebaugh-travel-plaza",
+        "name": "Firebaugh Travel Plaza (Chevron, I-5 Exit 385)",
+        "category": "truck-stop",
+        "notes": "15838 Paul Negra Rd, Firebaugh, CA 93622, I-5 Exit 385. This is the only stop found in the ~75-mile Harris Ranch-to-Santa Nella dead zone (mile ~200-275, spanning the mile-225 anchor); it is roughly 30 mi from both neighbors so it thins the gap rather than closing it. Small by corridor standards -- 15 truck parking spaces vs. 100-300+ at the Pilot/TA/Love's nodes -- and a 2024-2025 Campendium review describes the lot as having poor lighting and feeling unsafe, plus dirty restrooms; user reports say overnight parking is allowed. Given the safety concern in the only quality source found, and no brand-level confirmation, this is verified:false and should be treated as a last-resort/fuel-stop option, not a recommended overnight pin, until a better source or a second independent review corroborates it.",
+        "confirmed": "2026-08-12",
+        "source": "iExit / TruckMap / Campendium (independent Chevron-branded travel plaza)",
+        "sourceUrl": "https://www.campendium.com/chevron-rv-truck-parking-firebaugh-ca",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.2779433,
+          37.8556837
+        ]
+      },
+      "properties": {
+        "id": "truckstop-flyingj-lathrop",
+        "name": "Flying J -- Lathrop (I-5, Tracy/Lathrop area)",
+        "category": "truck-stop",
+        "notes": "345 Roth Rd, Lathrop, CA 95330, I-5 Exit 465, Flying J #1017. ~14 mi from the mile-327 anchor and ~13 mi from Stockton -- outside the strict 10-mile target but the closest real option for that stretch, so included rather than leaving Tracy/Lathrop/Stockton with nothing. Open 24/7. 9 showers, Cinnabon, Pilot Eats. 105 public parking + 35 paid Prime Parking. No car/truck lot separation stated. No time limit stated.",
+        "confirmed": "2026-08-12",
+        "source": "Pilot Flying J official locator",
+        "sourceUrl": "https://locations.pilotflyingj.com/us/ca/lathrop/345-roth-rd",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.8867991,
+          34.81674
+        ]
+      },
+      "properties": {
+        "id": "truckstop-flyingj-lebec",
+        "name": "Flying J -- Lebec (I-5, top of the Grapevine)",
+        "category": "truck-stop",
+        "notes": "42810 Frazier Mountain Park Rd, Lebec, CA. Right at the summit of the Grapevine, ~0.6 mi from the mile-75 route anchor -- excellent corridor fit. Open 24/7, 7 showers (reservable via Pilot app), Cinnabon/Wendy's/Pilot Eats, ATM, CAT scale, laundry. 60 public parking spaces plus 12 paid 'Prime Parking' spaces. Yelp rates it 4.4/5 (148 reviews). No stated overnight time limit. Not verified: whether public/car parking is physically separated from the diesel truck lanes -- brand locator doesn't say, and this is a very large, busy travel center at a mountain summit, so expect highway/idle noise and possible wind. Elevation ~4200 ft -- cold at night outside summer (general route knowledge, not a source claim).",
+        "confirmed": "2026-08-12",
+        "source": "Pilot Flying J official locator",
+        "sourceUrl": "https://locations.pilotflyingj.com/us/ca/lebec/42810-frazier-mountain-park-rd",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.3690877,
+          38.0862399
+        ]
+      },
+      "properties": {
+        "id": "truckstop-flyingj-lodi",
+        "name": "Flying J -- Lodi (I-5, Stockton/Lodi area)",
+        "category": "truck-stop",
+        "notes": "15100 N Thornton Rd, Lodi, CA 95242, I-5 Exit 485, Flying J #617. ~3.7 mi from the mile-350 (Stockton) anchor -- the best-fitting node for the Stockton gap, better than Lathrop or Ripon. Open 24/7. 15 showers (app-reservable), Subway (24hr), Denny's, Cinnabon, Pilot Eats, 6 EV chargers. 197 public parking + 59 paid Prime Parking. No car/truck lot separation stated. No time limit stated.",
+        "confirmed": "2026-08-12",
+        "source": "Pilot Flying J official locator",
+        "sourceUrl": "https://locations.pilotflyingj.com/us/ca/lodi/15100-thorton-rd",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.1637949,
+          37.4645335
+        ]
+      },
+      "properties": {
+        "id": "truckstop-flyingj-patterson",
+        "name": "Flying J -- Patterson (I-5)",
+        "category": "truck-stop",
+        "notes": "2275 Sperry Ave, Patterson, CA, Flying J #1080. ~1.6 mi from the mile-300 anchor -- excellent corridor fit. Open 24/7. 9 showers, Cinnabon, Wendy's, Pilot Eats, 4 EV chargers, CAT scale. 124 public parking spaces + 26 paid Prime Parking. No car/truck lot separation stated -- unverified for car comfort beyond amenities. No stated time limit.",
+        "confirmed": "2026-08-12",
+        "source": "Pilot Flying J official locator",
+        "sourceUrl": "https://locations.pilotflyingj.com/us/ca/patterson/2275-sperry-ave",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.1425,
+          37.755756
+        ]
+      },
+      "properties": {
+        "id": "truckstop-flyingj-ripon",
+        "name": "Flying J -- Ripon (I-5)",
+        "category": "truck-stop",
+        "notes": "1501 N Jack Tone Rd, Ripon, CA, Flying J #618. Between the mile-327 and mile-350 anchors, ~9-13 mi from each -- decent corridor fit, gives Tracy/Lathrop/Stockton travelers a second nearby option. Open 24/7. 15 showers, Denny's, Dunkin' Express (24hr), Pilot Eats, 12 fuel lanes. 194 public parking + 59 paid Prime Parking. No car/truck lot separation stated. No time limit stated.",
+        "confirmed": "2026-08-12",
+        "source": "Pilot Flying J official locator",
+        "sourceUrl": "https://locations.pilotflyingj.com/us/ca/ripon/1501-n-jack-tone-rd",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -120.2373684,
+          36.2535766
+        ]
+      },
+      "properties": {
+        "id": "truckstop-harris-ranch-coalinga",
+        "name": "Harris Ranch (I-5, Coalinga)",
+        "category": "truck-stop",
+        "notes": "I-5 at the Harris Ranch exit near Coalinga -- ~4 mi from the mile-200 anchor, a strong corridor fit and one of the only real options in the ~75-mile stretch between Kettleman City and Santa Nella. Long-standing large travel plaza/restaurant/hotel complex directly on I-5 (75 parking spots per directory listing, 5 fuel lanes, ATM, deli, restaurant, motel, RV parking, certified scales, 24hr). Not a Pilot/Love's/TA brand, so no official company locator page was available to confirm amenities directly -- corroborated across two independent directories instead. Marked unverified pending a firsthand/brand-level source. A smaller independent stop (\"Jayne Travel Center,\" Coalinga town, ~41027 S Glenn Ave) was found but deliberately excluded: its street address would not geocode and the resolvable town-center coordinate placed it roughly 8-9 mi off I-5 toward town via SR-198, outside the corridor tolerance with no confirmed fix -- rather than guess a coordinate for it, it was left out.",
+        "confirmed": "2026-08-12",
+        "source": "OpenStreetMap Nominatim geocode of the well-known Harris Ranch complex; existence/amenities corroborated by multiple truck-stop directories (iExit, findtruckservice.com)",
+        "sourceUrl": "https://www.truckstopsandservices.com/location_details.php?id=16029",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.1991036,
+          37.549376
+        ]
+      },
+      "properties": {
+        "id": "truckstop-one9-westley",
+        "name": "ONE9 (Pilot) -- Westley (I-5 Exit 441)",
+        "category": "truck-stop",
+        "notes": "7051 McCracken Rd, Westley, CA 95387, I-5 Exit 441 -- fills the gap between Patterson and Tracy/Lathrop. Coordinates here are a TOWN-CENTER geocode of Westley (the exact street would not resolve in Nominatim); Westley is a very small unincorporated place essentially built around this interchange, so real error is likely small, but this is explicitly an approximation, not a parcel-level fix. Open 24/7. 80 public parking spaces. Page explicitly describes serving 'professional truck drivers, RV drivers, and auto drivers alike' -- the most direct brand-language confirmation of car-friendliness found on this corridor. Showers not listed on this page (may still exist; not confirmed either way). No stated time limit.",
+        "confirmed": "2026-08-12",
+        "source": "Pilot Flying J official locator (ONE9 dealer brand)",
+        "sourceUrl": "https://locations.pilotflyingj.com/us/ca/westley/7051-mccracken-rd",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.0154573,
+          37.0547157
+        ]
+      },
+      "properties": {
+        "id": "truckstop-petro-santa-nella",
+        "name": "Petro Santa Nella (Hwy 152 & Hwy 33)",
+        "category": "truck-stop",
+        "notes": "28991 West Gonzaga Rd, Santa Nella, CA, I-5 Exit 403. ~2.7 mi from TA Santa Nella (same interchange cluster) and ~3 mi from the mile-275 anchor. Open 24/7 (Petro diesel). 124 truck parking spaces, Burger King, showers, laundry, driver lounge, game room, theater room, fitness room, CAT scale, ATM. No car-specific parking area stated -- unverified for car comfort. Petro brand skews slightly more toward pure trucking (fewer public-facing amenities than TA/Pilot) -- expect a heavier truck-lane feel; not independently confirmed.",
+        "confirmed": "2026-08-12",
+        "source": "TravelCenters of America official locator",
+        "sourceUrl": "https://www.ta-petro.com/location/ca/petro-santa-nella/",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.7087385,
+          39.5232774
+        ]
+      },
+      "properties": {
+        "id": "truckstop-petro-sparks-nv",
+        "name": "Petro Sparks (I-80, Reno/Sparks NV)",
+        "category": "truck-stop",
+        "notes": "1950 East Greg St, Sparks, NV 89431, I-80 Exit 21. ~7 mi from the Reno endpoint -- second Reno-area option, largest truck lot found on the whole corridor. Open 24/7 (Mobil diesel). 400 truck parking spaces (by far the biggest count found in this dataset), showers, laundry, fitness room, chiropractor on-site, driver lounge, game room, CAT scale. Iron Skillet restaurant listed but shown as currently closed. No car/truck lot separation stated -- with 400 truck spaces this is likely to be a heavily trucks-first environment; unverified for car/RV comfort specifically. No time limit stated.",
+        "confirmed": "2026-08-12",
+        "source": "TravelCenters of America official locator",
+        "sourceUrl": "https://www.ta-petro.com/location/nv/petro-sparks/",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.658723,
+          35.6154123
+        ]
+      },
+      "properties": {
+        "id": "truckstop-pilot-lost-hills",
+        "name": "Pilot -- Lost Hills (I-5)",
+        "category": "truck-stop",
+        "notes": "14808 Warren St, Lost Hills, CA, Pilot #154. Roughly midway between the mile-126 and mile-152 anchors -- fills real gap on the Kern/Kings county line. Open 24/7. Wendy's (24hr), Cinnabon, Pilot Eats; 7 showers (reservable via app); 60 public parking spaces + 12 paid Prime Parking. No stated overnight limit. Car/truck lot separation not stated -- unverified beyond the amenity list.",
+        "confirmed": "2026-08-12",
+        "source": "Pilot Flying J official locator",
+        "sourceUrl": "https://locations.pilotflyingj.com/us/ca/lost-hills/14808-warren-st",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.53898,
+          38.61764
+        ]
+      },
+      "properties": {
+        "id": "truckstop-pilot-sacramento",
+        "name": "Pilot -- Sacramento (I-5, Natomas)",
+        "category": "truck-stop",
+        "notes": "2828 El Centro Rd, Sacramento, CA 95835, Pilot #879. ~16-17 mi from the mile-375 anchor -- the closest large brand travel center to the point where the Tahoe and Reno legs diverge, though further out than most other picks; treat as the Sacramento-metro fallback rather than a tight corridor fit. Open 24/7, 275 public parking spaces, showers, game room, driver lounge, ATM, truck wash. IMPORTANT for a car sleeper: Yelp/GasBuddy reviews describe a paid-parking policy -- $20 flat fee, or free with a 75-gallon diesel purchase to 'validate.' That fee structure is aimed at trucks buying bulk diesel; a car sleeper would likely just pay the flat fee. Reviews also mention parking can be tight when fuel prices draw a crowd. No car/truck lot separation stated.",
+        "confirmed": "2026-08-12",
+        "source": "Pilot Flying J official locator",
+        "sourceUrl": "https://locations.pilotflyingj.com/us/ca/sacramento/2828-el-centro-rd",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.396201,
+          35.4011066
+        ]
+      },
+      "properties": {
+        "id": "truckstop-ta-buttonwillow",
+        "name": "TA Buttonwillow (I-5 & Hwy 58, Buttonwillow)",
+        "category": "truck-stop",
+        "notes": "27769 Lagoon Drive, Buttonwillow, CA, I-5 Exit 257. ~3 mi from the mile-126 anchor -- good corridor fit; this and Lost Hills are the two strongest nodes for closing the Grapevine-to-Coalinga gap. Open 24/7 (Mobil diesel). 170 truck parking spaces, paid Reserve-It option, RV dump station, Popeyes/Taco Bell, showers, laundry, driver lounge, CAT scale. No car-specific lot separate from truck lanes mentioned -- unverified for car/RV comfort beyond the amenity list. No stated time limit.",
+        "confirmed": "2026-08-12",
+        "source": "TravelCenters of America official locator",
+        "sourceUrl": "https://www.ta-petro.com/location/ca/ta-buttonwillow/",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -121.0147,
+          37.1101
+        ]
+      },
+      "properties": {
+        "id": "truckstop-ta-santa-nella",
+        "name": "TA Santa Nella (I-5 & Hwy 33)",
+        "category": "truck-stop",
+        "notes": "12310 State Highway 33, Santa Nella, CA, I-5 Exit 407. ~3 mi from the mile-275 anchor -- Santa Nella/Gustine is the densest truck-stop node on the whole Central Valley run (this plus Petro Santa Nella just south). Open 24/7 (Shell diesel). 216 truck parking spaces, paid Reserve-It option, RV dump station, IHOP/Popeyes, showers, laundry, driver lounge, game room, pet area, CAT scale, 4 truck service bays open 24hr. No car-specific lot separation stated -- unverified for car comfort beyond amenities. No stated time limit.",
+        "confirmed": "2026-08-12",
+        "source": "TravelCenters of America official locator",
+        "sourceUrl": "https://www.ta-petro.com/location/ca/ta-santa-nella/",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.737544,
+          39.534602
+        ]
+      },
+      "properties": {
+        "id": "truckstop-ta-sparks-nv",
+        "name": "TA Sparks (I-80, Reno/Sparks NV)",
+        "category": "truck-stop",
+        "notes": "200 North McCarran, Sparks, NV 89431, I-80 Exit 19. ~4.7 mi from the Reno endpoint (39.5295, -119.8138) -- the strongest brand option for the Reno leg's terminus. Coordinates are a STREET-LEVEL (McCarran Blvd corridor) geocode, not a confirmed parcel pin -- the exact address would not resolve in Nominatim, so treat this as accurate to within roughly a mile, not exact. Open 24/7 (Mobil diesel). 200 truck parking spaces, RV dump station, Fuddruckers, showers, laundry, game room, driver lounge, CAT scale. No car/truck lot separation stated -- unverified for car comfort. No time limit stated.",
+        "confirmed": "2026-08-12",
+        "source": "TravelCenters of America official locator",
+        "sourceUrl": "https://www.ta-petro.com/location/nv/ta-sparks/",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.941339,
+          34.9922024
+        ]
+      },
+      "properties": {
+        "id": "truckstop-ta-wheeler-ridge",
+        "name": "TA Wheeler Ridge (I-5, Arvin -- bottom of the Grapevine)",
+        "category": "truck-stop",
+        "notes": "5552 South Wheeler Ridge Road, Arvin, CA. NOT in Bakersfield city (Bakersfield proper is ~14 mi off I-5 via CA-99/CA-58 and was excluded as off-corridor -- see report). This is the actual I-5 interchange near the mile-101 anchor. Open 24/7 (Shell diesel). 306 truck parking spaces with paid 'Reserve-It' reserved option; showers, laundry, Black Bear Diner/Burger King/Subway/etc. No car/RV-specific parking area stated by TA -- likely a shared lot with truck lanes; not independently confirmed for car comfort. Petro Wheeler Ridge and Goasis Wheeler Ridge also operate at this same interchange per TA's own site list but were not independently geocoded or verified here -- treat as additional unverified capacity at the same node, not separate corridor coverage.",
+        "confirmed": "2026-08-12",
+        "source": "TravelCenters of America official locator",
+        "sourceUrl": "https://www.ta-petro.com/location/ca/ta-wheeler-ridge/",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -119.9626738,
+          36.0087178
+        ]
+      },
+      "properties": {
+        "id": "truckstop-valero-kettleman-city",
+        "name": "Kettleman City Truck Stop (Valero, I-5 Exit 309)",
+        "category": "truck-stop",
+        "notes": "33190 Hubert Way, Kettleman City, CA 93239, I-5 Exit 309 -- near the halfway point of the whole LA-to-Bay/Sacramento run and squarely on the mile-175 anchor. Coordinates here are a TOWN-CENTER geocode (Nominatim would not resolve the exact street address) -- Kettleman City is a small unincorporated community built almost entirely around this interchange, so the true error is likely under a mile, but this is explicitly an approximation, not a parcel-level fix. Directory listings describe 25 truck parking spaces, deli/restaurant, ATM, showers, WiFi, dog park, 24/7 diesel and CAT scale. Not a nationally verified brand locator, so existence/amenities are corroborated across three independent directories but not confirmed via an official company source -- marked unverified pending a firsthand or brand-level confirmation. No overnight-limit info found either way.",
+        "confirmed": "2026-08-12",
+        "source": "iExit / TruckMap / AllStays truck-stop directories (independent Valero-branded travel center, not a Pilot/Love's/TA-Petro brand)",
+        "sourceUrl": "https://iexitapp.com/business/Kettleman%2520City%2520Truck%2520Stop/857439/16961",
+        "verified": false
+      }
+    }
+  ]
+}

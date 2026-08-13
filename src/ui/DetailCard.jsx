@@ -39,6 +39,13 @@ function SleepDetail({ props, category, onClose }) {
     <div class="wn-card wn-detailcard">
       <h3 class="wn-card__title">{props.name}</h3>
       <p class="wn-card__meta">{(category && category.label) || props.category}</p>
+      {props.verified === false ? (
+        <p class="wn-card__warn" role="note">
+          <strong>Unverified.</strong> We found this location but could not confirm its
+          overnight policy from a reliable source. Read the notes and judge for yourself
+          before relying on it.
+        </p>
+      ) : null}
       {props.notes ? <p class="wn-card__line">{props.notes}</p> : null}
       <p class="wn-card__note">
         confirmed {props.confirmed || 'date unknown'}

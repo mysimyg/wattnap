@@ -2,7 +2,7 @@
 
 **Single source of truth across sessions. Read before acting. Update before stopping.**
 
-Last updated: 2026-08-13 (session 2)
+Last updated: 2026-08-12 (session 3 — sleep-spot research)
 
 ---
 
@@ -102,6 +102,12 @@ silently pick a default for.
 | 2026-08-13 | Fixed: DESIGN.md §5.1.1 cited sensitivity numbers (800m → 4029m) that two independent reviewers could not reproduce against the shipped code (actual: ~5,101m). Corrected with a full table, actually verified |
 | 2026-08-13 | 94 tests passing (up from 91): 3 new regressions matching the reviewers' exact repros |
 | 2026-08-13 | **Open, unresolved:** reserve-floor margin on the real corridor measured as low as ~0.16 SOC points on some legs — an inherent property of the "prefer farthest reachable" scoring, not a bug. Needs a product decision, not a code fix. See Open Questions Q9 |
+| 2026-08-12 | **Sleep-spot dataset rebuilt for the real corridor.** 19 pins -> 43 across 7 categories, via 6 parallel research agents. Longest gap with nowhere to sleep: SLT **414mi -> 76mi**, Reno **337mi -> 76mi** |
+| 2026-08-12 | Built `scripts/audit-sleep-coverage.mjs` — measures the LONGEST STRETCH OF ROUTE with no sleep spot, the question a pin count cannot answer. Enforced by test |
+| 2026-08-12 | **Found 6 shipped rest-area pins were closed for construction while marked `verified:true`** — including both Tejon Pass records, which were the ONLY coverage within 5mi of the entire 491mi Tahoe route. Verified independently against the Caltrans live feed |
+| 2026-08-12 | Added `status` field + `scripts/check-rest-area-status.mjs`; build now refuses to ship closed facilities |
+| 2026-08-12 | **UI now surfaces `verified:false`** (warning in card, badge in list). It previously did not, so community-sourced pins were indistinguishable from official Caltrans data |
+| 2026-08-12 | Corrected two factual errors in existing data: camping ban is 21 CCR **2205(a)** not (b); Horizon Casino was **rebranded** (now Golden Nugget Lake Tahoe, open), not permanently closed |
 | 2026-08-13 | **User hit a live bug** (screenshot: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable") — this was Q10. Root-caused and fixed same session: ORS's default point-snap radius (~350m) couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (geocodes to a beach). Worker now sends `radiuses: [5000, 5000]`. Confirmed live before/after on the exact failing request; 95 tests |
 
 ## In Progress
@@ -186,6 +192,12 @@ Definition of Done.** What's left is hardening and one product decision:
 | D-027 | 2026-08-13 | A failed re-plan now clears the map's route line and corridor overlay, not just the text panels | Previously the map kept showing the last successful route while PLAN/CHARGERS correctly showed an error — a driver glancing only at the map would think a route still existed |
 | D-028 | 2026-08-13 | `planTripFlow` guards against concurrent invocation at the function level, not just via the disabled button attribute | The DOM `disabled` state lags one render behind a click; a rapid double-tap could still fire two real requests against shared NREL/ORS quota before the button visually disabled |
 | D-029 | 2026-08-13 | **Open — not resolved.** Reviewer measured the planner's stop-selection scoring ("prefer the farthest reachable candidate") leaves as little as ~0.16 SOC points of real margin above `reserveFloor` on the actual default corridor | This isn't a bug — the floor invariant holds by construction, proven under ~19,000 fuzzed trials — but it means there is effectively zero cushion between "the elevation or charge-curve model is slightly wrong" and "a real driver arrives below the stated safety floor." Whether to bias the scoring toward more margin (fewer, closer-in stops) is a real product trade-off (more conservative = more/longer stops), not a code-correctness fix. See Open Questions Q9 |
+| D-031 | 2026-08-12 | Sleep categories expanded to rest-area, truck-stop, walmart, cracker-barrel, casino, outdoor-retail, dispersed-nf, host-network | Scope change, explicitly requested by the user. The original three left 414mi of the real route empty because they were curated for a US-395 corridor the router abandoned. `blm` stays blocked; `dispersed-nf` is a separate self-contained slug so it can be dropped as one set |
+| D-032 | 2026-08-12 | `status` ("open"/"closed") added, deliberately separate from `verified`; closed records keep provenance but never ship as pins | `verified` answers "was this real when we checked" and decays silently; `status` answers "is it open right now". Six pins were verified:true AND closed. Sending a tired driver to a locked gate is worse than showing nothing |
+| D-033 | 2026-08-12 | Coverage is measured as LONGEST GAP along the real route, not pin count, and guarded by a test (<120mi) | 200 pins clustered in Sacramento still leaves the Central Valley empty. Only the gap metric answers the driver's actual question |
+| D-034 | 2026-08-12 | No pins at all in jurisdictions that ban vehicle sleeping outright — South Lake Tahoe (City Code Ch. 4.70, covers PRIVATE property) and Reno (RMC 8.22.035) | A pin implies "you may sleep here." Where an ordinance says otherwise, the honest dataset answer is absence. Note this means the reference trip's own destination has no pin — deliberate |
+| D-035 | 2026-08-12 | Los Banos Walmart downgraded from verified:true to verified:false by the integrating session | Its own research note rated confidence MEDIUM-LOW, three first-hand reports disagreed, and a citywide ordinance may ban vehicle sleeping 10pm-6am. That is not "confirmed policy". Kept as a pin (only option in a 175mi dead zone) but must not read as confirmed — same standard as D-034 |
+| D-036 | 2026-08-12 | Private-host networks (Boondockers Welcome, Harvest Hosts) will NOT be surfaced | Both explicitly exclude sleeping in a car/SUV in their own help centres — precisely wattnap's use case. Pointing users at services that name them ineligible would be misleading |
 | D-030 | 2026-08-13 | ORS directions requests now send `radiuses: [5000, 5000]` (5 km point-snap search radius per waypoint), not ORS's tight ~350 m default | The user hit this live: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable." Root cause: ORS's default snap radius couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (it geocodes to a beach). Confirmed live before/after on the exact failing request. Body construction extracted to `buildOrsDirectionsBody` so this is now unit-tested without live network |
 
 ---
@@ -205,6 +217,9 @@ Full table with fallbacks in `DESIGN.md` §9. Summary:
 | Q7 | Include Level 2 for overnight sleep-spot charging? | Phase 4 | No — DC only |
 | ~~Q8~~ | **Answered (D-014)** — `mysimyg.github.io/wattnap/` | Phase 1 | Closed |
 | Q9 | Should stop-selection scoring leave more real-world margin above `reserveFloor` than "prefer the farthest reachable station" currently does (measured as low as ~0.16 SOC points on a real leg)? | Post-gate hardening | **User decision needed** — no safe default to silently pick, since it's a real time-vs-margin trade-off. See D-029 |
+| Q11 | Should the app WARN when a destination's jurisdiction bans vehicle sleeping (South Lake Tahoe, Reno)? Today it silently shows no pins, which is correct but uninformative — the driver doesn't learn that Minden, ~20min away, is the nearest legal option | Post-gate | **User decision needed.** Data supports it (ordinances captured in `policyNote`); it's a UI/product call |
+| Q12 | `dispersed-nf` is effectively summer-only (Eldorado NF closes dirt roads Jan 1 - Mar 31; both dispersed pins sit in Caldor burn scar; Echo Lake Sno-Park inverts and needs a permit Nov-May). Should the category be hidden or hard-labelled seasonally? | Post-gate | **User decision needed.** A pin that reads identically in February and August is the actual hazard |
+| Q13 | Category-level `policyNote` (fire orders, stay limits, ordinance text) currently lives only in `scripts/sources/` where no driver will read it. Surface in-app? | Post-gate | No fallback picked |
 | ~~Q10~~ | **Fixed 2026-08-13 (D-030)** — user hit this live (screenshot: "Ventura, CA, USA" → "Tahoe City, CA, USA", `Upstream service unavailable`) | Post-gate hardening | Closed |
 
 ---
