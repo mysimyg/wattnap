@@ -146,6 +146,26 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
+          -120.854962,
+          39.179258
+        ]
+      },
+      "properties": {
+        "id": "rest-gold-run-w",
+        "name": "Gold Run Safety Roadside Rest Area (westbound)",
+        "category": "rest-area",
+        "notes": "I-80 westbound counterpart at Gold Run/Dutch Flat, Placer County. Restrooms, water, picnic tables, phone, ADA access; no RV dump. 8-hour parking limit per 21 CCR 2205(b); sleeping in the vehicle within that limit is permitted, camping is prohibited per 21 CCR 2205(a).",
+        "confirmed": "2026-08-12",
+        "source": "Caltrans Safety Roadside Rest Areas (GIS)",
+        "sourceUrl": "https://gisdata-caltrans.opendata.arcgis.com/datasets/82e6f835427a4035a354ba1df47f603b_0/about",
+        "verified": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
           -120.78226,
           36.864618
         ]

@@ -236,23 +236,28 @@ describe('sleep coverage along the real reference routes', () => {
     expect(audit.inCorridorCount).toBeGreaterThan(12)
   })
 
-  it('never ships a facility known to be closed', async () => {
+  it('never ships a facility marked closed in its source file', async () => {
     // Six rest areas were shipped as verified:true while closed for
     // construction, including the only coverage on the Tahoe route.
+    // Derived from the sources rather than a hard-coded id list on purpose:
+    // closures lift (Gold Run westbound reopened 2026-08-13) and a frozen
+    // list turns a reopening into a red test instead of a restored pin.
     const { loadSleepPins } = await import('../scripts/audit-sleep-coverage.mjs')
     const pins = loadSleepPins()
-    const closedIds = [
-      'rest-tejon-pass-n',
-      'rest-tejon-pass-s',
-      'rest-gaviota-n',
-      'rest-gaviota-s',
-      'rest-coso-junction',
-      'rest-gold-run-w',
-    ]
-    for (const id of closedIds) {
-      expect(pins.find((p) => p.id === id)).toBeUndefined()
+    const sourceDir = join(here, '..', 'scripts', 'sources')
+    const records = readdirSync(sourceDir)
+      .filter((f) => f.endsWith('.json'))
+      .flatMap((f) => JSON.parse(readFileSync(join(sourceDir, f), 'utf8')).records ?? [])
+    const closed = records.filter((r) => r.status === 'closed')
+    // Guard against the invariant silently going vacuous if the field is dropped.
+    expect(closed.length).toBeGreaterThan(0)
+    for (const record of closed) {
+      expect(pins.find((p) => p.id === record.id)).toBeUndefined()
     }
-    // ...but the open direction of a partially-closed facility must survive.
-    expect(pins.find((p) => p.id === 'rest-gold-run-e')).toBeTruthy()
+    // ...and every record NOT marked closed must actually reach the map --
+    // a stale suppression is its own bug, just a quieter one.
+    for (const record of records.filter((r) => (r.status ?? 'open') === 'open')) {
+      expect(pins.find((p) => p.id === record.id)).toBeTruthy()
+    }
   })
 })

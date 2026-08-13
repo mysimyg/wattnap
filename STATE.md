@@ -2,7 +2,7 @@
 
 **Single source of truth across sessions. Read before acting. Update before stopping.**
 
-Last updated: 2026-08-12 (session 3 — sleep-spot research)
+Last updated: 2026-08-13 (rest-area live-status re-check)
 
 ---
 
@@ -109,6 +109,7 @@ silently pick a default for.
 | 2026-08-12 | **UI now surfaces `verified:false`** (warning in card, badge in list). It previously did not, so community-sourced pins were indistinguishable from official Caltrans data |
 | 2026-08-12 | Corrected two factual errors in existing data: camping ban is 21 CCR **2205(a)** not (b); Horizon Casino was **rebranded** (now Golden Nugget Lake Tahoe, open), not permanently closed |
 | 2026-08-13 | **User hit a live bug** (screenshot: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable") — this was Q10. Root-caused and fixed same session: ORS's default point-snap radius (~350m) couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (geocodes to a beach). Worker now sends `radiuses: [5000, 5000]`. Confirmed live before/after on the exact failing request; 95 tests |
+| 2026-08-13 | Rest-area status re-check against the live Caltrans SRRA feed (feed stamped 08/13/2026 6:11am). Gaviota N/S, Tejon Pass NB and Coso Junction confirmed still CLOSED (reopen dates and closure reasons now recorded). **Gold Run westbound has REOPENED** and is a live pin again — it had been wrongly suppressed for a day. Tejon Pass SB note corrected: the feed has no SB record at all (the two entries are a duplicate of NB), so it stays suppressed as unknown, not as confirmed-closed. Rest-area pins 10 → 11; 98 tests |
 
 ## In Progress
 
@@ -199,6 +200,7 @@ Definition of Done.** What's left is hardening and one product decision:
 | D-035 | 2026-08-12 | Los Banos Walmart downgraded from verified:true to verified:false by the integrating session | Its own research note rated confidence MEDIUM-LOW, three first-hand reports disagreed, and a citywide ordinance may ban vehicle sleeping 10pm-6am. That is not "confirmed policy". Kept as a pin (only option in a 175mi dead zone) but must not read as confirmed — same standard as D-034 |
 | D-036 | 2026-08-12 | Private-host networks (Boondockers Welcome, Harvest Hosts) will NOT be surfaced | Both explicitly exclude sleeping in a car/SUV in their own help centres — precisely wattnap's use case. Pointing users at services that name them ineligible would be misleading |
 | D-030 | 2026-08-13 | ORS directions requests now send `radiuses: [5000, 5000]` (5 km point-snap search radius per waypoint), not ORS's tight ~350 m default | The user hit this live: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable." Root cause: ORS's default snap radius couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (it geocodes to a beach). Confirmed live before/after on the exact failing request. Body construction extracted to `buildOrsDirectionsBody` so this is now unit-tested without live network |
+| D-037 | 2026-08-13 | Gold Run westbound restored as a live pin; the closed-facility test now derives its id list from `status:"closed"` in `scripts/sources/` instead of hard-coding it | The 08-12 Gold Run closure was transient and had already lapsed, but nothing would have told us: `scripts/check-rest-area-status.mjs` only compares SHIPPED pins against the feed, so a suppressed record is invisible to it and can never come back on its own. A hard-coded closed-id list made that worse — a reopening turned into a failing test rather than a restored pin. Derived-from-source keeps the invariant ("nothing marked closed ever ships") while letting reopenings flow through, and the added converse assertion ("everything marked open actually ships") catches stale suppressions. **Not fixed: the checker itself is still blind to closed records** — see Open Questions |
 
 ---
 
@@ -220,6 +222,7 @@ Full table with fallbacks in `DESIGN.md` §9. Summary:
 | Q11 | Should the app WARN when a destination's jurisdiction bans vehicle sleeping (South Lake Tahoe, Reno)? Today it silently shows no pins, which is correct but uninformative — the driver doesn't learn that Minden, ~20min away, is the nearest legal option | Post-gate | **User decision needed.** Data supports it (ordinances captured in `policyNote`); it's a UI/product call |
 | Q12 | `dispersed-nf` is effectively summer-only (Eldorado NF closes dirt roads Jan 1 - Mar 31; both dispersed pins sit in Caldor burn scar; Echo Lake Sno-Park inverts and needs a permit Nov-May). Should the category be hidden or hard-labelled seasonally? | Post-gate | **User decision needed.** A pin that reads identically in February and August is the actual hazard |
 | Q13 | Category-level `policyNote` (fire orders, stay limits, ordinance text) currently lives only in `scripts/sources/` where no driver will read it. Surface in-app? | Post-gate | No fallback picked |
+| Q14 | `scripts/check-rest-area-status.mjs` only cross-checks SHIPPED pins against the live Caltrans feed, so a record suppressed as `status:"closed"` is invisible to it and can never come back automatically. Gold Run westbound sat wrongly suppressed for a day (found 2026-08-13 only because a human re-read the feed). Should the checker read `scripts/sources/*.json` directly and report BOTH directions of drift? | Post-gate | No — safe default is more pins hidden, not fewer. Small fix, deliberately left out of the data-only change (D-037) |
 | ~~Q10~~ | **Fixed 2026-08-13 (D-030)** — user hit this live (screenshot: "Ventura, CA, USA" → "Tahoe City, CA, USA", `Upstream service unavailable`) | Post-gate hardening | Closed |
 
 ---
