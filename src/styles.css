@@ -779,3 +779,87 @@ a {
   color: var(--warn-text, #f0c987);
   font-weight: 600;
 }
+
+/* ---------------------------------------------------------------------------
+   Responsive shell. Structural only -- deliberately light on visual styling,
+   since the visual pass happens separately.
+
+   Phones: .wn-body and .wn-side are `display: contents`, so every control
+   stays a direct flex child of .wn-app and the original stacking order is
+   preserved via `order`. Nothing about the mobile layout changes.
+
+   Desktop: they become real boxes -- a scrolling control column on the left,
+   map filling the remaining width at full height. Same DOM both ways.
+--------------------------------------------------------------------------- */
+.wn-body,
+.wn-side {
+  display: contents;
+}
+
+/* Explicit order, because `display: contents` flattens the DOM order above. */
+.wn-offline-banner { order: 1; }
+.wn-notconfigured { order: 1; }
+.wn-tripform { order: 2; }
+.wn-map-wrap { order: 3; }
+.wn-filterbar { order: 4; }
+.wn-tabbar { order: 5; }
+.wn-tabpanel { order: 6; }
+
+/* Expand control, sits opposite MapLibre's zoom buttons. */
+.wn-map-expand {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.wn-map-expand:hover { background: var(--surface-2, var(--surface)); }
+
+/* Full-screen map: hide the controls, let the map take everything. */
+.wn-app--mapfull .wn-side,
+.wn-app--mapfull .wn-body > .wn-side { display: none; }
+.wn-app--mapfull .wn-map-wrap { flex: 1 1 auto; min-height: 0; }
+
+@media (min-width: 1024px) {
+  .wn-app {
+    /* The 920px cap made sense for a phone-shaped app. On a laptop it just
+       wastes the screen the map most wants. */
+    max-width: none;
+    border-left: none;
+    border-right: none;
+    overflow: hidden;
+  }
+  .wn-body {
+    display: flex;
+    flex-direction: row;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .wn-side {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 clamp(360px, 30vw, 460px);
+    min-height: 0;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+  }
+  /* Order is a mobile-only concern; the two columns carry it from here. */
+  .wn-side > *,
+  .wn-map-wrap { order: 0; }
+  .wn-map-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+  }
+  .wn-tabpanel { flex: 1 1 auto; }
+  .wn-app--mapfull .wn-map-wrap { flex: 1 1 100%; }
+}

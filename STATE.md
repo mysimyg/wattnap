@@ -198,6 +198,7 @@ Definition of Done.** What's left is hardening and one product decision:
 | D-033 | 2026-08-12 | Coverage is measured as LONGEST GAP along the real route, not pin count, and guarded by a test (<120mi) | 200 pins clustered in Sacramento still leaves the Central Valley empty. Only the gap metric answers the driver's actual question |
 | D-034 | 2026-08-12 | No pins at all in jurisdictions that ban vehicle sleeping outright — South Lake Tahoe (City Code Ch. 4.70, covers PRIVATE property) and Reno (RMC 8.22.035) | A pin implies "you may sleep here." Where an ordinance says otherwise, the honest dataset answer is absence. Note this means the reference trip's own destination has no pin — deliberate |
 | D-035 | 2026-08-12 | Los Banos Walmart downgraded from verified:true to verified:false by the integrating session | Its own research note rated confidence MEDIUM-LOW, three first-hand reports disagreed, and a citywide ordinance may ban vehicle sleeping 10pm-6am. That is not "confirmed policy". Kept as a pin (only option in a 175mi dead zone) but must not read as confirmed — same standard as D-034 |
+| D-038 | 2026-08-13 | Desktop is now a first-class target, not just mobile: two-column layout at >=1024px (controls left, map right full-height) plus a map expand/full-screen toggle at every width | User stated they will use this from a laptop/desktop as much as from a phone. DESIGN.md's "mobile first, one screen" constraint capped `.wn-app` at 920px, which wasted a laptop screen on the one element that most wants it. Deliberately STRUCTURAL only (layout + behaviour, no visual restyle) because a design overhaul is planned separately in Claude Design — this should survive it |
 | D-037 | 2026-08-13 | `check-rest-area-status.mjs` now reads `scripts/sources/*.json` instead of the built GeoJSON, and reports drift in BOTH directions | Reading the built output meant a `status:"closed"` record was invisible to the checker and could never be seen to reopen — exactly how Gold Run westbound stayed suppressed after coming back. A missed closure strands someone; a missed reopening quietly costs a stop. Closes Q14 |
 | D-036 | 2026-08-12 | Private-host networks (Boondockers Welcome, Harvest Hosts) will NOT be surfaced | Both explicitly exclude sleeping in a car/SUV in their own help centres — precisely wattnap's use case. Pointing users at services that name them ineligible would be misleading |
 | D-030 | 2026-08-13 | ORS directions requests now send `radiuses: [5000, 5000]` (5 km point-snap search radius per waypoint), not ORS's tight ~350 m default | The user hit this live: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable." Root cause: ORS's default snap radius couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (it geocodes to a beach). Confirmed live before/after on the exact failing request. Body construction extracted to `buildOrsDirectionsBody` so this is now unit-tested without live network |
@@ -240,8 +241,10 @@ New ideas land here, never in the code mid-build.
 - Route alternates comparison
 - Share a plan by URL
 - Real-world consumption learning from logged trips
-- Collapse the trip form once a trip is planned, to give the map more of the
-  viewport (currently ~28% on a 812px phone; the wireframe wanted ~55%)
+- ~~Collapse the trip form once a trip is planned~~ — superseded by D-038: the
+  map now has an expand/full-screen toggle at every width, and takes ~65% of a
+  1440x900 desktop viewport (was ~24%). Collapsing the form on phones is still
+  a possible refinement for the design pass
 - Vector basemap via Protomaps instead of CARTO raster (Q1 upgrade path)
 
 ---

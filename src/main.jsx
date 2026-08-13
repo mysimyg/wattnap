@@ -52,6 +52,7 @@ function App() {
   const s = useWattnap()
   const online = useOnlineStatus()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mapExpanded, setMapExpanded] = useState(false)
 
   useEffect(() => {
     loadSleepIndex()
@@ -59,7 +60,7 @@ function App() {
   }, [])
 
   return (
-    <div class="wn-app">
+    <div class={`wn-app${mapExpanded ? ' wn-app--mapfull' : ''}`}>
       <Header onMenuToggle={() => setMenuOpen(true)} />
       {/* A missing API base blocks routing and chargers, but sleep spots are
           static files in this repo and the map still works. Show a banner, not
@@ -70,15 +71,24 @@ function App() {
           Offline — showing the last loaded trip. Routing and charger lookups need a connection.
         </div>
       ) : null}
-      <TripForm />
-      <MapView />
-      <FilterBar />
-      <TabBar />
-      <section class="wn-tabpanel">
-        {s.activeTab === 'plan' ? <PlanPanel /> : null}
-        {s.activeTab === 'chargers' ? <ChargersPanel /> : null}
-        {s.activeTab === 'sleep' ? <SleepPanel /> : null}
-      </section>
+      {/* .wn-body / .wn-side are `display: contents` on phones, so these all
+          stay direct flex children of .wn-app and keep the mobile stacking
+          order. At desktop widths they become real boxes: controls in a left
+          column, map filling the rest full-height. One DOM, two layouts, no
+          duplicated markup. */}
+      <div class="wn-body">
+        <div class="wn-side">
+          <TripForm />
+          <FilterBar />
+          <TabBar />
+          <section class="wn-tabpanel">
+            {s.activeTab === 'plan' ? <PlanPanel /> : null}
+            {s.activeTab === 'chargers' ? <ChargersPanel /> : null}
+            {s.activeTab === 'sleep' ? <SleepPanel /> : null}
+          </section>
+        </div>
+        <MapView expanded={mapExpanded} onToggleExpand={() => setMapExpanded((v) => !v)} />
+      </div>
       {menuOpen ? <MenuDrawer onClose={() => setMenuOpen(false)} /> : null}
     </div>
   )

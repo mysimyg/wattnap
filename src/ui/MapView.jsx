@@ -10,7 +10,7 @@ import {
 } from '../state.js'
 import { DetailCard } from './DetailCard.jsx'
 
-export function MapView() {
+export function MapView({ expanded = false, onToggleExpand }) {
   const s = useWattnap()
   const containerRef = useRef(null)
   const controllerRef = useRef(null)
@@ -57,6 +57,28 @@ export function MapView() {
   return (
     <div class="wn-map-wrap">
       <div class="wn-map" ref={containerRef} />
+      {onToggleExpand ? (
+        <button
+          type="button"
+          class="wn-map-expand"
+          onClick={onToggleExpand}
+          aria-pressed={expanded}
+          title={expanded ? 'Exit full-screen map' : 'Expand map'}
+          aria-label={expanded ? 'Exit full-screen map' : 'Expand map'}
+        >
+          {expanded ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 10V4h6M20 14v6h-6M20 10V4h-6M4 14v6h6"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          )}
+        </button>
+      ) : null}
       {s.selectedPin ? (
         <DetailCard pin={s.selectedPin} sleepCategories={s.sleepCategories} onClose={closeDetailCard} />
       ) : null}
