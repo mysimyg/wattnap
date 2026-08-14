@@ -85,12 +85,6 @@
   --advisory-bg: oklch(.24 .055 55);
   --advisory-edge: oklch(.42 .09 60);
 
-  /* --- transitional aliases, deleted at the end of phase 2 --------------
-     Grepped: no CSS custom property is read outside this file, so these
-     two cover every remaining old-name reference below until each rule is
-     migrated to the scaled tokens above. */
-  --radius: var(--r-md);
-  --border: var(--hairline);
 }
 
 /* map tint: the CARTO dark raster is neutral grey; one blend layer pulls it
@@ -258,8 +252,8 @@ a {
   .wn-app {
     max-width: 920px;
     margin: 0 auto;
-    border-left: 1px solid var(--border);
-    border-right: 1px solid var(--border);
+    border-left: 1px solid var(--hairline);
+    border-right: 1px solid var(--hairline);
   }
 }
 
@@ -272,7 +266,7 @@ a {
   padding: 8px 12px;
   padding-top: calc(8px + env(safe-area-inset-top));
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--hairline);
   min-height: 44px;
 }
 .wn-header__title {
@@ -827,13 +821,13 @@ a {
   margin-bottom: 10px;
 }
 .wn-planpanel__estimate-note {
-  font-size: 14px;
+  font-size: var(--t-meta);
   color: var(--text-dim);
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 8px 10px;
-  margin-bottom: 10px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: var(--s-2) var(--s-3);
+  margin-bottom: var(--s-3);
 }
 .wn-summary__hero {
   display: flex;
@@ -1332,8 +1326,8 @@ a {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
+  background: var(--hairline);
+  border-radius: var(--r-xs);
 }
 
 /* DESIGN.md §6: every tap target is at least 44px. */
