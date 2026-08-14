@@ -390,3 +390,34 @@ Carried over verbatim from the handoff rather than silently resolved:
   base colour but composites at 86% opacity over whatever is behind it, so
   it never actually paints a literal pure-white pixel — left exactly as
   specified rather than adjusted for a violation that doesn't occur.
+- **§2's own token block defines `--tap-sm: 38px`** for "small buttons,
+  steppers, icon buttons," while §1 states "tap targets 44px" as an
+  unqualified floor and the build prompt's self-check repeats it
+  unqualified too. Both numbers come from the spec itself — this isn't an
+  implementation choice, `--tap-sm` wouldn't exist if nothing were meant to
+  use it. Read as a two-tier system (44px primary, 38px identified-
+  secondary: steppers, small icon buttons, the round-trip toggle) rather
+  than resolved by guessing which of the spec's own two statements to
+  drop. An independent review flagged every real `--tap-sm` consumer as a
+  checklist violation; documented here instead of silently bumping them
+  all to 44px, which would mean not using a token the spec explicitly
+  gives.
+- **The via-milestone row's SOC numeral renders at `--t-row` (17px), not
+  `--t-soc` (28px).** Flagged by review as an undocumented violation of
+  the stated 28px SOC floor. It's a deliberate exception, now documented
+  here rather than only in the CSS comment where it originally lived: the
+  milestone is one clause inside a `--t-meta` (14px) inline sentence
+  ("Arrive Bakersfield, CA at 33%"), not its own card -- an 28px numeral
+  there would be disproportionate to the sentence around it, the way it
+  isn't inside `.wn-stop`'s own dedicated arrive/depart row. No exception
+  is given in the spec for an inline SOC mention because the spec doesn't
+  anticipate multi-stop's via-milestone concept at all (§8/§9-1 describe
+  the behaviour, not this specific UI element).
+- **Waypoint reordering (§8: "drag to reorder") is up/down buttons, not a
+  pointer/touch drag gesture.** Already noted in `src/ui/TripForm.jsx`'s
+  own comment and in `STATE.md`'s judgment-calls list; recorded here too
+  so every session-level deviation from the spec's literal wording lives
+  in one place. A real cross-device (touch + mouse) drag implementation is
+  a meaningfully bigger sub-project than the rest of this pass; up/down
+  buttons reach the identical end state (any via can reach any position)
+  without it.

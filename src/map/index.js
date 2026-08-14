@@ -5,7 +5,7 @@
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { darkBasemapStyle } from './basemap.js'
-import { chargerPinElement, sleepPinElement } from './pins.js'
+import { chargerPinElement, sleepPinElement, endpointPinElement } from './pins.js'
 
 function emptyFC() {
   return { type: 'FeatureCollection', features: [] }
@@ -103,6 +103,7 @@ export function createMapController(container, { onStationClick, onSleepClick } 
 
   let stationMarkers = []
   let sleepMarkers = []
+  let endpointMarkers = []
 
   function clearMarkers(list) {
     list.forEach((m) => m.remove())
@@ -132,6 +133,29 @@ export function createMapController(container, { onStationClick, onSleepClick } 
         new maplibregl.LngLatBounds(coords[0], coords[0])
       )
       map.fitBounds(bounds, { padding: 48, duration: 600 })
+    }
+  }
+
+  /**
+   * Trip start/destination pins -- wattnap-spec.md §6. Shown as soon as
+   * from/to are resolved, independent of whether a route has been planned
+   * yet, so a driver can see where they're headed while still building
+   * the trip. `from`/`to` are {lat,lon} or null.
+   */
+  function setEndpoints(from, to) {
+    if (!ready) return readyPromise.then(() => setEndpoints(from, to))
+    clearMarkers(endpointMarkers)
+    const points = [
+      [from, 'start'],
+      [to, 'destination'],
+    ]
+    for (const [point, kind] of points) {
+      if (!point || typeof point.lat !== 'number' || typeof point.lon !== 'number') continue
+      const el = endpointPinElement(kind)
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([point.lon, point.lat])
+        .addTo(map)
+      endpointMarkers.push(marker)
     }
   }
 
@@ -180,6 +204,7 @@ export function createMapController(container, { onStationClick, onSleepClick } 
   function destroy() {
     clearMarkers(stationMarkers)
     clearMarkers(sleepMarkers)
+    clearMarkers(endpointMarkers)
     if (resizeObserver) resizeObserver.disconnect()
     map.remove()
   }
@@ -190,6 +215,7 @@ export function createMapController(container, { onStationClick, onSleepClick } 
     setCorridor,
     setStations,
     setSleepFeatures,
+    setEndpoints,
     destroy,
     whenReady: () => readyPromise,
   }

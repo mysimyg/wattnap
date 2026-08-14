@@ -66,7 +66,9 @@ function JurisdictionNotice({ warning }) {
               Nearest {warning.nearestOption.unverified ? 'known (unverified)' : 'verified'} option:{' '}
               {warning.nearestOption.name}, ~{Math.round(warning.nearestOption.distMi)} mi away
             </span>
-            {warning.nearestOption.unverified ? <span class="wn-badge wn-badge--warn">unverified</span> : null}
+            {warning.nearestOption.unverified ? (
+              <span class="wn-badge wn-badge--warn">unverified — check before relying on it</span>
+            ) : null}
           </button>
         ) : null}
       </div>
@@ -153,7 +155,7 @@ export function SleepPanel() {
                 <span class="wn-sleeplist__meta">
                   confirmed {f.properties.confirmed || 'unknown'}
                   {f.properties.verified === false ? (
-                    <span class={sleepConfidenceClass(false)} style={{ '--tone': 'var(--warn)' }}>
+                    <span class={sleepConfidenceClass(false)} style={{ '--tone': `var(--cat-${f.properties.category})` }}>
                       {' '}
                       <span class="kw">unverified</span>
                     </span>

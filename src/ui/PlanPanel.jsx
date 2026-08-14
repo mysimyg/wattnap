@@ -4,6 +4,7 @@ import { StateMessage, ApiErrorMessage } from './StateMessage.jsx'
 import { StrategyEditor } from './StrategyEditor.jsx'
 import { CompareView } from './CompareView.jsx'
 import { KwBadge } from './KwBadge.jsx'
+import { kwConfidenceClass, kwToneVar } from '../map/pins.js'
 
 function fmtMin(mins) {
   if (mins == null || !isFinite(mins)) return '—'
@@ -76,9 +77,17 @@ function ViaMilestoneRow({ stop }) {
   )
 }
 
+/**
+ * wattnap-spec.md §5 names "the stop card's left spine" as a confidence-
+ * ladder application site alongside the kW badge -- a spine, not a swatch,
+ * so it reuses the same three states via a left border rather than the
+ * badge's fill/hairline/dashed box.
+ */
 function StopRow({ stop, index }) {
+  const confClass = stop.station ? kwConfidenceClass(stop.station.kwSource) : 'is-measured'
+  const tone = stop.station ? kwToneVar(stop.station) : undefined
   return (
-    <div class="wn-stop wn-card">
+    <div class={`wn-stop wn-card wn-stop--${confClass}`} style={tone ? { '--tone': tone } : undefined}>
       <div class="wn-stop__head">
         <span class="wn-stop__index">{index + 1}</span>
         <span class="wn-stop__name">{stop.station?.name || 'Unnamed stop'}</span>

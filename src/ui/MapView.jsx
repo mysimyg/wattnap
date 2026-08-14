@@ -78,6 +78,14 @@ export function MapView({ expanded = false, onToggleExpand }) {
 
   useEffect(() => {
     if (!controllerRef.current) return
+    // s.from/s.to, not computeWaypoints(s) -- "destination" is the trip's
+    // actual endpoint regardless of round trip, which loops back to start
+    // afterward rather than changing what the destination is.
+    controllerRef.current.setEndpoints(s.from, s.to)
+  }, [s.from, s.to])
+
+  useEffect(() => {
+    if (!controllerRef.current) return
     const selectedId = s.selectedPin && s.selectedPin.kind === 'station' ? s.selectedPin.data.id : null
     controllerRef.current.setStations(filteredStations(s), selectedId)
   }, [s.stations, s.minKw, s.networkEnabled, s.selectedPin])

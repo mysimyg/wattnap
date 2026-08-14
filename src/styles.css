@@ -767,10 +767,14 @@ a {
 }
 
 /* Tab bar -- wattnap-spec.md §7: 4-item icon+label bar, no uppercase, no
-   underline. Visual treatment only: it keeps its current structural
-   position in the flex/DOM order (between the filter bar and the tab
-   panel) rather than becoming a viewport-pinned footer, which would need
-   restructuring the scroll containment this restyle pass doesn't touch. */
+   underline. Sits at the true bottom of the screen via the mobile `order`
+   values below (tabpanel before it, not after) -- a real bottom nav, not
+   just bottom-styled chrome sandwiched mid-screen. An earlier version of
+   this comment claimed that needed restructuring the scroll containment;
+   it didn't -- a review caught that the tab bar had been left in its old
+   position despite this comment implying it was a deliberate call, and a
+   plain `order` swap (no DOM move, no new scroll container) was all it
+   needed. */
 .wn-tabbar {
   flex: 0 0 auto;
   display: flex;
@@ -890,6 +894,25 @@ a {
 }
 /* .wn-stop is also .wn-card -- a real card per stop (wattnap-spec.md §7),
    replacing the old dashed 1px separator. */
+/* Confidence ladder, §5: "the stop card's left spine." A dedicated
+   .wn-stop--is-* set rather than the shared .is-measured/.is-inferred/
+   .is-unknown classes from earlier in this file -- those give a full
+   swatch background/border, which would tint the whole card; a spine is
+   only the left edge. Compound .wn-card.wn-stop--is-* selectors (not bare
+   .wn-stop--is-*): .wn-card's own `border` shorthand is defined later in
+   this file and resets border-left as a side effect of resetting the
+   whole shorthand, so a same-specificity bare-class rule earlier in the
+   cascade loses even though it appears more specific to the eye. Two
+   classes beats .wn-card's one regardless of source order. */
+.wn-card.wn-stop--is-measured {
+  border-left: 3px solid var(--tone);
+}
+.wn-card.wn-stop--is-inferred {
+  border-left: 3px solid color-mix(in oklch, var(--tone) 55%, var(--hairline));
+}
+.wn-card.wn-stop--is-unknown {
+  border-left: 3px dashed var(--tone);
+}
 .wn-stop__head {
   display: flex;
   align-items: center;
@@ -1126,7 +1149,11 @@ a {
 .wn-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  /* Last non-oklch colour in the file, found by review. L 0 is pure black,
+     but this is a translucent scrim, not a solid surface -- like --glass,
+     it never paints a literal pure-black pixel, it blends with whatever is
+     behind it. */
+  background: oklch(0 0 0 / 0.55);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1262,6 +1289,11 @@ a {
   position: absolute;
   inset: -9px;
 }
+/* Endpoints aren't clickable (no onClick wired in map/index.js -- §6 gives
+   them styling only, no interaction), so they shouldn't invite a tap. */
+.wn-pin--endpoint {
+  cursor: default;
+}
 
 /* State messages */
 .wn-state {
@@ -1374,14 +1406,21 @@ a {
   display: contents;
 }
 
-/* Explicit order, because `display: contents` flattens the DOM order above. */
+/* Explicit order, because `display: contents` flattens the DOM order above.
+   wattnap-spec.md §1/§7: the tab bar is a BOTTOM bar -- tabpanel (order 5)
+   renders above it, tabbar (order 6) last, so it sits at the true bottom
+   of the screen the way every native bottom-nav pattern does, with content
+   filling the space above it. This is a CSS `order` change only -- no DOM
+   move, no new scroll container, no touch to the protected min-height:180px
+   floor or the 1024px split (which resets every .wn-side child to order:0
+   and governs itself by source order instead, see the media query below). */
 .wn-offline-banner { order: 1; }
 .wn-notconfigured { order: 1; }
 .wn-tripform { order: 2; }
 .wn-map-wrap { order: 3; }
 .wn-filterbar { order: 4; }
-.wn-tabbar { order: 5; }
-.wn-tabpanel { order: 6; }
+.wn-tabpanel { order: 5; }
+.wn-tabbar { order: 6; }
 
 /* Expand control -- wattnap-spec.md §7: same 44px, radius 8 -> 14,
    translucent, moved to the map's bottom-right (was top-left, colliding

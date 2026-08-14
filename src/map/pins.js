@@ -206,3 +206,27 @@ export function sleepPinElement(category, verified, { selected = false } = {}) {
     </svg>`
   return el
 }
+
+/**
+ * Trip start/destination marker -- wattnap-spec.md §6: "26px box, radius
+ * 9px, solid: start = --text, destination = --accent, 2px --bg ring." No
+ * icon, no confidence ladder (a trip endpoint has no kwSource/verified
+ * concept); the ring is what visually separates it from the tinted map
+ * surface underneath.
+ */
+export function endpointPinElement(kind) {
+  const box = 26
+  const tone = kind === 'destination' ? 'var(--accent)' : 'var(--text)'
+  const squircle = squircleRect({ boxSize: box, fill: tone, stroke: 'var(--bg)', strokeWidth: 2 })
+  const el = document.createElement('div')
+  el.className = `wn-pin wn-pin--endpoint wn-pin--${kind}`
+  el.style.width = `${box}px`
+  el.style.height = `${box}px`
+  el.setAttribute('role', 'img')
+  el.setAttribute('aria-label', kind === 'destination' ? 'Destination' : 'Trip start')
+  el.innerHTML = `
+    <svg width="${box}" height="${box}" viewBox="0 0 ${box} ${box}" xmlns="http://www.w3.org/2000/svg">
+      ${squircle}
+    </svg>`
+  return el
+}
