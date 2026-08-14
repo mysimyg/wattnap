@@ -19,13 +19,15 @@ export function FilterBar() {
     <div class="wn-filterbar">
       <div class="wn-filterbar__row">
         <span class="wn-filterbar__label">corridor</span>
-        <button type="button" class="wn-icon-btn wn-icon-btn--small" onClick={() => stepCorridor(-1)} aria-label="Narrower corridor">
-          −
-        </button>
-        <span class="wn-filterbar__value">{s.corridorMi} mi</span>
-        <button type="button" class="wn-icon-btn wn-icon-btn--small" onClick={() => stepCorridor(1)} aria-label="Wider corridor">
-          +
-        </button>
+        <div class="wn-stepper">
+          <button type="button" class="wn-stepper__btn" onClick={() => stepCorridor(-1)} aria-label="Narrower corridor">
+            −
+          </button>
+          <span class="wn-stepper__value">{s.corridorMi} mi</span>
+          <button type="button" class="wn-stepper__btn" onClick={() => stepCorridor(1)} aria-label="Wider corridor">
+            +
+          </button>
+        </div>
       </div>
 
       <div class="wn-filterbar__row">

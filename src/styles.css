@@ -450,41 +450,79 @@ a {
 /* Filter bar */
 .wn-filterbar {
   flex: 0 0 auto;
-  padding: 8px 12px;
+  padding: var(--s-2) var(--s-3);
   background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--s-2);
 }
 .wn-filterbar__row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--s-2);
 }
 .wn-filterbar__label {
-  font-size: 13px;
+  font-size: var(--t-caption);
   color: var(--text-dim);
   min-width: 52px;
 }
 .wn-filterbar__value {
-  font-size: 14px;
+  font-size: var(--t-meta);
   min-width: 44px;
   text-align: right;
 }
 .wn-filterbar__value--kw {
   font-weight: 700;
-  font-size: 17px;
+  font-size: var(--t-row);
   min-width: 40px;
 }
 .wn-slider {
   flex: 1;
-  height: 44px;
+  height: var(--tap);
   accent-color: var(--accent);
 }
 .wn-filterbar__row--chips {
   align-items: flex-start;
+}
+
+/* Stepper -- wattnap-spec.md §7: "corridor and sleep-detour steppers share
+   one control: -, tabular value, +, inside a single bordered group."
+   Shared here so both FilterBar's corridor stepper and SleepPanel's
+   sleep-detour stepper look identical. */
+.wn-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.wn-stepper__btn {
+  min-width: var(--tap-sm);
+  min-height: var(--tap-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: var(--t-body);
+  cursor: pointer;
+}
+.wn-stepper__btn:hover {
+  background: var(--surface-2);
+}
+.wn-stepper__value {
+  min-width: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--s-2);
+  border-left: 1px solid var(--hairline);
+  border-right: 1px solid var(--hairline);
+  font-size: var(--t-meta);
+  font-weight: 600;
 }
 .wn-chips {
   display: flex;
@@ -510,7 +548,7 @@ a {
   background: color-mix(in oklch, var(--accent) 16%, transparent);
 }
 .wn-filterbar__note {
-  font-size: 13px;
+  font-size: var(--t-caption);
   color: var(--text-dim);
   margin: 2px 0 0;
 }
@@ -727,7 +765,7 @@ a {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--s-2);
 }
 .wn-chargerlist__item,
 .wn-sleeplist__item {
@@ -738,22 +776,33 @@ a {
   flex-direction: column;
   justify-content: center;
   gap: 2px;
-  padding: 10px 12px;
+  padding: var(--s-3);
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
   color: var(--text);
   cursor: pointer;
 }
 .wn-chargerlist__name,
 .wn-sleeplist__name {
-  font-size: 16px;
+  font-size: var(--t-row);
   font-weight: 600;
 }
 .wn-chargerlist__meta,
 .wn-sleeplist__meta {
-  font-size: 14px;
+  font-size: var(--t-meta);
   color: var(--text-dim);
+}
+.wn-chargers-filtersummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
+}
+.wn-chargers-filtersummary .wn-chip {
+  cursor: default;
+  min-height: var(--tap-sm);
+  font-size: var(--t-caption);
 }
 
 /* Detail card */
