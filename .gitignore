@@ -6,3 +6,7 @@ dist/
 .wrangler/
 .DS_Store
 *.log
+
+# Claude Design handoff exports -- working artifacts, not source. The
+# content that matters gets transcribed into tracked docs (e.g. wattnap-spec.md).
+*.dc.html
