@@ -2,22 +2,24 @@
 
 **Single source of truth across sessions. Read before acting. Update before stopping.**
 
-Last updated: 2026-08-13 (Clearcoat visual restyle, phases 1-6 complete)
+Last updated: 2026-08-13 (Clearcoat visual restyle complete + independently reviewed)
 
 ---
 
 ## Current Phase
 
-**Visual restyle (Clearcoat direction) complete, independent review pass in
-progress.** DESIGN.md's original six build-phase gates (below) all passed on
-2026-08-13; a separate design pass then handed off `wattnap-spec.md` (a
-Claude Design token/CSS spec, saved into the repo root) asking for a
-CSS-and-markup-detail restyle against the existing component tree — not a
-rebuild, not a structural change. That restyle is now done: 16 commits (one
-per phase/screen), 124 tests passing throughout, every phase verified live
-against the deployed Worker as it landed. See "Clearcoat restyle — session
-summary" below for the full account; this section stays about the original
-six DESIGN.md gates.
+**Visual restyle (Clearcoat direction) complete and independently reviewed.**
+DESIGN.md's original six build-phase gates (below) all passed on 2026-08-13;
+a separate design pass then handed off `wattnap-spec.md` (a Claude Design
+token/CSS spec, saved into the repo root) asking for a CSS-and-markup-detail
+restyle against the existing component tree — not a rebuild, not a
+structural change. That restyle is now done: 17 commits (one per phase/
+screen, plus one review-fix commit), 124 tests passing throughout, every
+phase verified live against the deployed Worker as it landed, and a
+Workflow review pass (9 findings, 6 fixed, 3 documented as spec-level
+contradictions) closed out. See "Clearcoat restyle — session summary" below
+for the full account; this section stays about the original six DESIGN.md
+gates.
 
 Repo is live at https://github.com/mysimyg/wattnap and GitHub Pages is
 enabled (Actions build type). Deployed URL will be
@@ -201,13 +203,23 @@ lightness regression test, and 10 tests covering the multi-leg
 orchestration logic the blocked-then-approved deploy couldn't verify live
 on the first attempt).
 
-**Not yet done:** an independent multi-dimension review pass (DO-NOT-TOUCH
+**Independent review: complete.** A multi-agent Workflow review (DO-NOT-TOUCH
 compliance, spec fidelity, the build prompt's own self-check list,
-cross-file consistency) was launched via Workflow before this summary was
-written. If this line is still here, treat the restyle as builder-verified
-but not yet independently reviewed — see the next dated STATE.md update or
-the git log after this one for the outcome. Per CLAUDE.md: "the reviewer or
-test agent verifies the gate. Builders never certify their own work."
+cross-file consistency) found 9 candidate issues; all 9 were independently
+re-verified against the actual repo before being trusted (not just taken on
+the first agent's word). 6 were fixed, 3 were genuine spec-level
+contradictions or under-documented deliberate exceptions and were written
+into `wattnap-spec.md` §12 instead of guessed at. See commit `380d92f`.
+Fixed: a silently-shortened advisory caution string (a real DO-NOT-TOUCH
+violation), the tab bar never actually reaching the bottom of the viewport
+(fixed via a plain flex-`order` swap once review disproved the original
+"needs scroll-containment restructuring" reasoning), a missing confidence-
+ladder application site (the stop card's left spine), missing endpoint
+(start/destination) map pins, a sleep list row using the wrong hue for its
+confidence indicator, and the last non-oklch colour in the stylesheet.
+124 tests pass throughout; production build succeeds. Per CLAUDE.md: "the
+reviewer or test agent verifies the gate. Builders never certify their own
+work" — that gate has now been run, not just claimed.
 
 ---
 
@@ -266,10 +278,11 @@ test agent verifies the gate. Builders never certify their own work."
 | 2026-08-13 | **User hit a live bug** (screenshot: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable") — this was Q10. Root-caused and fixed same session: ORS's default point-snap radius (~350m) couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (geocodes to a beach). Worker now sends `radiuses: [5000, 5000]`. Confirmed live before/after on the exact failing request; 95 tests |
 | 2026-08-13 | Rest-area status re-check against the live Caltrans SRRA feed (feed stamped 08/13/2026 6:11am). Gaviota N/S, Tejon Pass NB and Coso Junction confirmed still CLOSED (reopen dates and closure reasons now recorded). **Gold Run westbound has REOPENED** and is a live pin again — it had been wrongly suppressed for a day. Tejon Pass SB note corrected: the feed has no SB record at all (the two entries are a duplicate of NB), so it stays suppressed as unknown, not as confirmed-closed. Rest-area pins 10 → 11; 98 tests |
 | 2026-08-13 | **Clearcoat visual restyle — all 6 phases complete, 16 commits.** `wattnap-spec.md` (Claude Design handoff) implemented in full: token/palette layer, primitives, confidence ladder applied everywhere, squircle pins with per-category Lucide icons, all 7 named screens restyled, and multi-stop/round-trip routing (via waypoints, the only phase with real logic — planner untouched, orchestration outside it). Found and fixed 3 latent bugs unrelated to the restyle ask while touching adjacent code (undefined `--warn-*` fallback vars, a badge sized for a glyph that no longer exists, a pure-white value the spec's own self-check forbids). See "Clearcoat restyle — session summary" above for full detail; D-043/D-044 below. 124 tests, up from 108 |
+| 2026-08-13 | **Independent review of the Clearcoat restyle (Workflow, 13 agents): 9 findings, all independently re-verified, 6 fixed, 3 documented as spec-level contradictions.** Fixed: a silently-shortened advisory caution string (real DO-NOT-TOUCH violation), the tab bar never reaching the true bottom of the viewport (a plain flex-`order` fix, not the restructuring an earlier code comment assumed was needed), a missing confidence-ladder site (stop card's left spine), missing endpoint start/destination pins, a sleep-row confidence indicator using the wrong hue, and the last non-oklch colour in the stylesheet. 124 tests pass, production build succeeds |
 
 ## In Progress
 
-- Independent review pass on the Clearcoat restyle (launched via Workflow; see the session summary above for status as of this writing).
+- Nothing outstanding from the Clearcoat restyle. See Next Session for the unrelated, pre-existing backlog (D-042 real-hardware check, Q15, charge-curve validation).
 
 ## Next Actions
 
@@ -424,41 +437,42 @@ New ideas land here, never in the code mid-build.
 
 ## Next Session
 
-**The Clearcoat visual restyle (all 6 phases) is complete and deployed —
-both the GitHub Pages frontend (push-on-commit via Actions) and the
-Cloudflare Worker (deployed manually this session, D-044). DESIGN.md's
-original six build-phase gates were already PASS before this restyle
-started and are unaffected by it** (`src/planner/*` has a zero-line diff).
+**The Clearcoat visual restyle (all 6 phases) is complete, deployed, and
+independently reviewed.** Both the GitHub Pages frontend (push-on-commit
+via Actions, confirmed live and working end-to-end for both a plain trip
+and a multi-stop trip against the deployed Worker) and the Cloudflare
+Worker (deployed with explicit user sign-off, D-044) are current. A
+Workflow review pass found 9 issues; 6 were fixed and 3 were genuine
+spec-level contradictions documented in `wattnap-spec.md` §12 rather than
+guessed at (commit `380d92f`). DESIGN.md's original six build-phase gates
+were already PASS before this restyle started and remain unaffected by it
+(`src/planner/*` has a zero-line diff across the entire session).
 
-- **Model:** Sonnet for build/fixes/review follow-up. Switch with `/model`
-  if starting fresh.
-- **First task: read the independent review's outcome.** A multi-dimension
-  review (DO-NOT-TOUCH compliance, spec fidelity, the build prompt's own
-  self-check list, cross-file consistency) was launched via Workflow at the
-  end of this session — check whether it landed and whether any findings
-  still need fixing. If STATE.md's "Clearcoat restyle — session summary"
-  section above still says "not yet done" under review status, the outcome
-  wasn't folded back in before this file was last saved — check the git log
-  for a follow-up commit after `2b8451c`/`5ed88ea`/`cbd845b` first.
-- **Second, if the review is clean or already fixed:** verify the deployed
-  Pages URL directly (not just localhost) — this session verified
-  extensively against the local dev server pointed at the live Worker, but
-  per CLAUDE.md ("Verify on the deployed Pages URL, not just localhost")
-  the actual `mysimyg.github.io/wattnap/` build has not been separately
-  re-checked post-restyle.
-- **Then, real-hardware check (carried over from D-042, still open):**
-  confirm the map renders on a real phone or desktop Chrome. This tool's
-  browser has never been able to confirm map rendering either way, across
-  two sessions now (D-021, D-042) — not urgent-feeling, but still the one
-  thing no session has closed out with real confidence.
+- **Model:** Sonnet for build/fixes. Switch with `/model` if starting
+  fresh.
+- **No urgent first task from this restyle** — everything it opened is
+  closed. Endpoint pins (§6), the tab bar's true bottom position, and the
+  confidence-ladder stop-card spine all shipped in the review-fix commit;
+  don't re-add them thinking they're still missing.
+- **Still deliberately deferred** (see the session summary above for why
+  each is bounded out, not forgotten): the pin label tab at zoom>=8 (§6),
+  moving pins to a MapLibre symbol layer for panning performance (§9-3),
+  waypoint drag-to-reorder as an actual pointer gesture (currently up/down
+  buttons, §12).
+- **Real-hardware check (carried over from D-042, still open, unrelated to
+  this restyle):** confirm the map renders on a real phone or desktop
+  Chrome. This tool's browser has never been able to confirm map rendering
+  either way, across three sessions now (D-021, D-042, and this one) —
+  not urgent-feeling, but still the one thing no session has closed out
+  with real confidence. This session's own verification relied on computed
+  styles rather than pixel screenshots specifically because of this same
+  limitation.
 - **Then, if there's runway:** the pre-restyle backlog is unchanged and
-  still open — Q15 (BLM dispersed camping research pass), charge-curve
-  validation against a real Supercharger session (Human Tasks), and the
-  deliberately-deferred restyle items (pin label tab, MapLibre symbol-layer
-  pins, endpoint markers — see the session summary above).
+  still open — Q15 (BLM dispersed camping research pass) and charge-curve
+  validation against a real Supercharger session (Human Tasks).
 - **Context needed:** `CLAUDE.md`, this file in full, `wattnap-spec.md`
-  (the restyle's own spec, now checked into the repo root — read before
-  touching any of the files it names), `DESIGN.md` §4.6.1, §4.6.2, §5.1.1,
-  §8, §9.
+  (the restyle's own spec, checked into the repo root — read before
+  touching any of the files it names, especially §12's now-5-item gap
+  list), `DESIGN.md` §4.6.1, §4.6.2, §5.1.1, §8, §9.
 - **Blockers:** none. Everything that needed account access or explicit
-  sign-off (the Worker deploy) is done.
+  sign-off is done.
