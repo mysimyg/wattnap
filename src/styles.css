@@ -741,19 +741,22 @@ a {
   color: var(--text);
   line-height: 1.4;
 }
+/* No remaining consumer wants a literal single-character circular disc
+   (the old override-badge use case moved to OverrideNote) -- both current
+   uses (--warn, --confidence-*) are short-text pills, so the base no
+   longer forces a fixed 20x20 circle onto them. */
 .wn-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--t-caption);
 }
 .wn-badge--warn {
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
   background: var(--warn);
-  color: #231a00;
+  color: var(--on-accent);
 }
 .wn-planpanel__compare {
   width: 100%;
@@ -1046,26 +1049,28 @@ a {
   padding: var(--s-4);
 }
 .wn-state--error {
-  border-color: rgba(248, 113, 113, 0.5);
-  background: rgba(248, 113, 113, 0.06);
+  /* Was a hardcoded rgba() snapshot of the old --danger hex -- didn't
+     track the phase-3 retune to oklch(.66 .17 25) until now. */
+  border-color: color-mix(in oklch, var(--danger) 50%, transparent);
+  background: color-mix(in oklch, var(--danger) 6%, transparent);
 }
 .wn-state--warn {
-  border-color: rgba(242, 193, 78, 0.5);
-  background: rgba(242, 193, 78, 0.06);
+  border-color: color-mix(in oklch, var(--warn) 50%, transparent);
+  background: color-mix(in oklch, var(--warn) 6%, transparent);
 }
 .wn-state__title {
   margin: 0 0 6px;
-  font-size: 16px;
+  font-size: var(--t-row);
   font-weight: 700;
 }
 .wn-state__body p {
   margin: 0 0 8px;
-  font-size: 16px;
+  font-size: var(--t-body);
   color: var(--text-dim);
   line-height: 1.45;
 }
 .wn-state__countdown {
-  font-size: 14px;
+  font-size: var(--t-meta);
   color: var(--text-dim);
 }
 
@@ -1074,7 +1079,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: var(--s-5);
 }
 .wn-notconfigured .wn-state {
   max-width: 440px;
@@ -1082,17 +1087,21 @@ a {
 .wn-notconfigured code {
   background: var(--surface-2);
   padding: 2px 5px;
-  border-radius: 4px;
+  border-radius: var(--r-xs);
   font-size: 0.9em;
   word-break: break-all;
 }
 
 .wn-offline-banner {
   background: var(--warn);
-  color: #231a00;
+  /* No dedicated "on-warn" token exists (only --on-accent, wattnap-spec.md
+     §3) -- --warn and --accent are both light/saturated enough in dark mode
+     that the same dark text works on either, so this reuses it rather than
+     leaving another orphaned hex here. */
+  color: var(--on-accent);
   text-align: center;
-  font-size: 14px;
-  padding: 6px 10px;
+  font-size: var(--t-meta);
+  padding: var(--s-2) var(--s-3);
   flex: 0 0 auto;
 }
 
@@ -1112,20 +1121,19 @@ a {
 }
 
 /* Unverified sleep spots must never read like confirmed ones. Same principle
-   as kwSource on chargers: a guess may not wear the clothes of a fact. */
+   as kwSource on chargers: a guess may not wear the clothes of a fact.
+   --warn-border/--warn-bg/--warn-text were referenced here with fallbacks
+   but never actually defined anywhere -- this had silently been running on
+   its hardcoded fallback literals the whole time. Real tokens now. */
 .wn-card__warn {
-  margin: 8px 0;
-  padding: 8px 10px;
-  border: 1px solid var(--warn-border, #8a6d3b);
-  border-radius: 8px;
-  background: var(--warn-bg, rgba(217, 154, 78, 0.12));
-  color: var(--warn-text, #f0c987);
-  font-size: 15px;
+  margin: var(--s-2) 0;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid color-mix(in oklch, var(--warn) 55%, transparent);
+  border-radius: var(--r-sm);
+  background: color-mix(in oklch, var(--warn) 12%, transparent);
+  color: var(--warn);
+  font-size: var(--t-row);
   line-height: 1.45;
-}
-.wn-badge--warn {
-  color: var(--warn-text, #f0c987);
-  font-weight: 600;
 }
 
 /* ---------------------------------------------------------------------------
