@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  doc-page:not(:defined) { visibility:hidden; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',system-ui,sans-serif; }
+  a { color:oklch(0.48 0.18 298); }
+  a:hover { color:oklch(0.38 0.16 298); }
+</style>
+<script src="./doc-page.js"></script>
+</helmet>
+
+<doc-page margin="0.7in">
+
+  <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:24px; border-bottom:2px solid oklch(0.48 0.18 298); padding-bottom:14px; margin-bottom:26px">
+    <div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt; letter-spacing:0.14em; text-transform:uppercase; color:oklch(0.48 0.18 298); font-weight:600">wattnap · visual layer</div>
+      <h1 style="margin:6px 0 0; font-size:26pt; font-weight:700; letter-spacing:-0.025em; line-height:1.1; color:oklch(0.22 0.03 298)">Token &amp; CSS spec, plus handoff notes</h1>
+    </div>
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt; line-height:1.6; color:oklch(0.50 0.02 298); text-align:right; flex:0 0 auto; padding-top:8px">
+      13 Aug 2026<br>direction: Clearcoat<br>restyle only, no structural change
+    </div>
+  </div>
+
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 18px">This is a CSS-level spec against the existing component tree. Nothing here asks for a rebuild: every value below replaces a value already present in <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt; background:oklch(0.955 0.008 298); padding:1px 4px; border-radius:4px">src/styles.css</code>, and the class names, DOM order, tab structure and data flow stay exactly as they are. The one genuinely new piece of markup is the sleep-pin icon (§6) and the multi-stop trip bar (§8), both called out separately.</p>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">1 · The four decisions</h2>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 12px"><strong>Clearcoat</strong> is the chosen direction: system type, floating cards on a violet-tinted near-black, a four-item bottom tab bar on mobile, and a left control column with a full-height map on desktop. Four rules run through all of it:</p>
+  <ul style="font-size:12pt; line-height:1.65; color:oklch(0.30 0.02 298); margin:0 0 8px; padding-left:22px">
+    <li style="margin-bottom:6px"><strong>Soft corners, never pills.</strong> Radius runs 8 → 22px by element size. The <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">border-radius: 999px</code> on <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">.wn-chip</code> is the one shape that has to go.</li>
+    <li style="margin-bottom:6px"><strong>Deep blue-leaning purple carries the brand;</strong> chargers get their own warm ramp so the two pin families never compete.</li>
+    <li style="margin-bottom:6px"><strong>One confidence ladder</strong> (§5): fill = measured, hairline = inferred, dashed hairline = unknown — always the same hue as its confident sibling, never a different colour.</li>
+    <li><strong>Floors go up, not down.</strong> Body 16px, SOC numerals 28px (was 20), tap targets 44px, bottom-bar items 52px.</li>
+  </ul>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">2 · Shape, type, spacing</h2>
+  <pre style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt; line-height:1.65; background:oklch(0.965 0.006 298); border:1px solid oklch(0.90 0.012 298); border-radius:10px; padding:14px 16px; margin:0 0 14px; overflow-x:auto; break-inside:avoid; color:oklch(0.26 0.03 298)">:root {
+  /* radius — replaces the single --radius: 10px */
+  --r-xs:  8px;   /* badges, kW chips, inline flags        */
+  --r-sm: 11px;   /* small buttons, steppers, icon buttons */
+  --r-md: 13px;   /* inputs, filter chips, list rows       */
+  --r-lg: 16px;   /* cards, map inset, primary buttons     */
+  --r-xl: 20px;   /* sheets, modals, detail cards          */
+  --r-2xl: 30px;  /* bottom-sheet top corners only         */
+
+  /* type scale */
+  --t-mono-label: 11px;  /* uppercase, 0.14em tracking      */
+  --t-caption:    13px;
+  --t-meta:       14px;
+  --t-body:       16px;  /* hard floor                      */
+  --t-row:        17px;  /* list + card titles              */
+  --t-title:      19px;
+  --t-screen:     30px;  /* large screen title, -0.03em     */
+  --t-soc:        28px;  /* was 20px                        */
+  --t-hero:       40px;  /* total trip time, -0.04em        */
+
+  /* spacing — 4px base */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px;
+
+  /* targets */
+  --tap: 44px;  --tap-sm: 38px;  --tab-item: 52px;
+
+  /* elevation — dark UI: one shadow, used sparingly */
+  --shadow-card:  0 3px 10px oklch(0.10 0.02 288 / 0.55);
+  --shadow-sheet: 0 -14px 40px oklch(0.08 0.02 288 / 0.60);
+
+  /* motion */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);   /* iOS-ish      */
+  --dur-tap: 120ms;  --dur-sheet: 320ms;
+}</pre>
+  <p style="font-size:11pt; line-height:1.6; color:oklch(0.42 0.02 298); margin:0 0 8px"><strong>Numerals:</strong> every SOC, kW, distance and duration gets <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">font-variant-numeric: tabular-nums</code>. Columns of percentages that jiggle as they update are the single cheapest thing to fix.</p>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">3 · Palette</h2>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 12px">Hue 285 throughout — deep, blue-leaning, not indigo. Every value is <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">oklch()</code> so lightness stays perceptually even across hues; no hex fallback is needed for a 2026 PWA. The four rejected palettes stay in the options file if you ever want to compare.</p>
+  <pre style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt; line-height:1.65; background:oklch(0.965 0.006 298); border:1px solid oklch(0.90 0.012 298); border-radius:10px; padding:14px 16px; margin:0 0 14px; overflow-x:auto; break-inside:avoid; color:oklch(0.26 0.03 298)">:root {
+  --bg:        oklch(.17 .018 285);  /* page under everything   */
+  --surface:   oklch(.22 .022 285);  /* cards, sheets           */
+  --surface-2: oklch(.27 .028 285);  /* rows inside a card      */
+  --hairline:  oklch(.33 .03 285);   /* 1px borders             */
+  --text:      oklch(.97 .004 285);
+  --text-dim:  oklch(.72 .018 285);
+  --accent:    oklch(.62 .16 285);
+  --on-accent: oklch(.18 .05 285);   /* text on --accent        */
+
+  /* translucent chrome — over the map only, never over --bg */
+  --glass:      oklch(.20 .02 285 / .88);
+  --glass-edge: oklch(.34 .03 285);
+  --blur:       blur(20px);
+
+  /* the two backdrops that are not --bg */
+  --tabbar:  oklch(.19 .02 285 / .90);  /* + --blur            */
+  --sidebar: oklch(.185 .02 285);       /* desktop left column */
+}
+
+/* map tint: the CARTO dark raster is neutral grey; one blend layer pulls
+   it onto the violet without touching a tile URL */
+.wn-map::after {
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background: oklch(.35 .10 285); mix-blend-mode: color; opacity:.55;
+}
+/* route: casing then line, both a step lighter than --accent so the
+   polyline still reads on top of the tinted basemap */
+--route-line:   oklch(.72 .15 285);   /* width 4, round caps    */
+--route-casing: oklch(.12 .02 285);   /* width 7, opacity .6    */</pre>
+
+  <h3 style="font-size:12.5pt; font-weight:700; color:oklch(0.22 0.03 298); margin:20px 0 8px">Light mode</h3>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 10px">Same roles, inverted. Dark stays the default — the app opens dark and only follows the system when the user opts in, so a night drive never gets flashbanged by a 6 a.m. system switch.</p>
+  <pre style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt; line-height:1.65; background:oklch(0.965 0.006 298); border:1px solid oklch(0.90 0.012 298); border-radius:10px; padding:14px 16px; margin:0 0 14px; overflow-x:auto; break-inside:avoid; color:oklch(0.26 0.03 298)">/* 1e Meridian, light — shown as the pattern for all five */
+[data-theme="light"] {
+  --bg:oklch(.975 .006 298);   --surface:oklch(1 0 0);
+  --surface-2:oklch(.955 .008 298); --hairline:oklch(.90 .012 298);
+  --text:oklch(.24 .03 298);   --text-dim:oklch(.50 .02 298);
+  --accent:oklch(.48 .18 298); --on-accent:oklch(.99 .005 298);
+  --glass:   oklch(1 0 0 / .86);  --glass-edge: oklch(.90 .012 298);
+  --tabbar:  oklch(1 0 0 / .92);  --sidebar:    oklch(.97 .006 298);
+  --shadow-card: 0 1px 3px oklch(.24 .03 298 / .07);
+}
+/* basemap swaps with the theme, and the tint layer drops or the map
+   goes muddy */
+[data-theme="light"] .wn-map { --tiles: light_all; }
+[data-theme="light"] .wn-map::after { opacity:.25 }</pre>
+  <p style="font-size:11pt; line-height:1.6; color:oklch(0.42 0.02 298); margin:0 0 8px"><strong>Data colours get darker in light mode, not lighter.</strong> The charger gold drops from L .85 to L .62 and the category hues from L .72 to L .55, or they vanish on white.</p>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">4 · Data colour</h2>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 12px">Two families, deliberately kept apart: <strong>chargers are warm and bright</strong>, <strong>sleep spots are a cool hue wheel at one fixed lightness</strong>. On a dark map at 2 a.m. that separation does more for legibility than any single colour choice.</p>
+  <pre style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt; line-height:1.65; background:oklch(0.965 0.006 298); border:1px solid oklch(0.90 0.012 298); border-radius:10px; padding:14px 16px; margin:0 0 14px; overflow-x:auto; break-inside:avoid; color:oklch(0.26 0.03 298)">/* chargers — a ramp, not three unrelated hues */
+--kw-high:oklch(.85 .17 95);   /* >= 250 kW, 30px pin */
+--kw-mid: oklch(.75 .13 75);   /* 150-249,   26px     */
+--kw-low: oklch(.62 .09 65);   /* 50-149,    22px     */
+/* unknown kW: --kw-high, no fill, dashed hairline, 26px */
+
+/* sleep categories — all L .72 / C .12, hue only */
+--cat-rest-area:      oklch(.72 .12 245)  /* was #4ea1d9 */
+--cat-truck-stop:     oklch(.72 .12 350)  /* was #f472b6 */
+--cat-walmart:        oklch(.72 .12 150)  /* was #4ade80 */
+--cat-cracker-barrel: oklch(.72 .12 70)   /* was #d99a4e */
+--cat-casino:         oklch(.72 .12 305)  /* was #b967ff */
+--cat-outdoor-retail: oklch(.72 .12 190)  /* was #2dd4bf */
+--cat-dispersed-nf:   oklch(.72 .12 125)  /* was #a3e635 */
+
+/* status */
+--warn:oklch(.80 .14 75);  --danger:oklch(.66 .17 25);
+--advisory-bg:oklch(.24 .055 55); --advisory-edge:oklch(.42 .09 60);</pre>
+  <p style="font-size:11pt; line-height:1.6; color:oklch(0.42 0.02 298); margin:0 0 8px">The seven category hues are the same seven you already assigned, pulled onto one lightness so no category shouts louder than another. Write them back into <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">public/data/sleep-index.json</code> — that file stays the source of truth.</p>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">5 · The confidence ladder</h2>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 12px">One rule, applied everywhere data confidence varies. Colour never changes between the three states — only the fill does. That is what makes it readable as a scale rather than as three unrelated statuses.</p>
+  <div style="display:flex; gap:14px; margin:0 0 14px; break-inside:avoid">
+    <div style="flex:1; border:1px solid oklch(0.90 0.012 298); border-radius:12px; padding:14px">
+      <div style="width:34px; height:34px; border-radius:11px; background:oklch(0.62 0.15 78); margin-bottom:10px"></div>
+      <div style="font-size:11.5pt; font-weight:700; color:oklch(0.24 0.03 298)">Measured</div>
+      <div style="font-size:10.5pt; line-height:1.5; color:oklch(0.48 0.02 298); margin-top:4px">Solid fill. <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">kwSource: reported</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">verified: true</code>.</div>
+    </div>
+    <div style="flex:1; border:1px solid oklch(0.90 0.012 298); border-radius:12px; padding:14px">
+      <div style="width:34px; height:34px; border-radius:11px; border:1.5px solid oklch(0.62 0.15 78); background:oklch(0.62 0.15 78 / 0.16); box-sizing:border-box; margin-bottom:10px"></div>
+      <div style="font-size:11.5pt; font-weight:700; color:oklch(0.24 0.03 298)">Inferred</div>
+      <div style="font-size:10.5pt; line-height:1.5; color:oklch(0.48 0.02 298); margin-top:4px">Hairline + 16% fill, same hue. Label prefixed <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">~</code>.</div>
+    </div>
+    <div style="flex:1; border:1px solid oklch(0.90 0.012 298); border-radius:12px; padding:14px">
+      <div style="width:34px; height:34px; border-radius:11px; border:1.5px dashed oklch(0.62 0.15 78); box-sizing:border-box; margin-bottom:10px"></div>
+      <div style="font-size:11.5pt; font-weight:700; color:oklch(0.24 0.03 298)">Unknown</div>
+      <div style="font-size:10.5pt; line-height:1.5; color:oklch(0.48 0.02 298); margin-top:4px">Dashed hairline, no fill. Never enters the plan.</div>
+    </div>
+  </div>
+  <pre style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt; line-height:1.65; background:oklch(0.965 0.006 298); border:1px solid oklch(0.90 0.012 298); border-radius:10px; padding:14px 16px; margin:0 0 14px; overflow-x:auto; break-inside:avoid; color:oklch(0.26 0.03 298)">.is-measured { background: var(--tone); border: none }
+.is-inferred { background: color-mix(in oklch, var(--tone) 16%, transparent);
+               border: 1.5px solid var(--tone) }
+.is-unknown  { background: transparent;
+               border: 1.5px dashed var(--tone) }
+/* text equivalents */
+.is-inferred .kw::before { content: "~" }
+.is-unknown  .kw         { text-decoration: underline dashed 1px;
+                           text-underline-offset: 3px }</pre>
+  <p style="font-size:11pt; line-height:1.6; color:oklch(0.42 0.02 298); margin:0 0 8px">Where it applies: charger pins and kW labels (<code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">kwSource</code>), sleep pins and list rows (<code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">verified: false</code>), the jurisdiction advisory's confidence line (a 4-segment meter, filled segments = confidence, the empty one dashed), and the stop card's left spine in 1e. Dashed is never decorative anywhere else in the app.</p>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">6 · Pins</h2>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 12px">Replaces the circle-and-moon in <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">src/map/pins.js</code>. Squircle, not circle; per-category icon, not one moon glyph for all seven. The <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">icon</code> field already in <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">sleep-index.json</code> finally gets used — the names map 1:1 to Lucide, which is MIT and can be inlined as paths so there is no icon-font dependency.</p>
+  <pre style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt; line-height:1.65; background:oklch(0.965 0.006 298); border:1px solid oklch(0.90 0.012 298); border-radius:10px; padding:14px 16px; margin:0 0 14px; overflow-x:auto; break-inside:avoid; color:oklch(0.26 0.03 298)">charger pin   28px box, radius 9px, icon lucide/zap 16px
+              fill --kw-*, icon stroke oklch(.22 .06 90)
+              selected: +4px and a 2px --accent ring
+sleep pin     26px box, radius 9px, icon 15px, 2.2 stroke
+              border 1.5px --cat-*, fill --cat-* @ 16-20%
+              icon stroke lifted to L .80 for contrast
+hit area      ::before inset -9px  ->  44x44 real target
+endpoints     26px box, radius 9px, solid: start = --text,
+              destination = --accent, 2px --bg ring
+icons         rest-area circle-parking | truck-stop truck
+              walmart shopping-cart | cracker-barrel utensils
+              casino dice-5 | outdoor-retail tent
+              dispersed-nf tree-pine</pre>
+  <p style="font-size:11pt; line-height:1.6; color:oklch(0.42 0.02 298); margin:0 0 8px">Direction 1d adds a label tab welded to the pin's right edge (name + kW) at zoom ≥ 8. Worth doing whichever palette wins — it is the single biggest legibility gain on the full-screen map, and it costs one extra DOM node per marker.</p>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">7 · Class-by-class</h2>
+  <table style="width:100%; border-collapse:collapse; font-size:10.5pt; margin:0 0 14px">
+    <thead>
+      <tr style="border-bottom:1.5px solid oklch(0.80 0.02 298)">
+        <th style="text-align:left; padding:7px 8px 7px 0; font-weight:700; color:oklch(0.24 0.03 298); width:26%">Selector</th>
+        <th style="text-align:left; padding:7px 8px; font-weight:700; color:oklch(0.24 0.03 298)">Change</th>
+      </tr>
+    </thead>
+    <tbody style="color:oklch(0.34 0.02 298)">
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.wn-chip</td><td style="padding:7px 8px; line-height:1.5">radius 999px → <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">--r-md</code>; min-height 36 → 44; gains a 16px category icon; “on” state = 1px category border + 16% tint, not accent-for-everything.</td></tr>
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.wn-tabbar</td><td style="padding:7px 8px; line-height:1.5">Moves to the bottom as a 4-item icon+label bar (Plan / Chargers / Sleep / Map) in 1a, 1e; stays top as a segmented control in 1b, 1c; floats over the map in 1d. Drop the uppercase and the 3px underline either way.</td></tr>
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.wn-stop</td><td style="padding:7px 8px; line-height:1.5">Dashed 1px separator → a real card (or a spine row in 1c/1e). <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">.wn-soc</code> 20 → 28px, tabular. The arrive→depart pair gains a track showing the charge window against 0–100.</td></tr>
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.wn-summary__headline</td><td style="padding:7px 8px; line-height:1.5">19px → <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">--t-hero</code> 40px, the one hero number on the screen. Drive time and stop count demote to 14px beside it.</td></tr>
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.wn-badge--warn</td><td style="padding:7px 8px; line-height:1.5">The 20px “!” disc becomes an inline reason block: warn icon + one sentence naming the gap distance and the climb. The override is information, not an alarm.</td></tr>
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.wn-jxnotice</td><td style="padding:7px 8px; line-height:1.5">Gets a header band and a titled body so it can never be mistaken for a listing: <em>ADVISORY · DESTINATION</em> strip, city name at title size, summary, hairline, ordinance citation, 4-segment confidence meter, then the nearest-legal-spot row as a filled button.</td></tr>
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.wn-filterbar</td><td style="padding:7px 8px; line-height:1.5">The kW slider keeps its 44px track. Corridor and sleep-detour steppers share one control: −, tabular value, +, inside a single bordered group.</td></tr>
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.wn-detailcard</td><td style="padding:7px 8px; line-height:1.5"><code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">--r-xl</code>, translucent surface + <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">backdrop-filter: blur(24px)</code>, icon square on the left, two equal actions: Navigate (filled) and Add as stop (outline).</td></tr>
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">NavigationControl</td><td style="padding:7px 8px; line-height:1.5">Keep it on desktop, restyled as a glass chip pair (48px buttons, <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">--r-lg</code>, hairline divider) at top-right. <strong>Drop it below 1024px</strong> — pinch-zoom and the expand affordance cover it, and the default light-styled buttons both collide with the floating trip bar and leak the light theme the way the attribution does.</td></tr>
+      <tr style="border-bottom:1px solid oklch(0.92 0.01 298)"><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.wn-map-expand</td><td style="padding:7px 8px; line-height:1.5">Same 44px, radius 8 → 14, translucent, and it moves to the map's bottom-right so it stops colliding with the trip bar.</td></tr>
+      <tr><td style="padding:7px 8px 7px 0; font-family:'IBM Plex Mono',monospace; font-size:9.5pt; vertical-align:top">.maplibregl-ctrl-attrib</td><td style="padding:7px 8px; line-height:1.5">Currently white-on-white at 11px with a <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">#1a1a1a</code> link on a light chip — the one place the dark theme leaks. Restyle to a chip: <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">--glass</code> + <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">--blur</code>, 1px <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">--hairline</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">--r-xs</code>, 12px <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">--text-dim</code>, both links at <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">oklch(.80 .02 285)</code>. <strong>Re-anchor bottom-LEFT</strong> on all three map surfaces (<code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">attributionControl</code> position <code style="font-family:'IBM Plex Mono',monospace; font-size:9.5pt">bottom-left</code>) — MapLibre's bottom-right default lands under the detail card. Required by CARTO and OSM: never conditional, never truncated, both links stay tappable.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">8 · Multi-stop and round trip</h2>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 12px">Designed here, but it needs planner and routing work behind it — see the log below. The visual half:</p>
+  <ul style="font-size:12pt; line-height:1.65; color:oklch(0.30 0.02 298); margin:0 0 8px; padding-left:22px">
+    <li style="margin-bottom:6px"><strong>The trip form collapses once planned.</strong> Two stacked 44px inputs are right while you are typing and wasted space forever after. Planned state is a single card: a vertical spine of waypoint dots, one line per stop, tap anywhere to reopen the editor.</li>
+    <li style="margin-bottom:6px"><strong>Waypoints are rows, not a second pair of fields.</strong> Origin, then any number of vias, then destination — each a spine dot, each removable, drag to reorder. <em>Add stop</em> is a dashed 44px row directly under the last one.</li>
+    <li style="margin-bottom:6px"><strong>Round trip is a toggle, not a fourth field.</strong> On, it appends the origin as a final leg and the spine closes back on itself. Ventura → Vegas → Dallas → Ventura is four legs, one toggle.</li>
+    <li><strong>On the full-screen map the trip bar stays.</strong> It is a 52px translucent bar pinned to the top showing the waypoint dots and the route summary; tapping it opens the same editor as a sheet, so destinations are editable without leaving full-screen.</li>
+  </ul>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">9 · Feature log for the build session</h2>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 12px">Things raised alongside the visual work. The design covers the surface for each; the behaviour is a build task.</p>
+  <ol style="font-size:12pt; line-height:1.65; color:oklch(0.30 0.02 298); margin:0 0 8px; padding-left:22px">
+    <li style="margin-bottom:8px"><strong>Multi-destination routing.</strong> ORS <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">/v2/directions</code> already takes an N-coordinate array, so the Worker change is small: accept <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">waypoints[]</code> instead of <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">from</code>/<code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">to</code>, keep one <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">radiuses</code> entry per waypoint (D-030 applies to every one of them, not just the two ends). The planner is already leg-based; a via point is a leg boundary with a forced arrival, not a new concept. Round trip is the waypoint array with <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">[0]</code> pushed onto the end.</li>
+    <li style="margin-bottom:8px"><strong>Tap a pin to make it a stop.</strong> The detail card's second action. It should pin that charger into the plan and re-run the planner around it rather than just recentre the map.</li>
+    <li style="margin-bottom:8px"><strong>Smoother map interaction on mobile.</strong> Today the map is a 55%-height box with markers as DOM nodes. Two changes worth making: move pins to a MapLibre symbol layer (DOM markers cost a reflow per frame while panning, which is most of the stutter), and let full-screen be a real route rather than a class toggle so the back gesture works.</li>
+    <li style="margin-bottom:8px"><strong>Full-screen map keeps its controls.</strong> Currently <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">.wn-app--mapfull .wn-side { display:none }</code> hides the trip form outright, so you cannot change where you are going without collapsing the map. §8's pinned trip bar fixes that.</li>
+    <li style="margin-bottom:8px"><strong>Filters in the Chargers tab.</strong> The kW slider and network chips live in the shared filter bar, so the Chargers tab reads as filterless. Either surface a compact filter row inside the tab or move the bar's ownership into it.</li>
+    <li><strong>Autocomplete stays as-is.</strong> The debounced Pelias suggest list already behaves well; it only needs the new list styling (44px rows, <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">--r-md</code>, matched-substring in <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">--text</code> against <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">--text-dim</code>).</li>
+  </ol>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">10 · Do not change</h2>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 8px">The tab set and their contents. The planner and every number it produces. <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">kwSource</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">verified</code> and the advisory confidence strings — the restyle makes them louder, it does not soften a single one of them. The two-column desktop split at 1024px. The <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">min-height: 180px</code> floor on <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">.wn-tabpanel</code> and the <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">.wn-map-wrap .wn-map</code> specificity hack, both of which are load-bearing and both of which have the comment explaining why.</p>
+
+  <h2 style="font-size:15pt; font-weight:700; letter-spacing:-0.015em; color:oklch(0.22 0.03 298); margin:28px 0 10px; border-bottom:1px solid oklch(0.88 0.012 298); padding-bottom:6px">11 · Prompt for the build session</h2>
+  <p style="font-size:12pt; line-height:1.6; color:oklch(0.30 0.02 298); margin:0 0 12px">Paste this as the opening message, with this document saved into the repo as <code style="font-family:'IBM Plex Mono',monospace; font-size:10.5pt">wattnap-spec.md</code>.</p>
+  <pre style="font-family:'IBM Plex Mono',monospace; font-size:9pt; line-height:1.7; background:oklch(0.965 0.006 298); border:1px solid oklch(0.90 0.012 298); border-radius:10px; padding:16px 18px; margin:0 0 14px; overflow-x:auto; white-space:pre-wrap; color:oklch(0.24 0.03 298); break-inside:auto">Restyle wattnap's visual layer to the Clearcoat direction. This is a CSS
+and markup-detail pass against the existing component tree — not a
+rebuild, not a refactor, not a restructure. The spec is wattnap-spec.md;
+read it before touching anything. Section numbers below refer to it.
+
+SCOPE — the files you should expect to change
+  src/styles.css           most of the work: token layer + every block
+  src/map/pins.js          squircle pins, per-category Lucide icons (6)
+  src/map/index.js         route line + casing colours only (3)
+  src/ui/TabBar.jsx        becomes a 4-item bottom bar with icons (7)
+  src/ui/TripForm.jsx      collapsed trip card + waypoint editor (8)
+  src/ui/PlanPanel.jsx     stop card: SOC pair + charge-window track
+  src/ui/SleepPanel.jsx    advisory card structure; chips gain icons
+  src/ui/DetailCard.jsx    second action, "Add as stop"
+  src/ui/ChargersPanel.jsx compact filter row inside the tab
+  public/data/sleep-index.json   write the harmonised hues back (4)
+  index.html               theme-color meta to match the new --bg
+
+DO NOT TOUCH
+  src/planner/* — the model is tested and correct. No exceptions.
+  worker/* — except the /v1/route waypoints[] change in phase 6.
+  Any number the planner produces.
+  kwSource, verified, and the advisory confidence strings: the restyle
+  makes them LOUDER. It never softens, shortens or hides one of them.
+  The 1024px two-column split, .wn-tabpanel's min-height:180px floor,
+  and the .wn-map-wrap .wn-map specificity hack. All three are
+  load-bearing; all three already carry a comment saying why.
+
+ORDER OF WORK — one commit per phase
+  1. Token layer: replace :root with sections 2 and 3. Keep the old
+     variable names as aliases for one commit so nothing goes unstyled
+     mid-pass, then delete them.
+  2. Primitives: .wn-btn, .wn-icon-btn, .wn-chip, .wn-input, .wn-card,
+     .wn-state. Radius scale, 44px targets, tabular numerals. .wn-chip
+     loses border-radius:999px — the one shape change that matters.
+  3. Confidence ladder (5) as three utility classes, then apply at every
+     site: charger pin and kW label, sleep pin and list row, advisory
+     meter. Grep kwSource and verified to find them all.
+  4. Pins (6): inline the seven Lucide paths as a map keyed by the icon
+     field already in sleep-index.json. Squircle, not circle. Keep a
+     44px hit area via ::before inset.
+  5. Screens in this order — Plan, Chargers, Sleep, detail card, the
+     three sheets, empty/error states, desktop column. Commit each.
+  6. Multi-stop (8) — the only phase with real logic. Worker accepts
+     waypoints[] with one radiuses entry per point (D-030 applies to
+     every waypoint, not just the two ends); the planner treats a via as
+     a leg boundary with a forced arrival; round trip pushes
+     waypoints[0] onto the end of the array.
+
+HOW TO CHECK YOURSELF
+  - Tap targets >= 44px, body >= 16px, SOC numerals 28px.
+  - No pure white, no pure black, anywhere.
+  - Dark is the default and does not follow the system clock. Light mode
+    is opt-in via [data-theme="light"].
+  - The advisory card cannot be mistaken for a sleep-spot listing at a
+    glance. If it can, its header band is wrong.
+  - An unknown-kW station still renders, still dashed, still absent from
+    the plan.
+  - npm test passes untouched. A failing planner test means you changed
+    something you were told not to.
+
+WHEN SOMETHING IS AMBIGUOUS
+  Ask. Do not invent a colour, a radius or a font size that is not in the
+  spec — a missing value is a gap in the spec, worth one question rather
+  than one guess.</pre>
+  <p style="font-size:11pt; line-height:1.6; color:oklch(0.42 0.02 298); margin:0 0 8px">Hand over three things together: this document, the Clearcoat screen set (all ten screens, mobile and desktop), and the recreation of the current UI — so the session can diff before against after rather than trust a description of either.</p>
+
+</doc-page>
+
+</x-dc>
+</body>
+</html>
