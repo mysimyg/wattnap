@@ -1,22 +1,115 @@
 /*
- * wattnap dark theme — the only theme. No light mode, no toggle: this app is
- * used at night, in a car, glancing quickly. No pure-white surfaces, body
- * text >= 16px, SOC numbers >= 20px, tap targets >= 44px.
+ * wattnap — Clearcoat. Dark is the default and does not follow the system
+ * clock: this app is used at night, in a car, glancing quickly. Light mode
+ * is opt-in via [data-theme="light"]. No pure-white/pure-black surfaces,
+ * body text >= 16px, SOC numerals >= 28px, tap targets >= 44px.
+ * Token values: see wattnap-spec.md §2-4.
  */
 
 :root {
-  --bg: #0b0f14;
-  --surface: #121820;
-  --surface-2: #1a222c;
-  --border: #2a3542;
-  --text: #e6edf3;
-  --text-dim: #9aa7b4;
-  --accent: #22d3ee;
-  --accent-2: #4ade80;
+  /* radius */
+  --r-xs: 8px;    /* badges, kW chips, inline flags        */
+  --r-sm: 11px;   /* small buttons, steppers, icon buttons */
+  --r-md: 13px;   /* inputs, filter chips, list rows       */
+  --r-lg: 16px;   /* cards, map inset, primary buttons     */
+  --r-xl: 20px;   /* sheets, modals, detail cards          */
+  --r-2xl: 30px;  /* bottom-sheet top corners only         */
+
+  /* type scale */
+  --t-mono-label: 11px; /* uppercase, 0.14em tracking */
+  --t-caption: 13px;
+  --t-meta: 14px;
+  --t-body: 16px;  /* hard floor */
+  --t-row: 17px;
+  --t-title: 19px;
+  --t-screen: 30px;
+  --t-soc: 28px;
+  --t-hero: 40px;
+
+  /* spacing — 4px base */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px;
+
+  /* targets */
+  --tap: 44px;  --tap-sm: 38px;  --tab-item: 52px;
+
+  /* elevation — dark UI: one shadow, used sparingly */
+  --shadow-card: 0 3px 10px oklch(0.10 0.02 288 / 0.55);
+  --shadow-sheet: 0 -14px 40px oklch(0.08 0.02 288 / 0.60);
+
+  /* motion */
+  --ease: cubic-bezier(0.32, 0.72, 0, 1); /* iOS-ish */
+  --dur-tap: 120ms;  --dur-sheet: 320ms;
+
+  /* palette — hue 285, deep blue-leaning purple, not indigo */
+  --bg: oklch(.17 .018 285);        /* page under everything */
+  --surface: oklch(.22 .022 285);   /* cards, sheets */
+  --surface-2: oklch(.27 .028 285); /* rows inside a card */
+  --hairline: oklch(.33 .03 285);   /* 1px borders */
+  --text: oklch(.97 .004 285);
+  --text-dim: oklch(.72 .018 285);
+  --accent: oklch(.62 .16 285);
+  --on-accent: oklch(.18 .05 285);  /* text on --accent */
+
+  /* translucent chrome — over the map only, never over --bg */
+  --glass: oklch(.20 .02 285 / .88);
+  --glass-edge: oklch(.34 .03 285);
+  --blur: blur(20px);
+
+  /* the two backdrops that are not --bg */
+  --tabbar: oklch(.19 .02 285 / .90);  /* + --blur */
+  --sidebar: oklch(.185 .02 285);      /* desktop left column */
+
+  /* route: casing then line, a step lighter than --accent so the polyline
+     still reads on top of the tinted basemap */
+  --route-line: oklch(.72 .15 285);    /* width 4, round caps */
+  --route-casing: oklch(.12 .02 285);  /* width 7, opacity .6 */
+
+  /* unchanged pending phase 3 (wattnap-spec.md §4) */
   --warn: #f2c14e;
   --danger: #f87171;
-  --radius: 10px;
+
+  /* --- transitional aliases, deleted at the end of phase 2 --------------
+     Grepped: no CSS custom property is read outside this file, so these
+     two cover every remaining old-name reference below until each rule is
+     migrated to the scaled tokens above. */
+  --radius: var(--r-md);
+  --border: var(--hairline);
 }
+
+/* map tint: the CARTO dark raster is neutral grey; one blend layer pulls it
+   onto the violet without touching a tile URL. */
+.wn-map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: oklch(.35 .10 285);
+  mix-blend-mode: color;
+  opacity: .55;
+}
+
+/* Clearcoat, light — opt-in only, see the header comment above. */
+[data-theme="light"] {
+  --bg: oklch(.975 .006 298);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(.955 .008 298);
+  --hairline: oklch(.90 .012 298);
+  --text: oklch(.24 .03 298);
+  --text-dim: oklch(.50 .02 298);
+  --accent: oklch(.48 .18 298);
+  --on-accent: oklch(.99 .005 298);
+  --glass: oklch(1 0 0 / .86);
+  --glass-edge: oklch(.90 .012 298);
+  --tabbar: oklch(1 0 0 / .92);
+  --sidebar: oklch(.97 .006 298);
+  --shadow-card: 0 1px 3px oklch(.24 .03 298 / .07);
+}
+/* basemap swap is out of scope for this pass (src/map/basemap.js isn't in
+   the restyle's file list) — --tiles is defined for a future light-tile
+   feature to consume, see wattnap-spec.md §12. */
+[data-theme="light"] .wn-map { --tiles: light_all; }
+[data-theme="light"] .wn-map::after { opacity: .25; }
 
 * {
   box-sizing: border-box;
