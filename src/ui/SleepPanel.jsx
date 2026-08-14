@@ -7,7 +7,25 @@ import {
   activeJurisdictionWarnings,
 } from '../state.js'
 import { StateMessage } from './StateMessage.jsx'
-import { sleepConfidenceClass } from '../map/pins.js'
+import { sleepConfidenceClass, ICONS } from '../map/pins.js'
+
+/** Reuses the exact glyph paths pins.js inlines for the map markers. */
+function ChipIcon({ name }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      dangerouslySetInnerHTML={{ __html: ICONS[name] || ICONS.tent }}
+    />
+  )
+}
 
 // wattnap-spec.md §5: "a 4-segment meter, filled segments = confidence, the
 // empty one dashed." Exact fill counts per tier aren't given in the spec,
@@ -28,29 +46,47 @@ function ConfidenceMeter({ tier }) {
   )
 }
 
+/**
+ * wattnap-spec.md §7: "Gets a header band and a titled body so it can
+ * never be mistaken for a listing: ADVISORY · DESTINATION strip, city name
+ * at title size, summary, hairline, ordinance citation, 4-segment
+ * confidence meter, then the nearest-legal-spot row as a filled button."
+ * Also §1's own check: "The advisory card cannot be mistaken for a
+ * sleep-spot listing at a glance. If it can, its header band is wrong" --
+ * this is the one thing on this screen worth over-building rather than
+ * under-building.
+ */
 function JurisdictionNotice({ warning }) {
   const tier = warning.confidenceTier || 'medium'
   return (
-    <div class={`wn-card__warn wn-jxnotice wn-jxnotice--${tier}`} role="note">
-      <strong>
-        {warning.role === 'to' ? 'Destination' : 'Start'} — {warning.name}:
-      </strong>{' '}
-      {warning.summary}
-      <div class="wn-jxnotice__cite">{warning.citation}</div>
-      <div class="wn-jxnotice__confidence">
-        <span class={`wn-badge wn-badge--confidence-${tier}`}>{tier} confidence</span>{' '}
-        <ConfidenceMeter tier={tier} /> {warning.confidence}
+    <div class={`wn-jxnotice wn-jxnotice--${tier}`} role="note">
+      <div class="wn-jxnotice__band">
+        <span class="wn-jxnotice__kicker">Advisory · {warning.role === 'to' ? 'Destination' : 'Start'}</span>
       </div>
-      {warning.nearestOption ? (
-        <div class="wn-jxnotice__nearest">
-          Nearest {warning.nearestOption.unverified ? 'known (unverified)' : 'verified'} option in
-          this dataset: <strong>{warning.nearestOption.name}</strong>,{' '}
-          ~{Math.round(warning.nearestOption.distMi)} mi away.
-          {warning.nearestOption.unverified ? (
-            <span class="wn-badge wn-badge--warn"> unverified — check before relying on it</span>
-          ) : null}
+      <div class="wn-jxnotice__body">
+        <h3 class="wn-jxnotice__title">{warning.name}</h3>
+        <p class="wn-jxnotice__summary">{warning.summary}</p>
+        <div class="wn-jxnotice__hairline" />
+        <p class="wn-jxnotice__cite">{warning.citation}</p>
+        <div class="wn-jxnotice__confidence">
+          <span class={`wn-badge wn-badge--confidence-${tier}`}>{tier} confidence</span>
+          <ConfidenceMeter tier={tier} />
+          <span>{warning.confidence}</span>
         </div>
-      ) : null}
+        {warning.nearestOption ? (
+          <button
+            type="button"
+            class="wn-btn wn-btn--primary wn-jxnotice__nearest"
+            onClick={() => warning.nearestOption.properties && selectSleepPin(warning.nearestOption.properties)}
+          >
+            <span>
+              Nearest {warning.nearestOption.unverified ? 'known (unverified)' : 'verified'} option:{' '}
+              {warning.nearestOption.name}, ~{Math.round(warning.nearestOption.distMi)} mi away
+            </span>
+            {warning.nearestOption.unverified ? <span class="wn-badge wn-badge--warn">unverified</span> : null}
+          </button>
+        ) : null}
+      </div>
     </div>
   )
 }
@@ -82,38 +118,34 @@ export function SleepPanel() {
       {s.route ? (
         <div class="wn-filterbar__row">
           <span class="wn-filterbar__label">sleep detour</span>
-          <button
-            type="button"
-            class="wn-icon-btn wn-icon-btn--small"
-            onClick={() => stepSleepDetourMi(-1)}
-            aria-label="Narrower sleep search"
-          >
-            −
-          </button>
-          <span class="wn-filterbar__value">{s.sleepDetourMi} mi</span>
-          <button
-            type="button"
-            class="wn-icon-btn wn-icon-btn--small"
-            onClick={() => stepSleepDetourMi(1)}
-            aria-label="Wider sleep search"
-          >
-            +
-          </button>
+          <div class="wn-stepper">
+            <button type="button" class="wn-stepper__btn" onClick={() => stepSleepDetourMi(-1)} aria-label="Narrower sleep search">
+              −
+            </button>
+            <span class="wn-stepper__value">{s.sleepDetourMi} mi</span>
+            <button type="button" class="wn-stepper__btn" onClick={() => stepSleepDetourMi(1)} aria-label="Wider sleep search">
+              +
+            </button>
+          </div>
         </div>
       ) : null}
 
       <div class="wn-chips">
-        {s.sleepCategories.map((c) => (
-          <button
-            type="button"
-            key={c.category}
-            class={`wn-chip${s.sleepCategoryEnabled[c.category] !== false ? ' wn-chip--on' : ''}`}
-            style={s.sleepCategoryEnabled[c.category] !== false ? `border-color:${c.color};color:${c.color}` : ''}
-            onClick={() => toggleSleepCategory(c.category)}
-          >
-            {c.label}
-          </button>
-        ))}
+        {s.sleepCategories.map((c) => {
+          const on = s.sleepCategoryEnabled[c.category] !== false
+          return (
+            <button
+              type="button"
+              key={c.category}
+              class={`wn-chip${on ? ' wn-chip--on' : ''}`}
+              style={on ? { '--tone': `var(--cat-${c.category})` } : undefined}
+              onClick={() => toggleSleepCategory(c.category)}
+            >
+              <ChipIcon name={c.icon} />
+              {c.label}
+            </button>
+          )
+        })}
       </div>
 
       {features.length === 0 ? (

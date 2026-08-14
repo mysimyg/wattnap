@@ -543,9 +543,13 @@ a {
   gap: var(--s-1);
 }
 .wn-chip--on {
-  border-color: var(--accent);
-  color: var(--text);
-  background: color-mix(in oklch, var(--accent) 16%, transparent);
+  /* Sleep category chips set --tone to their --cat-* colour inline so the
+     "on" state tints per-category, not accent-for-everything (wattnap-
+     spec.md §7); every other chip (network toggles, etc.) has no --tone
+     set and falls back to --accent. */
+  border-color: var(--tone, var(--accent));
+  color: var(--tone, var(--accent));
+  background: color-mix(in oklch, var(--tone, var(--accent)) 16%, transparent);
 }
 .wn-filterbar__note {
   font-size: var(--t-caption);
@@ -1158,27 +1162,75 @@ a {
   .wn-app--mapfull .wn-map-wrap { flex: 1 1 100%; }
 }
 
-/* Jurisdiction advisory in the sleep panel -- same warning treatment as an
-   unverified pin, but with a citation and confidence line since the stakes
-   (a whole city, not one pin) are higher. */
+/* Jurisdiction advisory -- wattnap-spec.md §7: a header band + titled body
+   so this can never be mistaken for a sleep-spot listing at a glance (§1's
+   own check). Distinct from .wn-card on purpose: a listing is a flat card,
+   this is a banded notice -- the shape difference is the point. */
 .wn-jxnotice {
-  margin-bottom: 10px;
+  margin-bottom: var(--s-3);
+  border: 1px solid var(--advisory-edge);
+  border-radius: var(--r-xl);
+  background: var(--advisory-bg);
+  overflow: hidden;
+}
+.wn-jxnotice__band {
+  padding: var(--s-2) var(--s-3);
+  background: color-mix(in oklch, var(--advisory-edge) 40%, transparent);
+}
+.wn-jxnotice__kicker {
+  font-size: var(--t-mono-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--warn);
+}
+.wn-jxnotice__body {
+  padding: var(--s-3);
+}
+.wn-jxnotice__title {
+  margin: 0 0 var(--s-2);
+  font-size: var(--t-title);
+  font-weight: 700;
+}
+.wn-jxnotice__summary {
+  margin: 0;
+  font-size: var(--t-body);
+  line-height: 1.5;
+}
+.wn-jxnotice__hairline {
+  height: 1px;
+  background: var(--hairline);
+  margin: var(--s-3) 0;
 }
 .wn-jxnotice__cite {
-  margin-top: 6px;
-  font-size: 13px;
-  opacity: 0.85;
+  margin: 0 0 var(--s-3);
+  font-size: var(--t-caption);
+  color: var(--text-dim);
+}
+.wn-jxnotice__confidence {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
+  font-size: var(--t-caption);
+  color: var(--text-dim);
 }
 .wn-jxnotice__nearest {
-  margin-top: 8px;
-  font-size: 14px;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-1);
+  min-height: auto;
+  padding: var(--s-2) var(--s-3);
+  text-align: left;
 }
 
-/* Confidence tiers on jurisdiction advisories. The words already say "low
-   confidence" vs "high confidence" -- the border/opacity should agree, or a
-   hedge reads exactly as authoritative as a confirmed fact. */
+/* Confidence tiers. The words already say "low confidence" vs "high
+   confidence" -- the border/opacity should agree, or a hedge reads exactly
+   as authoritative as a confirmed fact. */
 .wn-jxnotice--high {
-  border-color: var(--warn-border, #8a6d3b);
+  border-color: var(--advisory-edge);
 }
 .wn-jxnotice--medium {
   border-style: dashed;
@@ -1188,31 +1240,29 @@ a {
   border-style: dashed;
   opacity: 0.82;
 }
-.wn-jxnotice__confidence {
-  margin-top: 6px;
-  font-size: 13px;
-  opacity: 0.85;
-}
 .wn-badge--confidence-high,
 .wn-badge--confidence-medium,
 .wn-badge--confidence-low {
   display: inline-block;
   padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 11px;
+  border-radius: var(--r-xs);
+  font-size: var(--t-mono-label);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
 .wn-badge--confidence-high {
-  background: rgba(163, 230, 53, 0.18);
-  color: #a3e635;
+  /* No --success/positive token exists in the palette (wattnap-spec.md §3-4
+     define --warn/--danger only) -- --accent reads as "the app's most
+     confident state" without inventing an unspec'd colour. */
+  background: color-mix(in oklch, var(--accent) 18%, transparent);
+  color: var(--accent);
 }
 .wn-badge--confidence-medium {
-  background: rgba(240, 201, 135, 0.18);
-  color: var(--warn-text, #f0c987);
+  background: color-mix(in oklch, var(--warn) 18%, transparent);
+  color: var(--warn);
 }
 .wn-badge--confidence-low {
-  background: rgba(244, 114, 182, 0.18);
-  color: #f472b6;
+  background: color-mix(in oklch, var(--danger) 18%, transparent);
+  color: var(--danger);
 }

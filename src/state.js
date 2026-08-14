@@ -468,7 +468,15 @@ export function activeJurisdictionWarnings(s = getState()) {
         role,
         endpointLabel: point.label,
         nearestOption: nearest
-          ? { name: nearest.properties.name, distMi: nearestDistMi, unverified: !nearestVerified }
+          ? {
+              name: nearest.properties.name,
+              distMi: nearestDistMi,
+              unverified: !nearestVerified,
+              // Carried through so the Sleep tab's "nearest option" button
+              // can open the same detail card a map tap would (wattnap-
+              // spec.md §7: "the nearest-legal-spot row as a filled button").
+              properties: nearest.properties,
+            }
           : null,
       })
     }
