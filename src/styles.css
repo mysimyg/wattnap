@@ -895,7 +895,9 @@ a {
   text-decoration: none;
 }
 
-/* Modals / drawer */
+/* Modals / drawer -- the three sheets. --r-2xl, --shadow-sheet, --ease and
+   --dur-sheet (wattnap-spec.md §2) are defined for exactly this and were
+   otherwise unused until now. */
 .wn-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -905,6 +907,14 @@ a {
   justify-content: center;
   z-index: 50;
 }
+@keyframes wn-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
 .wn-modal,
 .wn-drawer {
   width: 100%;
@@ -912,39 +922,41 @@ a {
   max-height: 85vh;
   overflow-y: auto;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px 16px 0 0;
-  padding: 16px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+  padding: var(--s-4);
+  padding-bottom: calc(var(--s-4) + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-sheet);
+  animation: wn-sheet-in var(--dur-sheet) var(--ease);
 }
 .wn-modal__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: var(--s-3);
 }
 .wn-modal__head h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--t-title);
 }
 .wn-modal__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
 }
 .wn-modal__hint {
   color: var(--text-dim);
-  font-size: 15px;
+  font-size: var(--t-row);
 }
 .wn-field {
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: var(--s-3);
 }
 .wn-field__label {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: var(--t-meta);
   color: var(--text-dim);
   margin-bottom: 4px;
 }
@@ -954,25 +966,25 @@ a {
 }
 .wn-select {
   width: 100%;
-  min-height: 44px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
+  min-height: var(--tap);
+  border-radius: var(--r-md);
+  border: 1px solid var(--hairline);
   background: var(--bg);
   color: var(--text);
-  font-size: 16px;
-  padding: 0 10px;
+  font-size: var(--t-body);
+  padding: 0 var(--s-3);
 }
 .wn-comparetable table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 14px;
+  margin-top: var(--s-3);
+  font-size: var(--t-meta);
 }
 .wn-comparetable th,
 .wn-comparetable td {
-  padding: 8px 6px;
+  padding: var(--s-2) 6px;
   text-align: right;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--hairline);
 }
 .wn-comparetable th:first-child,
 .wn-comparetable td:first-child {
@@ -992,19 +1004,19 @@ a {
   flex-direction: column;
   justify-content: center;
   gap: 2px;
-  padding: 8px 10px;
+  padding: var(--s-2) var(--s-3);
   background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
   color: var(--text);
   cursor: pointer;
 }
 .wn-triplist__route {
-  font-size: 15px;
+  font-size: var(--t-row);
   font-weight: 600;
 }
 .wn-triplist__date {
-  font-size: 12px;
+  font-size: var(--t-caption);
   color: var(--text-dim);
 }
 
