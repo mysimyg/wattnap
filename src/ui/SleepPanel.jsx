@@ -7,6 +7,26 @@ import {
   activeJurisdictionWarnings,
 } from '../state.js'
 import { StateMessage } from './StateMessage.jsx'
+import { sleepConfidenceClass } from '../map/pins.js'
+
+// wattnap-spec.md §5: "a 4-segment meter, filled segments = confidence, the
+// empty one dashed." Exact fill counts per tier aren't given in the spec,
+// so this reserves one segment as permanently dashed even at "high" --
+// nothing in this dataset is claimed as absolute certainty, matching how
+// kwSource/verified never let an inferred or unverified figure read as a
+// confirmed one anywhere else in the app.
+const CONFIDENCE_METER_FILLED = { high: 3, medium: 2, low: 1 }
+
+function ConfidenceMeter({ tier }) {
+  const filled = CONFIDENCE_METER_FILLED[tier] ?? 1
+  return (
+    <div class="wn-confidence-meter" role="img" aria-label={`${tier} confidence`}>
+      {Array.from({ length: 4 }, (_, i) => (
+        <span key={i} class={i < filled ? 'is-measured' : 'is-unknown'} style={{ '--tone': 'var(--warn)' }} />
+      ))}
+    </div>
+  )
+}
 
 function JurisdictionNotice({ warning }) {
   const tier = warning.confidenceTier || 'medium'
@@ -19,7 +39,7 @@ function JurisdictionNotice({ warning }) {
       <div class="wn-jxnotice__cite">{warning.citation}</div>
       <div class="wn-jxnotice__confidence">
         <span class={`wn-badge wn-badge--confidence-${tier}`}>{tier} confidence</span>{' '}
-        {warning.confidence}
+        <ConfidenceMeter tier={tier} /> {warning.confidence}
       </div>
       {warning.nearestOption ? (
         <div class="wn-jxnotice__nearest">
@@ -118,7 +138,10 @@ export function SleepPanel() {
                 <span class="wn-sleeplist__meta">
                   confirmed {f.properties.confirmed || 'unknown'}
                   {f.properties.verified === false ? (
-                    <span class="wn-badge wn-badge--warn"> unverified</span>
+                    <span class={sleepConfidenceClass(false)} style={{ '--tone': 'var(--warn)' }}>
+                      {' '}
+                      <span class="kw">unverified</span>
+                    </span>
                   ) : null}
                 </span>
               </button>

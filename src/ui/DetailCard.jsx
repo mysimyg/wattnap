@@ -1,8 +1,4 @@
-function kwLabel(station) {
-  if (station.kwSource === 'unknown') return 'kW unknown'
-  const suffix = station.kwSource === 'inferred' ? ' (inferred)' : ' (reported)'
-  return `${station.maxKw} kW${suffix}`
-}
+import { KwBadge } from './KwBadge.jsx'
 
 function StationDetail({ station, onClose }) {
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lon}`
@@ -10,7 +6,7 @@ function StationDetail({ station, onClose }) {
     <div class="wn-card wn-detailcard">
       <h3 class="wn-card__title">{station.name}</h3>
       <p class="wn-card__meta">
-        {station.network || 'Unknown network'} &middot; {kwLabel(station)}
+        {station.network || 'Unknown network'} &middot; <KwBadge station={station} />
         {station.portCount ? ` · ${station.portCount} stalls` : ''}
       </p>
       {station.address ? <p class="wn-card__line">{station.address}</p> : null}

@@ -65,9 +65,25 @@
   --route-line: oklch(.72 .15 285);    /* width 4, round caps */
   --route-casing: oklch(.12 .02 285);  /* width 7, opacity .6 */
 
-  /* unchanged pending phase 3 (wattnap-spec.md §4) */
-  --warn: #f2c14e;
-  --danger: #f87171;
+  /* data colour — wattnap-spec.md §4. Chargers: a ramp, not three unrelated
+     hues. Sleep categories: all L .72 / C .12, hue only, so no category
+     shouts louder than another. */
+  --kw-high: oklch(.85 .17 95);  /* >= 250 kW, 30px pin */
+  --kw-mid: oklch(.75 .13 75);   /* 150-249,   26px     */
+  --kw-low: oklch(.62 .09 65);   /* 50-149,    22px     */
+
+  --cat-rest-area: oklch(.72 .12 245);      /* was #4ea1d9 */
+  --cat-truck-stop: oklch(.72 .12 350);     /* was #f472b6 */
+  --cat-walmart: oklch(.72 .12 150);        /* was #4ade80 */
+  --cat-cracker-barrel: oklch(.72 .12 70);  /* was #d99a4e */
+  --cat-casino: oklch(.72 .12 305);         /* was #b967ff */
+  --cat-outdoor-retail: oklch(.72 .12 190); /* was #2dd4bf */
+  --cat-dispersed-nf: oklch(.72 .12 125);   /* was #a3e635 */
+
+  --warn: oklch(.80 .14 75);
+  --danger: oklch(.66 .17 25);
+  --advisory-bg: oklch(.24 .055 55);
+  --advisory-edge: oklch(.42 .09 60);
 
   /* --- transitional aliases, deleted at the end of phase 2 --------------
      Grepped: no CSS custom property is read outside this file, so these
@@ -104,12 +120,85 @@
   --tabbar: oklch(1 0 0 / .92);
   --sidebar: oklch(.97 .006 298);
   --shadow-card: 0 1px 3px oklch(.24 .03 298 / .07);
+
+  /* Data colours get darker in light mode, not lighter, or they vanish on
+     white. The charger gold's exact target (L .85 -> .62) and the category
+     ramp's (L .72 -> .55, "all L .72 / C .12" is a flat family so its light
+     counterpart is the equivalent flat L .55) are both given directly in
+     wattnap-spec.md §3. --kw-mid/--kw-low aren't spelled out individually,
+     so the same -0.23L drop that produces --kw-high's given value is
+     applied across the ramp -- a flat delta is also the one adjustment that
+     preserves the ramp's existing relative spacing rather than compressing
+     or reordering the three tiers. */
+  --kw-high: oklch(.62 .17 95);
+  --kw-mid: oklch(.52 .13 75);
+  --kw-low: oklch(.39 .09 65);
+
+  --cat-rest-area: oklch(.55 .12 245);
+  --cat-truck-stop: oklch(.55 .12 350);
+  --cat-walmart: oklch(.55 .12 150);
+  --cat-cracker-barrel: oklch(.55 .12 70);
+  --cat-casino: oklch(.55 .12 305);
+  --cat-outdoor-retail: oklch(.55 .12 190);
+  --cat-dispersed-nf: oklch(.55 .12 125);
 }
 /* basemap swap is out of scope for this pass (src/map/basemap.js isn't in
    the restyle's file list) — --tiles is defined for a future light-tile
    feature to consume, see wattnap-spec.md §12. */
 [data-theme="light"] .wn-map { --tiles: light_all; }
 [data-theme="light"] .wn-map::after { opacity: .25; }
+
+/* ---------------------------------------------------------------------------
+   Confidence ladder — wattnap-spec.md §5. One rule, applied everywhere data
+   confidence varies (charger kW, sleep-spot verification, jurisdiction
+   advisories). Colour never changes between the three states, only the
+   fill does -- callers set --tone to the relevant data-colour token
+   (--kw-high/mid/low or --cat-*) via src/map/pins.js's kwToneVar()/
+   kwConfidenceClass()/sleepConfidenceClass().
+
+   These classes drive DOM swatches (kW badges, sleep list rows, the
+   advisory meter's segments). Map pins are SVG built in JS and express the
+   same three states through fill-opacity/stroke-dasharray instead --
+   border/background don't translate to an SVG marker, so pins.js
+   implements the identical rule in SVG terms rather than consuming these
+   classes directly.
+--------------------------------------------------------------------------- */
+.is-measured {
+  background: var(--tone);
+  border: none;
+}
+.is-inferred {
+  background: color-mix(in oklch, var(--tone) 16%, transparent);
+  border: 1.5px solid var(--tone);
+  border-radius: var(--r-xs);
+  padding: 0 4px;
+}
+.is-unknown {
+  background: transparent;
+  border: 1.5px dashed var(--tone);
+  border-radius: var(--r-xs);
+  padding: 0 4px;
+}
+/* text equivalents, for confidence marks that sit inside a run of prose
+   rather than as their own swatch */
+.is-inferred .kw::before {
+  content: "~";
+}
+.is-unknown .kw {
+  text-decoration: underline dashed 1px;
+  text-underline-offset: 3px;
+}
+
+.wn-confidence-meter {
+  display: inline-flex;
+  gap: 3px;
+  vertical-align: middle;
+}
+.wn-confidence-meter span {
+  width: 18px;
+  height: 6px;
+  display: inline-block;
+}
 
 * {
   box-sizing: border-box;

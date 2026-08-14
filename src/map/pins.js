@@ -3,6 +3,44 @@
  * DESIGN.md constraint — every glyph here is hand-drawn markup.
  */
 
+// ---------------------------------------------------------------------------
+// Confidence ladder (wattnap-spec.md §5) — shared source of truth for pins.js
+// AND the UI components (KwBadge, sleep list rows, the advisory meter), so
+// "one rule, applied everywhere" doesn't drift into two rules by accident.
+// ---------------------------------------------------------------------------
+
+/** kwSource -> which of the three ladder states a charger reads as. */
+export function kwConfidenceClass(kwSource) {
+  if (kwSource === 'unknown') return 'is-unknown'
+  if (kwSource === 'inferred') return 'is-inferred'
+  return 'is-measured'
+}
+
+/**
+ * Power-band tone, independent of confidence — an inferred 150kW station
+ * and a reported 150kW station share --kw-mid, they just render it
+ * differently (fill vs hairline). An unknown-kW station gets --kw-high per
+ * wattnap-spec.md §6: dashed and colourless until proven, never presumed
+ * weak either.
+ */
+export function kwPowerTier(station) {
+  if (!station || station.kwSource === 'unknown') return 'high'
+  const kw = station.maxKw
+  if (typeof kw !== 'number' || Number.isNaN(kw)) return 'high'
+  if (kw >= 250) return 'high'
+  if (kw >= 150) return 'mid'
+  return 'low'
+}
+
+export function kwToneVar(station) {
+  return `var(--kw-${kwPowerTier(station)})`
+}
+
+/** Sleep spots only carry a boolean `verified` -- no inferred middle state. */
+export function sleepConfidenceClass(verified) {
+  return verified === false ? 'is-unknown' : 'is-measured'
+}
+
 export function kwTier(station) {
   if (!station) return 'unknown'
   if (station.kwSource === 'unknown') return 'unknown'

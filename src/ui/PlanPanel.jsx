@@ -3,6 +3,7 @@ import { useWattnap, getVehicle, saveCurrentTrip } from '../state.js'
 import { StateMessage, ApiErrorMessage } from './StateMessage.jsx'
 import { StrategyEditor } from './StrategyEditor.jsx'
 import { CompareView } from './CompareView.jsx'
+import { KwBadge } from './KwBadge.jsx'
 
 const OVERRIDE_COPY = {
   'sparse-corridor': 'Sparse corridor ahead — charged past the target window to safely reach the next stop.',
@@ -23,7 +24,7 @@ function StopRow({ stop, index }) {
       <div class="wn-stop__head">
         <span class="wn-stop__index">{index + 1}</span>
         <span class="wn-stop__name">{stop.station?.name || 'Unnamed stop'}</span>
-        <span class="wn-stop__kw">{stop.station?.maxKw ? `${stop.station.maxKw}kW` : 'kW unknown'}</span>
+        <span class="wn-stop__kw">{stop.station ? <KwBadge station={stop.station} /> : 'kW unknown'}</span>
       </div>
       <div class="wn-stop__socs">
         <span>

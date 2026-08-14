@@ -1,12 +1,6 @@
 import { useWattnap, filteredStations, selectStationPin } from '../state.js'
 import { StateMessage, ApiErrorMessage } from './StateMessage.jsx'
-
-function kwLabel(station) {
-  if (station.kwSource === 'unknown') return 'kW unknown'
-  // Never let an inferred figure read as a measured one, even in the list.
-  if (station.kwSource === 'inferred') return `~${station.maxKw} kW (inferred)`
-  return `${station.maxKw} kW`
-}
+import { KwBadge } from './KwBadge.jsx'
 
 export function ChargersPanel() {
   const s = useWattnap()
@@ -57,7 +51,7 @@ export function ChargersPanel() {
           <button type="button" class="wn-chargerlist__item" onClick={() => selectStationPin(st)}>
             <span class="wn-chargerlist__name">{st.name}</span>
             <span class="wn-chargerlist__meta">
-              {st.network || 'unknown network'} · {kwLabel(st)}
+              {st.network || 'unknown network'} · <KwBadge station={st} />
               {st.detour_m ? ` · ${Math.round(st.detour_m / 1609)} mi detour` : ''}
             </span>
           </button>
