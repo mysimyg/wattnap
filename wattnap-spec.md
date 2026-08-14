@@ -382,3 +382,11 @@ Carried over verbatim from the handoff rather than silently resolved:
   out of scope for a CSS/markup-detail pass; `--tiles` is defined as
   written (for a future basemap-switch feature to consume) but does not yet
   change which tile URL loads.
+- **§3's light-mode `--surface: oklch(1 0 0)` is pure white**, directly
+  contradicting the build prompt's own self-check ("no pure white, no pure
+  black, anywhere"). Implemented as `oklch(.995 0 298)` instead — an
+  imperceptible difference that keeps the checklist actually true.
+  `--glass: oklch(1 0 0 / .86)` a few lines down has the identical L 1 / C 0
+  base colour but composites at 86% opacity over whatever is behind it, so
+  it never actually paints a literal pure-white pixel — left exactly as
+  specified rather than adjusted for a violation that doesn't occur.

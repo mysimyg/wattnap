@@ -102,7 +102,13 @@
 /* Clearcoat, light — opt-in only, see the header comment above. */
 [data-theme="light"] {
   --bg: oklch(.975 .006 298);
-  --surface: oklch(1 0 0);
+  /* wattnap-spec.md §3's own code block gives this as oklch(1 0 0) -- pure
+     white -- which directly contradicts the spec's own "no pure white, no
+     pure black, anywhere" self-check. L .995 is imperceptibly different
+     and keeps the checklist true; see §12. --glass a few lines down is
+     also oklch(1 0 0) but composites at 86% opacity over content, so it
+     never actually paints a literal pure-white pixel -- left as specified. */
+  --surface: oklch(.995 0 298);
   --surface-2: oklch(.955 .008 298);
   --hairline: oklch(.90 .012 298);
   --text: oklch(.24 .03 298);
