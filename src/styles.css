@@ -870,15 +870,22 @@ a {
   color: var(--text-dim);
 }
 
-/* Pins */
+/* Pins — wattnap-spec.md §6. Shape/tone/confidence are computed per-pin in
+   src/map/pins.js and inlined straight into the marker's SVG (selection
+   gets its own +4px/2px-ring treatment there too); this just guarantees a
+   44x44 real hit target under every marker regardless of its visual
+   (26-32px) size. */
 .wn-pin {
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
-.wn-pin--selected {
-  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.55));
+.wn-pin::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
 }
 
 /* State messages */

@@ -68,11 +68,20 @@ describe('sleep spot data (public/data/sleep-*.geojson + sleep-index.json)', () 
       expect(typeof entry.icon).toBe('string')
       expect(typeof entry.color).toBe('string')
       expect(ALLOWED_CATEGORIES).toContain(entry.category)
-      expect(entry.color).toMatch(/^#[0-9a-fA-F]{6}$/)
+      // wattnap-spec.md §4: category colours are oklch(), not hex.
+      expect(entry.color).toMatch(/^oklch\(\s*[\d.]+\s+[\d.]+\s+[\d.]+\s*\)$/)
     }
     // distinct colors per category
     const colors = index.map((e) => e.color)
     expect(new Set(colors).size).toBe(colors.length)
+  })
+
+  it('category colours are harmonised to one lightness/chroma, hue only (wattnap-spec.md §4)', () => {
+    for (const entry of index) {
+      const [, l, c] = entry.color.match(/^oklch\(\s*([\d.]+)\s+([\d.]+)\s+[\d.]+\s*\)$/)
+      expect(Number(l)).toBeCloseTo(0.72, 5)
+      expect(Number(c)).toBeCloseTo(0.12, 5)
+    }
   })
 
   it('every category in the index has a matching geojson file on disk', () => {

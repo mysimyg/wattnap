@@ -70,21 +70,27 @@ export function createMapController(container, { onStationClick, onSleepClick } 
         id: 'corridor-fill',
         type: 'fill',
         source: 'corridor',
-        paint: { 'fill-color': '#22d3ee', 'fill-opacity': 0.06 },
+        // #7e74e1 = the computed sRGB value of --accent (oklch(.62 .16 285))
+        // -- MapLibre paint colours are set from JS, not CSS, so they can't
+        // reference a custom property directly.
+        paint: { 'fill-color': '#7e74e1', 'fill-opacity': 0.06 },
       })
       map.addLayer({
         id: 'route-line-casing',
         type: 'line',
         source: 'route',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': '#0b0f14', 'line-width': 7, 'line-opacity': 0.65 },
+        // #05050d = --route-casing (oklch(.12 .02 285)); width/opacity per
+        // wattnap-spec.md §3's route-casing comment.
+        paint: { 'line-color': '#05050d', 'line-width': 7, 'line-opacity': 0.6 },
       })
       map.addLayer({
         id: 'route-line',
         type: 'line',
         source: 'route',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': '#22d3ee', 'line-width': 4 },
+        // #9c95fe = --route-line (oklch(.72 .15 285)); width 4 per §3.
+        paint: { 'line-color': '#9c95fe', 'line-width': 4 },
       })
       ready = true
       resolve()
@@ -155,7 +161,7 @@ export function createMapController(container, { onStationClick, onSleepClick } 
       if (!coords) continue
       const props = f.properties || {}
       const cat = categoryById[props.category]
-      const el = sleepPinElement(cat, { selected: props.id === selectedId })
+      const el = sleepPinElement(cat, props.verified, { selected: props.id === selectedId })
       el.addEventListener('click', (e) => {
         e.stopPropagation()
         onSleepClick && onSleepClick(props)

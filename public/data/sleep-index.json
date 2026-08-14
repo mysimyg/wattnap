@@ -3,49 +3,49 @@
     "category": "rest-area",
     "label": "Rest Area",
     "file": "sleep-rest-area.geojson",
-    "icon": "parking-circle",
-    "color": "#4ea1d9"
+    "icon": "circle-parking",
+    "color": "oklch(.72 .12 245)"
   },
   {
     "category": "truck-stop",
     "label": "Truck Stop",
     "file": "sleep-truck-stop.geojson",
     "icon": "truck",
-    "color": "#f472b6"
+    "color": "oklch(.72 .12 350)"
   },
   {
     "category": "walmart",
     "label": "Walmart",
     "file": "sleep-walmart.geojson",
     "icon": "shopping-cart",
-    "color": "#4ade80"
+    "color": "oklch(.72 .12 150)"
   },
   {
     "category": "cracker-barrel",
     "label": "Cracker Barrel",
     "file": "sleep-cracker-barrel.geojson",
     "icon": "utensils",
-    "color": "#d99a4e"
+    "color": "oklch(.72 .12 70)"
   },
   {
     "category": "casino",
     "label": "Casino",
     "file": "sleep-casino.geojson",
     "icon": "dice-5",
-    "color": "#b967ff"
+    "color": "oklch(.72 .12 305)"
   },
   {
     "category": "outdoor-retail",
     "label": "Outdoor Retail",
     "file": "sleep-outdoor-retail.geojson",
     "icon": "tent",
-    "color": "#2dd4bf"
+    "color": "oklch(.72 .12 190)"
   },
   {
     "category": "dispersed-nf",
     "label": "Dispersed (Nat. Forest)",
     "file": "sleep-dispersed-nf.geojson",
     "icon": "tree-pine",
-    "color": "#a3e635"
+    "color": "oklch(.72 .12 125)"
   }
 ]

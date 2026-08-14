@@ -45,18 +45,26 @@ const outDir = join(here, '..', 'public', 'data')
 // is a deliberately separate, self-contained slug so it can be adopted or
 // dropped as one clean set without touching anything else.
 //
-// NOTE: `icon` is currently metadata only. src/map/pins.js renders every
-// sleep pin as the same moon glyph tinted by `color`, so a distinct COLOR is
-// what actually distinguishes a category on the map -- not the icon name.
+// `icon` names Lucide glyphs 1:1 (src/map/pins.js inlines the matching
+// paths) and `color` is the category's harmonised hue -- wattnap-spec.md
+// §4: every sleep category sits at the same oklch(.72 .12 <hue>) lightness/
+// chroma, hue only, so no category reads as more or less confident than
+// another on the map. Values are oklch() strings, not hex, per that spec.
 const CATEGORY_META = {
-  'rest-area': { label: 'Rest Area', icon: 'parking-circle', color: '#4ea1d9' },
-  'truck-stop': { label: 'Truck Stop', icon: 'truck', color: '#f472b6' },
-  walmart: { label: 'Walmart', icon: 'shopping-cart', color: '#4ade80' },
-  'cracker-barrel': { label: 'Cracker Barrel', icon: 'utensils', color: '#d99a4e' },
-  casino: { label: 'Casino', icon: 'dice-5', color: '#b967ff' },
-  'outdoor-retail': { label: 'Outdoor Retail', icon: 'tent', color: '#2dd4bf' },
-  'dispersed-nf': { label: 'Dispersed (Nat. Forest)', icon: 'tree-pine', color: '#a3e635' },
-  'host-network': { label: 'Host Network', icon: 'handshake', color: '#94a3b8' },
+  'rest-area': { label: 'Rest Area', icon: 'circle-parking', color: 'oklch(.72 .12 245)' },
+  'truck-stop': { label: 'Truck Stop', icon: 'truck', color: 'oklch(.72 .12 350)' },
+  walmart: { label: 'Walmart', icon: 'shopping-cart', color: 'oklch(.72 .12 150)' },
+  'cracker-barrel': { label: 'Cracker Barrel', icon: 'utensils', color: 'oklch(.72 .12 70)' },
+  casino: { label: 'Casino', icon: 'dice-5', color: 'oklch(.72 .12 305)' },
+  'outdoor-retail': { label: 'Outdoor Retail', icon: 'tent', color: 'oklch(.72 .12 190)' },
+  'dispersed-nf': { label: 'Dispersed (Nat. Forest)', icon: 'tree-pine', color: 'oklch(.72 .12 125)' },
+  // Blocked from shipping (D-036: private-host networks explicitly exclude
+  // car/SUV sleeping). Never reaches sleep-index.json -- writeIndex() below
+  // only includes categories with real records, and this one has none. Its
+  // hue isn't in wattnap-spec.md §4 (which only covers the 7 shipped
+  // categories); kept in the same oklch(.72 .12 <hue>) family purely for
+  // internal consistency of this object, not a spec value.
+  'host-network': { label: 'Host Network', icon: 'handshake', color: 'oklch(.72 .12 220)' },
 }
 
 // Loose CA/NV bounding box, generous enough to not clip real corridor points
