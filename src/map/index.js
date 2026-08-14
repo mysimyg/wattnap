@@ -17,8 +17,12 @@ export function createMapController(container, { onStationClick, onSleepClick } 
     style: darkBasemapStyle(),
     center: [-119.5, 36.5],
     zoom: 5,
-    attributionControl: { compact: false },
+    // Disabled here and added manually below so its position can be set --
+    // the constructor option doesn't take one, and MapLibre's bottom-right
+    // default lands under the detail card (wattnap-spec.md §7).
+    attributionControl: false,
   })
+  map.addControl(new maplibregl.AttributionControl({ compact: false }), 'bottom-left')
   map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
 
   // MapLibre measures its container once at construction and then only

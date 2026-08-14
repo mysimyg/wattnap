@@ -440,11 +440,22 @@ a {
   width: 100%;
   height: 100%;
 }
+/* wattnap-spec.md §7: "the one place the dark theme leaks" -- was white-on-
+   white at 11px with a #1a1a1a link on a light chip (MapLibre's default).
+   Required by CARTO and OSM: never conditional, never truncated, both
+   links stay tappable -- this restyles it, it does not hide it. */
 .maplibregl-ctrl-attrib {
-  font-size: 11px;
+  background: var(--glass) !important;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-xs);
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 2px 6px;
 }
 .maplibregl-ctrl-attrib a {
-  color: #1a1a1a;
+  color: oklch(.80 .02 285);
 }
 
 /* Filter bar */
@@ -1161,24 +1172,62 @@ a {
 .wn-tabbar { order: 5; }
 .wn-tabpanel { order: 6; }
 
-/* Expand control, sits opposite MapLibre's zoom buttons. */
+/* Expand control -- wattnap-spec.md §7: same 44px, radius 8 -> 14,
+   translucent, moved to the map's bottom-right (was top-left, colliding
+   with the trip bar). */
 .wn-map-expand {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  bottom: 10px;
+  right: 10px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 14px;
+  border: 1px solid var(--glass-edge);
+  background: var(--glass);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
   color: var(--text);
   cursor: pointer;
 }
-.wn-map-expand:hover { background: var(--surface-2, var(--surface)); }
+.wn-map-expand:hover {
+  background: color-mix(in oklch, var(--glass) 70%, var(--surface-2));
+}
+
+/* NavigationControl -- wattnap-spec.md §7: glass chip pair (48px buttons,
+   --r-lg, hairline divider) at top-right on desktop; dropped below 1024px
+   (pinch-zoom + the expand affordance cover it, and MapLibre's default
+   light-styled buttons collide with the floating trip bar and leak the
+   light theme the same way the attribution control did). !important
+   because maplibre-gl.css loads after this file in the bundle and wins
+   ties at equal specificity -- same reasoning as the .wn-map-wrap .wn-map
+   hack elsewhere in this file, applied here via !important instead of
+   selector weight since these are library-generated classes. */
+.maplibregl-ctrl-group {
+  background: var(--glass) !important;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-edge) !important;
+  border-radius: var(--r-lg) !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+.maplibregl-ctrl-group button {
+  width: 48px !important;
+  height: 48px !important;
+  background: transparent !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--glass-edge);
+}
+@media (max-width: 1023px) {
+  .maplibregl-ctrl-top-right {
+    display: none;
+  }
+}
 
 /* Full-screen map: hide the controls, let the map take everything. */
 .wn-app--mapfull .wn-side,
@@ -1206,7 +1255,12 @@ a {
     flex: 0 0 clamp(360px, 30vw, 460px);
     min-height: 0;
     overflow-y: auto;
-    border-right: 1px solid var(--border);
+    border-right: 1px solid var(--hairline);
+    /* --sidebar, wattnap-spec.md §3: "desktop left column" -- defined in
+       phase 1, unused until now (there was no desktop column to give it
+       to before D-038 built the two-column split, and this restyle pass
+       hadn't reached it yet). */
+    background: var(--sidebar);
   }
   /* Order is a mobile-only concern; the two columns carry it from here. */
   .wn-side > *,
