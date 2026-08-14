@@ -5,11 +5,6 @@ import { StrategyEditor } from './StrategyEditor.jsx'
 import { CompareView } from './CompareView.jsx'
 import { KwBadge } from './KwBadge.jsx'
 
-const OVERRIDE_COPY = {
-  'sparse-corridor': 'Sparse corridor ahead — charged past the target window to safely reach the next stop.',
-  elevation: 'Climb ahead needs more charge than the target window — charged extra to clear it safely.',
-}
-
 function fmtMin(mins) {
   if (mins == null || !isFinite(mins)) return '—'
   const m = Math.round(mins)
@@ -18,9 +13,55 @@ function fmtMin(mins) {
   return h > 0 ? `${h}h ${String(rem).padStart(2, '0')}m` : `${rem}m`
 }
 
+/**
+ * wattnap-spec.md §7: ".wn-badge--warn ... becomes an inline reason block:
+ * warn icon + one sentence naming the gap distance and the climb." The old
+ * copy was a static two-sentence lookup by reason; this uses the actual
+ * per-stop overrideDetail numbers the planner already computes (D-016) so
+ * the sentence names THIS gap and THIS climb, not a generic one.
+ */
+function overrideSentence(stop) {
+  const d = stop.overrideDetail
+  if (!d) return stop.overrideReason
+  const target = `${Math.round(stop.departSoc)}%`
+  const reason =
+    stop.overrideReason === 'elevation'
+      ? `a ${d.ascentM}m climb ahead of ${d.nextStopName}`
+      : `the ${d.nextGapMiles}mi gap to ${d.nextStopName}`
+  return `Charged to ${target} instead of ${d.raisedFromSoc}% -- ${reason} needs more than the target window leaves.`
+}
+
+function OverrideNote({ stop }) {
+  if (!stop.overrideReason) return null
+  return (
+    <div class="wn-overridenote">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+        <path d="M12 9v4" />
+        <path d="M12 17h.01" />
+      </svg>
+      <p class="wn-overridenote__text">{overrideSentence(stop)}</p>
+    </div>
+  )
+}
+
+function ChargeWindowTrack({ arriveSoc, departSoc }) {
+  const left = Math.max(0, Math.min(100, arriveSoc))
+  const width = Math.max(0, Math.min(100, departSoc) - left)
+  return (
+    <div
+      class="wn-chargetrack"
+      role="img"
+      aria-label={`Charged from ${Math.round(arriveSoc)}% to ${Math.round(departSoc)}%`}
+    >
+      <div class="wn-chargetrack__fill" style={{ left: `${left}%`, width: `${width}%` }} />
+    </div>
+  )
+}
+
 function StopRow({ stop, index }) {
   return (
-    <div class="wn-stop">
+    <div class="wn-stop wn-card">
       <div class="wn-stop__head">
         <span class="wn-stop__index">{index + 1}</span>
         <span class="wn-stop__name">{stop.station?.name || 'Unnamed stop'}</span>
@@ -34,11 +75,9 @@ function StopRow({ stop, index }) {
           depart <b class="wn-soc">{Math.round(stop.departSoc)}%</b>
         </span>
         <span>{fmtMin(stop.chargeMinutes)}</span>
-        {stop.overrideReason ? <span class="wn-badge wn-badge--warn">!</span> : null}
       </div>
-      {stop.overrideReason ? (
-        <p class="wn-stop__override">{OVERRIDE_COPY[stop.overrideReason] || stop.overrideReason}</p>
-      ) : null}
+      <ChargeWindowTrack arriveSoc={stop.arriveSoc} departSoc={stop.departSoc} />
+      <OverrideNote stop={stop} />
     </div>
   )
 }
@@ -120,13 +159,16 @@ export function PlanPanel() {
       ) : (
         <>
           <div class="wn-summary">
-            <p class="wn-summary__headline">
-              {fmtMin(plan.summary.driveMinutes)} drive → {fmtMin(plan.summary.totalMinutes)} w/ stops
-            </p>
-            <p class="wn-summary__sub">
-              {plan.summary.stopCount} stop{plan.summary.stopCount === 1 ? '' : 's'} · {fmtMin(plan.summary.chargeMinutes)}{' '}
-              charging
-            </p>
+            <div class="wn-summary__hero">
+              <p class="wn-summary__headline">{fmtMin(plan.summary.totalMinutes)}</p>
+              <div class="wn-summary__meta">
+                <span>{fmtMin(plan.summary.driveMinutes)} drive</span>
+                <span>
+                  {plan.summary.stopCount} stop{plan.summary.stopCount === 1 ? '' : 's'} ·{' '}
+                  {fmtMin(plan.summary.chargeMinutes)} charging
+                </span>
+              </div>
+            </div>
           </div>
 
           {plan.warnings && plan.warnings.length > 0 ? (

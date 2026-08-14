@@ -518,29 +518,40 @@ a {
   color: var(--warn);
 }
 
-/* Tab bar */
+/* Tab bar -- wattnap-spec.md §7: 4-item icon+label bar, no uppercase, no
+   underline. Visual treatment only: it keeps its current structural
+   position in the flex/DOM order (between the filter bar and the tab
+   panel) rather than becoming a viewport-pinned footer, which would need
+   restructuring the scroll containment this restyle pass doesn't touch. */
 .wn-tabbar {
   flex: 0 0 auto;
   display: flex;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--tabbar);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
 }
 .wn-tabbar__tab {
   flex: 1;
-  min-height: 48px;
+  min-height: var(--tab-item);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   background: transparent;
   border: none;
   color: var(--text-dim);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  font-size: var(--t-caption);
+  font-weight: 600;
   cursor: pointer;
-  border-bottom: 3px solid transparent;
 }
 .wn-tabbar__tab--active {
   color: var(--accent);
-  border-bottom-color: var(--accent);
+}
+.wn-tabbar__label {
+  line-height: 1;
 }
 
 .wn-tabpanel {
@@ -576,15 +587,25 @@ a {
   padding: 8px 10px;
   margin-bottom: 10px;
 }
+.wn-summary__hero {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  margin: 0 0 var(--s-3);
+}
 .wn-summary__headline {
-  font-size: 19px;
+  font-size: var(--t-hero);
   font-weight: 700;
+  letter-spacing: -0.04em;
   margin: 0;
 }
-.wn-summary__sub {
-  font-size: 14px;
+.wn-summary__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--t-meta);
   color: var(--text-dim);
-  margin: 4px 0 12px;
 }
 .wn-warnings {
   margin-bottom: 12px;
@@ -601,14 +622,10 @@ a {
 .wn-stoplist {
   display: flex;
   flex-direction: column;
+  gap: var(--s-3);
 }
-.wn-stop {
-  padding: 10px 0;
-  border-top: 1px dashed var(--border);
-}
-.wn-stop:first-child {
-  border-top: none;
-}
+/* .wn-stop is also .wn-card -- a real card per stop (wattnap-spec.md §7),
+   replacing the old dashed 1px separator. */
 .wn-stop__head {
   display: flex;
   align-items: center;
@@ -644,8 +661,43 @@ a {
   color: var(--text-dim);
 }
 .wn-soc {
-  font-size: 20px;
+  font-size: var(--t-soc);
   color: var(--text);
+}
+.wn-chargetrack {
+  position: relative;
+  height: 6px;
+  margin-top: var(--s-2);
+  border-radius: var(--r-xs);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.wn-chargetrack__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+  border-radius: var(--r-xs);
+}
+.wn-overridenote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  background: color-mix(in oklch, var(--warn) 10%, transparent);
+  border: 1px solid color-mix(in oklch, var(--warn) 35%, transparent);
+  border-radius: var(--r-sm);
+}
+.wn-overridenote svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+.wn-overridenote__text {
+  margin: 0;
+  font-size: var(--t-meta);
+  color: var(--text);
+  line-height: 1.4;
 }
 .wn-badge {
   display: inline-flex;
@@ -660,11 +712,6 @@ a {
 .wn-badge--warn {
   background: var(--warn);
   color: #231a00;
-}
-.wn-stop__override {
-  font-size: 14px;
-  color: var(--warn);
-  margin: 4px 0 0;
 }
 .wn-planpanel__compare {
   width: 100%;

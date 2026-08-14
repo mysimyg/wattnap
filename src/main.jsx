@@ -80,7 +80,7 @@ function App() {
         <div class="wn-side">
           <TripForm />
           <FilterBar />
-          <TabBar />
+          <TabBar mapExpanded={mapExpanded} onToggleMap={() => setMapExpanded((v) => !v)} />
           <section class="wn-tabpanel">
             {s.activeTab === 'plan' ? <PlanPanel /> : null}
             {s.activeTab === 'chargers' ? <ChargersPanel /> : null}
