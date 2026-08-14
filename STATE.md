@@ -2,17 +2,25 @@
 
 **Single source of truth across sessions. Read before acting. Update before stopping.**
 
-Last updated: 2026-08-13 (sleep-detour widening + jurisdiction advisories)
+Last updated: 2026-08-13 (Clearcoat visual restyle, phases 1-6 complete)
 
 ---
 
 ## Current Phase
 
-**Phase 0 approved by the user on 2026-08-12** ("build it all"), with a
-standing instruction to continue autonomously and review on return.
+**Visual restyle (Clearcoat direction) complete, independent review pass in
+progress.** DESIGN.md's original six build-phase gates (below) all passed on
+2026-08-13; a separate design pass then handed off `wattnap-spec.md` (a
+Claude Design token/CSS spec, saved into the repo root) asking for a
+CSS-and-markup-detail restyle against the existing component tree — not a
+rebuild, not a structural change. That restyle is now done: 16 commits (one
+per phase/screen), 124 tests passing throughout, every phase verified live
+against the deployed Worker as it landed. See "Clearcoat restyle — session
+summary" below for the full account; this section stays about the original
+six DESIGN.md gates.
 
-**Phases 1-6 in build.** Repo is live at https://github.com/mysimyg/wattnap and
-GitHub Pages is enabled (Actions build type). Deployed URL will be
+Repo is live at https://github.com/mysimyg/wattnap and GitHub Pages is
+enabled (Actions build type). Deployed URL will be
 https://mysimyg.github.io/wattnap/ once the frontend entry point lands.
 
 ### Gate status — certified 2026-08-13 against the live deployed Worker
@@ -59,6 +67,147 @@ floor scoring is unchanged; the actual fix was widening sleep-spot search
 curve is still an unvalidated estimate and still the largest remaining
 uncertainty in the charging math -- see Human Tasks and the charge-curve
 research prompt below -- but the margin question itself is closed.
+
+---
+
+## Clearcoat restyle — session summary (2026-08-13)
+
+**Source:** `wattnap-spec.md` (repo root), transcribed from a Claude Design
+handoff doc the user attached. Its own §11 is the prompt this session ran
+against; §12 documents spec-level gaps found and how they were resolved
+rather than guessed at.
+
+**Scope discipline:** `src/planner/*` has zero diff across all 16 commits —
+grep-verifiable. `worker/*` changes are limited to the phase-6 `/v1/route`
+waypoints[] change, as pre-authorized. Confidence language (`kwSource`,
+`verified`, advisory strings) got louder everywhere it appears, never
+softened — the confidence ladder (phase 3) and its live application at every
+site was the main mechanism for that.
+
+**Phases, one commit each (finer-grained within phase 5 — one per screen):**
+1. Token layer — full §2/§3 scale + palette, transitional `--radius`/
+   `--border` aliases (deleted once every consumer migrated, in the phase 5
+   cleanup commit plus one follow-up that caught 4 stragglers in
+   never-touched files: `Header.jsx`, the `.wn-app` shell, one PlanPanel
+   rule, the scrollbar thumb).
+2. Primitives — `.wn-btn`/`.wn-icon-btn`/`.wn-chip`/`.wn-input`/`.wn-card`/
+   `.wn-state` onto the token scale; `.wn-chip` drops `border-radius:999px`.
+3. Confidence ladder — `.is-measured`/`.is-inferred`/`.is-unknown` + §4 data
+   tokens; applied at every `kwSource`/`verified` site (new shared
+   `KwBadge`, sleep list rows, a new 4-segment advisory meter).
+4. Pins — squircle, 7 inlined Lucide icons (verified against upstream
+   source, not hand-drawn from memory) keyed by `sleep-index.json`'s `icon`
+   field (source-of-truth updated in `scripts/build-sleep-geojson.mjs`, not
+   just the generated file — the build script would have silently reverted
+   a direct edit on its next run).
+5. Screens — Plan (hero headline, charge-window track, override reason
+   block replacing a bare "!" badge), Chargers (compact filter summary),
+   Sleep (advisory header band, category chip icons), detail card (icon
+   square, glass blur, X-close freeing the footer for two actions), the
+   three sheets (real slide-up sheet motion via previously-unused tokens),
+   empty/error states (found and fixed 3 latent bugs — see below), desktop
+   column + map chrome (glass nav control, re-anchored attribution).
+6. Multi-stop + round trip — the only phase with real logic. Implemented as
+   `planTrip()` called once per leg, completely unmodified; a via is a leg
+   boundary because orchestration outside the planner treats it as one, not
+   because the planner learned a new concept. Full design in D-043 below.
+
+**Bugs found and fixed while restyling (not part of the ask, found by
+touching adjacent code and checking computed styles rather than trusting
+the diff by eye):**
+- `--warn-border`/`--warn-bg`/`--warn-text` were referenced with fallbacks
+  throughout but never defined anywhere in `:root` — silently running on
+  hardcoded fallback literals since D-040 shipped. Two reviewer passes
+  before this session hadn't caught it either.
+- `.wn-badge`'s base rule forced every badge into a fixed 20x20 circle, a
+  leftover from a single-character "!" badge that no longer exists in the
+  codebase — the two remaining consumers (confidence tiers, "unverified")
+  are text pills that were overflowing their box.
+- A self-introduced bug caught before shipping: fixing the above briefly
+  left two competing `.wn-badge--warn` rules where text color and
+  background both resolved to `var(--warn)` — invisible text on its own
+  background. Caught by testing computed styles, not by eye.
+- `wattnap-spec.md` §3's light-mode `--surface: oklch(1 0 0)` is pure
+  white, contradicting the spec's own "no pure white, no pure black,
+  anywhere" self-check — both values came from the same handoff doc.
+  Changed to `oklch(.995 0 298)`.
+
+**Spec self-contradictions found and documented (`wattnap-spec.md` §12),
+not silently resolved:** light-mode hue 298 vs. the stated "hue 285
+throughout" (implemented hue-for-hue as written — internally consistent
+within each block, reads as intentional); a `--tiles` custom property with
+no corresponding basemap logic (defined as written, doesn't yet switch
+tile URLs — out of scope for a CSS pass); the pure-white `--surface` above.
+
+**Judgment calls made where the spec gave a range, an unstated exact
+number, or named something without specifying it — documented inline in
+the relevant commit rather than blocking on each one:** confidence-meter
+fill-per-tier (reserves one segment permanently dashed even at "high");
+sleep-pin fill opacity (18%, spec said "16-20%"); category icon-stroke
+lightening via `color-mix` rather than a hand-computed per-hue oklch value;
+TabBar/trip-bar icon choices (route/zap/moon/map — spec named the four
+items, not their icons); via reordering via up/down buttons instead of
+pointer drag (a real cross-device drag implementation is a materially
+bigger sub-project than the rest of this pass; reaches the identical end
+state).
+
+**Explicitly deferred, not silently dropped** (matching the spec's own
+precedent for the label-tab and marker-performance items it names as
+future work): the pin label tab at zoom>=8 (§6); moving pins to a MapLibre
+symbol layer (§9-3); endpoint (start/destination) markers (§6) — styling
+them needs new marker-lifecycle wiring in `map/index.js` keyed to route
+state, which is functional scope beyond "route line + casing colours
+only," and no endpoint markers exist today either, so nothing regressed.
+
+**D-043 — Multi-stop resolves an apparent DO-NOT-TOUCH conflict.** The
+build prompt lists `src/planner/*` as DO NOT TOUCH, no exceptions, while
+§8/§9-1 describe the planner "treating a via as a leg boundary." Read
+literally these conflict. Resolution, confirmed by reading the actual
+planner (it operates on one `{distance_m, duration_s, geometry}` route at
+a time, with zero concept of multiple legs): multi-stop is built entirely
+*outside* the planner. The Worker splits one ORS multi-waypoint response
+into per-leg geometry slices (`splitIntoLegs`, keyed off each segment's
+`steps[].way_points`); `state.js`'s `recomputePlan` calls the same
+unmodified `planTrip()` once per leg, feeding leg N+1 whatever SOC leg N's
+plan actually arrived at. The planner never learns a new concept; it's
+called more than once. `src/planner/*` has a zero-line diff across the
+entire session as a result.
+
+**D-044 — Worker deploy required explicit user sign-off.** Verifying phase
+6 needed the deployed Worker running the new `/v1/route` shape (local
+`wrangler dev` hit a pre-existing wrangler-3.114/module-exports
+incompatibility, unrelated to this session's changes — see the existing
+"Wrangler is on v3.114" Human Task). `npm run worker:deploy` was blocked by
+the permission classifier as a production action. Asked the user directly
+rather than working around it (e.g. by skipping live verification
+silently); they approved deploying. Live-verified afterward against a real
+Ventura→Bakersfield→South Lake Tahoe trip: 2 correctly-split legs, a via
+milestone reading "Arrive Bakersfield, CA, USA at 11%", 4 sequentially-
+numbered charging stops, a leg-prefixed warning, round trip closing the
+spine. Also caught and fixed live: the client sending `{waypoints}` against
+a not-yet-redeployed Worker still expecting `{from,to}` — the exact
+regression this deploy-then-verify order was designed to catch.
+
+**Verification method throughout:** every phase tested against real data
+(the deployed Worker + a live `.env.local` pointed at it, gitignored) via
+computed-style assertions, not just screenshots — this project's own
+D-021/D-042 already document that canvas/WebGL screenshot capture is
+unreliable in this session's browser tool, and that pattern held again
+here (light mode's CSS cascade verified 100% correct via
+`getComputedStyle` while a screenshot of the same state looked unchanged).
+124 tests pass throughout, up from 108 at session start (16 new: worker
+leg-splitting/multi-waypoint radius tests, a sleep-data harmonised-
+lightness regression test, and 10 tests covering the multi-leg
+orchestration logic the blocked-then-approved deploy couldn't verify live
+on the first attempt).
+
+**Not yet done:** an independent multi-dimension review pass (DO-NOT-TOUCH
+compliance, spec fidelity, the build prompt's own self-check list,
+cross-file consistency) was launched via Workflow before this summary was
+written. If this line is still here, treat the restyle as builder-verified
+but not yet independently reviewed — see the next dated STATE.md update or
+the git log after this one for the outcome. Per CLAUDE.md: "the reviewer or
+test agent verifies the gate. Builders never certify their own work."
 
 ---
 
@@ -116,12 +265,11 @@ research prompt below -- but the margin question itself is closed.
 | 2026-08-12 | Corrected two factual errors in existing data: camping ban is 21 CCR **2205(a)** not (b); Horizon Casino was **rebranded** (now Golden Nugget Lake Tahoe, open), not permanently closed |
 | 2026-08-13 | **User hit a live bug** (screenshot: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable") — this was Q10. Root-caused and fixed same session: ORS's default point-snap radius (~350m) couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (geocodes to a beach). Worker now sends `radiuses: [5000, 5000]`. Confirmed live before/after on the exact failing request; 95 tests |
 | 2026-08-13 | Rest-area status re-check against the live Caltrans SRRA feed (feed stamped 08/13/2026 6:11am). Gaviota N/S, Tejon Pass NB and Coso Junction confirmed still CLOSED (reopen dates and closure reasons now recorded). **Gold Run westbound has REOPENED** and is a live pin again — it had been wrongly suppressed for a day. Tejon Pass SB note corrected: the feed has no SB record at all (the two entries are a duplicate of NB), so it stays suppressed as unknown, not as confirmed-closed. Rest-area pins 10 → 11; 98 tests |
+| 2026-08-13 | **Clearcoat visual restyle — all 6 phases complete, 16 commits.** `wattnap-spec.md` (Claude Design handoff) implemented in full: token/palette layer, primitives, confidence ladder applied everywhere, squircle pins with per-category Lucide icons, all 7 named screens restyled, and multi-stop/round-trip routing (via waypoints, the only phase with real logic — planner untouched, orchestration outside it). Found and fixed 3 latent bugs unrelated to the restyle ask while touching adjacent code (undefined `--warn-*` fallback vars, a badge sized for a glyph that no longer exists, a pure-white value the spec's own self-check forbids). See "Clearcoat restyle — session summary" above for full detail; D-043/D-044 below. 124 tests, up from 108 |
 
 ## In Progress
 
-- Frontend build (phases 1, 2, 4 render, 5 storage, 6 states) — map/UI agent.
-- Sleep spot data curation (phase 4 data) — data agent.
-- Integration of the above, then a reviewer pass over gates 1-6.
+- Independent review pass on the Clearcoat restyle (launched via Workflow; see the session summary above for status as of this writing).
 
 ## Next Actions
 
@@ -213,6 +361,8 @@ Definition of Done.** What's left is hardening and one product decision:
 | D-036 | 2026-08-12 | Private-host networks (Boondockers Welcome, Harvest Hosts) will NOT be surfaced | Both explicitly exclude sleeping in a car/SUV in their own help centres — precisely wattnap's use case. Pointing users at services that name them ineligible would be misleading |
 | D-030 | 2026-08-13 | ORS directions requests now send `radiuses: [5000, 5000]` (5 km point-snap search radius per waypoint), not ORS's tight ~350 m default | The user hit this live: "Ventura, CA, USA" → "Tahoe City, CA, USA" failed with "Upstream service unavailable." Root cause: ORS's default snap radius couldn't reach a real road from the Pelias administrative-centroid point for "Ventura, CA" (it geocodes to a beach). Confirmed live before/after on the exact failing request. Body construction extracted to `buildOrsDirectionsBody` so this is now unit-tested without live network |
 | D-037 | 2026-08-13 | Gold Run westbound restored as a live pin; the closed-facility test now derives its id list from `status:"closed"` in `scripts/sources/` instead of hard-coding it | The 08-12 Gold Run closure was transient and had already lapsed, but nothing would have told us: `scripts/check-rest-area-status.mjs` only compares SHIPPED pins against the feed, so a suppressed record is invisible to it and can never come back on its own. A hard-coded closed-id list made that worse — a reopening turned into a failing test rather than a restored pin. Derived-from-source keeps the invariant ("nothing marked closed ever ships") while letting reopenings flow through, and the added converse assertion ("everything marked open actually ships") catches stale suppressions. **Not fixed: the checker itself is still blind to closed records** — see Open Questions |
+| D-043 | 2026-08-13 | Multi-stop (Clearcoat phase 6) is `planTrip()` called once per leg, completely unmodified — never given the concept of waypoints or legs | Resolves an apparent conflict between the restyle prompt's "src/planner/* DO NOT TOUCH, no exceptions" and its own "the planner treats a via as a leg boundary" — read literally these contradict. Confirmed by reading the actual planner (single-route-at-a-time, zero multi-leg concept) that the intended reading is orchestration OUTSIDE the planner: the Worker splits one ORS multi-waypoint response into per-leg geometry (`splitIntoLegs`), `state.js` calls `planTrip()` N times feeding each leg the previous leg's real arrival SOC. `src/planner/*` has a zero-line diff across the whole restyle session as a result. See the "Clearcoat restyle — session summary" above for full detail |
+| D-044 | 2026-08-13 | Deployed the Worker's phase-6 changes (`/v1/route` now takes `waypoints[]`, not `from`/`to`) only after asking the user directly | `npm run worker:deploy` was blocked by the permission classifier as a production action; local `wrangler dev` hit a pre-existing wrangler-3.114 incompatibility unrelated to this session (see Human Tasks). Rather than skip live verification or work around the block, asked the user, who approved. Live-verified immediately after: caught and confirmed the client was correctly sending the new `{waypoints}` shape against a now-updated Worker (it had 502'd with the OLD from/to-shaped error against the not-yet-redeployed Worker moments earlier — exactly the regression this deploy-then-verify order exists to catch) |
 
 ---
 
@@ -274,26 +424,41 @@ New ideas land here, never in the code mid-build.
 
 ## Next Session
 
-**All six phase gates PASS as of 2026-08-13. The build meets DESIGN.md's
-Definition of Done.** This is a hardening/polish session, not a build session.
+**The Clearcoat visual restyle (all 6 phases) is complete and deployed —
+both the GitHub Pages frontend (push-on-commit via Actions) and the
+Cloudflare Worker (deployed manually this session, D-044). DESIGN.md's
+original six build-phase gates were already PASS before this restyle
+started and are unaffected by it** (`src/planner/*` has a zero-line diff).
 
-- **Model:** Sonnet for build/fixes. See the standalone charge-curve research
-  prompt (given to the user 2026-08-13) if running that as its own session —
-  recommended Opus there, for different reasons (source reconciliation under
-  real safety stakes, not charging-math design).
-- **First task: confirm the map renders on a real phone or desktop Chrome**
-  (D-042). This tool's own test browser could not confirm map rendering
-  either way this session — even a wattnap-independent MapLibre instance
-  failed to load in it. Not urgent-feeling, but it's the one thing this
-  session could not close out with real confidence.
-- **Then:** Q15 (BLM dispersed camping) if the user wants that research pass
-  — see the pattern of the existing charge-curve/design-handoff prompts for
-  how to scope it (same rigor as `dispersed-nf` got, not a quick add).
-- **Then, if there's runway:** validate the charge curve against a real
-  Supercharger session (the largest remaining unvalidated input) — unless a
-  dedicated session already ran the standalone research prompt for this.
-- **Context needed:** `CLAUDE.md`, `STATE.md` in full (Decisions Log D-018
-  onward covers everything from the Worker deploy through gate re-certification
-  and the sleep-detour/jurisdiction feature work), `DESIGN.md` §4.6.1, §4.6.2,
-  §5.1.1, §8, §9.
-- **Blockers:** none. Everything that needed account access is done.
+- **Model:** Sonnet for build/fixes/review follow-up. Switch with `/model`
+  if starting fresh.
+- **First task: read the independent review's outcome.** A multi-dimension
+  review (DO-NOT-TOUCH compliance, spec fidelity, the build prompt's own
+  self-check list, cross-file consistency) was launched via Workflow at the
+  end of this session — check whether it landed and whether any findings
+  still need fixing. If STATE.md's "Clearcoat restyle — session summary"
+  section above still says "not yet done" under review status, the outcome
+  wasn't folded back in before this file was last saved — check the git log
+  for a follow-up commit after `2b8451c`/`5ed88ea`/`cbd845b` first.
+- **Second, if the review is clean or already fixed:** verify the deployed
+  Pages URL directly (not just localhost) — this session verified
+  extensively against the local dev server pointed at the live Worker, but
+  per CLAUDE.md ("Verify on the deployed Pages URL, not just localhost")
+  the actual `mysimyg.github.io/wattnap/` build has not been separately
+  re-checked post-restyle.
+- **Then, real-hardware check (carried over from D-042, still open):**
+  confirm the map renders on a real phone or desktop Chrome. This tool's
+  browser has never been able to confirm map rendering either way, across
+  two sessions now (D-021, D-042) — not urgent-feeling, but still the one
+  thing no session has closed out with real confidence.
+- **Then, if there's runway:** the pre-restyle backlog is unchanged and
+  still open — Q15 (BLM dispersed camping research pass), charge-curve
+  validation against a real Supercharger session (Human Tasks), and the
+  deliberately-deferred restyle items (pin label tab, MapLibre symbol-layer
+  pins, endpoint markers — see the session summary above).
+- **Context needed:** `CLAUDE.md`, this file in full, `wattnap-spec.md`
+  (the restyle's own spec, now checked into the repo root — read before
+  touching any of the files it names), `DESIGN.md` §4.6.1, §4.6.2, §5.1.1,
+  §8, §9.
+- **Blockers:** none. Everything that needed account access or explicit
+  sign-off (the Worker deploy) is done.
