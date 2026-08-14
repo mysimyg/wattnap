@@ -326,6 +326,15 @@ a {
 .wn-btn--ghost {
   background: transparent;
 }
+/* wattnap-spec.md §7: the detail card's second action, "Navigate (filled)
+   and Add as stop (outline)" -- a real accent outline, distinct from
+   --ghost's neutral --hairline border, so it reads as a clear secondary
+   action rather than a muted one. */
+.wn-btn--outline {
+  background: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+}
 .wn-btn--small {
   min-height: var(--tap-sm);
   padding: 0 var(--s-3);
@@ -342,10 +351,10 @@ a {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-3);
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--hairline);
   position: relative;
   z-index: 5;
 }
@@ -354,7 +363,7 @@ a {
 }
 .wn-geofield__label {
   display: block;
-  font-size: 13px;
+  font-size: var(--t-caption);
   color: var(--text-dim);
   margin-bottom: 4px;
 }
@@ -384,8 +393,8 @@ a {
   right: 0;
   z-index: 20;
   background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
   margin: 4px 0 0;
   max-height: 220px;
   overflow-y: auto;
@@ -395,31 +404,217 @@ a {
 .wn-suggestions li button {
   width: 100%;
   text-align: left;
-  min-height: 44px;
-  padding: 0 10px;
+  min-height: var(--tap);
+  padding: 0 var(--s-2);
   background: transparent;
   border: none;
-  color: var(--text);
-  font-size: 15px;
-  border-radius: 6px;
+  font-size: var(--t-row);
+  border-radius: var(--r-sm);
   cursor: pointer;
 }
 .wn-suggestions li button:hover,
 .wn-suggestions li button:focus {
   background: var(--bg);
 }
+/* wattnap-spec.md §9 item 6: matched substring in --text, the rest in
+   --text-dim -- the confident part of a suggestion is what you typed. */
+.wn-suggestions__match {
+  color: var(--text);
+  font-weight: 600;
+}
+.wn-suggestions__dim {
+  color: var(--text-dim);
+}
 .wn-geofield__error {
   color: var(--danger);
-  font-size: 13px;
+  font-size: var(--t-caption);
   margin: 4px 0 0;
 }
 .wn-tripform__actions {
   display: flex;
-  gap: 8px;
+  gap: var(--s-2);
   align-items: center;
 }
 .wn-tripform__plan {
   flex: 1;
+}
+
+/* Waypoint editor -- wattnap-spec.md §8. Origin, vias, destination, each a
+   spine dot; round trip renders as one more row that closes the spine back
+   on itself rather than a fourth field. */
+.wn-waypoints {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.wn-waypoints::before {
+  /* the spine line connecting every dot */
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 12px;
+  bottom: 12px;
+  width: 1px;
+  background: var(--hairline);
+}
+.wn-waypoint {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 4px 0;
+  z-index: 1;
+}
+.wn-waypoint--endpoint {
+  align-items: flex-start;
+  padding: 2px 0;
+}
+.wn-waypoint__field {
+  flex: 1;
+  min-width: 0;
+}
+.wn-waypoint__dot {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--text-dim);
+}
+.wn-waypoint__dot--start {
+  border-color: var(--text);
+  background: var(--text);
+}
+.wn-waypoint__dot--end {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.wn-waypoint__dot--pending {
+  border-style: dashed;
+}
+.wn-waypoint__label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--t-row);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wn-waypoint__controls {
+  display: flex;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+.wn-waypoint__add {
+  margin-left: 27px; /* aligns with the labels, past the spine + dot */
+  min-height: var(--tap);
+  padding: 0 var(--s-3);
+  border: 1.5px dashed var(--hairline);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: var(--t-meta);
+  text-align: left;
+  cursor: pointer;
+}
+.wn-waypoint--roundtrip {
+  opacity: 0.7;
+}
+.wn-waypoint--roundtrip .wn-waypoint__label {
+  font-style: italic;
+}
+
+/* Round trip toggle -- a real switch, not a checkbox with a label. */
+.wn-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--tap-sm);
+  cursor: pointer;
+  align-self: flex-start;
+}
+.wn-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.wn-toggle__track {
+  position: relative;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  transition: background var(--dur-tap) var(--ease);
+}
+.wn-toggle__track::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: transform var(--dur-tap) var(--ease), background var(--dur-tap) var(--ease);
+}
+.wn-toggle input:checked + .wn-toggle__track {
+  background: color-mix(in oklch, var(--accent) 30%, var(--surface-2));
+  border-color: var(--accent);
+}
+.wn-toggle input:checked + .wn-toggle__track::before {
+  transform: translateX(16px);
+  background: var(--accent);
+}
+.wn-toggle__label {
+  font-size: var(--t-meta);
+  color: var(--text-dim);
+}
+
+/* Collapsed trip summary card -- wattnap-spec.md §8: "a single card: a
+   vertical spine of waypoint dots, one line per stop, tap anywhere to
+   reopen the editor." */
+.wn-tripsummary {
+  display: flex;
+  align-items: stretch;
+  gap: var(--s-3);
+  width: 100%;
+  text-align: left;
+  padding: var(--s-3);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+}
+.wn-tripsummary__spine {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+.wn-tripsummary__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+.wn-tripsummary__rows {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.wn-tripsummary__row {
+  font-size: var(--t-row);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Map — ~55% of the remaining flexible space, per DESIGN.md §6 */
@@ -661,21 +856,37 @@ a {
   color: var(--text-dim);
 }
 .wn-warnings {
-  margin-bottom: 12px;
+  margin-bottom: var(--s-3);
 }
 .wn-warnings__item {
-  font-size: 14px;
+  font-size: var(--t-meta);
   color: var(--warn);
-  background: rgba(242, 193, 78, 0.08);
-  border: 1px solid rgba(242, 193, 78, 0.35);
-  border-radius: var(--radius);
-  padding: 8px 10px;
+  background: color-mix(in oklch, var(--warn) 8%, transparent);
+  border: 1px solid color-mix(in oklch, var(--warn) 35%, transparent);
+  border-radius: var(--r-sm);
+  padding: var(--s-2) var(--s-3);
   margin: 0 0 6px;
 }
 .wn-stoplist {
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
+}
+.wn-viamilestone {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  color: var(--text-dim);
+  font-size: var(--t-meta);
+}
+.wn-viamilestone svg {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+.wn-viamilestone .wn-soc {
+  font-size: var(--t-row);
+  color: var(--text);
 }
 /* .wn-stop is also .wn-card -- a real card per stop (wattnap-spec.md §7),
    replacing the old dashed 1px separator. */
@@ -1233,6 +1444,55 @@ a {
 .wn-app--mapfull .wn-side,
 .wn-app--mapfull .wn-body > .wn-side { display: none; }
 .wn-app--mapfull .wn-map-wrap { flex: 1 1 auto; min-height: 0; }
+
+/* Trip bar -- wattnap-spec.md §8: the one piece of .wn-side's content that
+   full-screen keeps, since hiding it meant a driver couldn't change where
+   they were going without first leaving full-screen (§9 item 4). */
+.wn-tripbar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 52px;
+  padding: 0 var(--s-3);
+  background: var(--tabbar);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--r-lg);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.wn-tripbar__spine {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.wn-tripbar__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+.wn-tripbar__route {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--t-meta);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wn-tripbar__summary {
+  flex: 0 0 auto;
+  font-size: var(--t-caption);
+  color: var(--text-dim);
+}
 
 @media (min-width: 1024px) {
   .wn-app {

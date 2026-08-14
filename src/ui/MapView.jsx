@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'preact/hooks'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import { createMapController } from '../map/index.js'
 import {
   useWattnap,
@@ -7,13 +7,51 @@ import {
   selectStationPin,
   selectSleepPin,
   closeDetailCard,
+  computeWaypoints,
 } from '../state.js'
 import { DetailCard } from './DetailCard.jsx'
+import { WaypointEditor } from './TripForm.jsx'
+
+function fmtMin(mins) {
+  if (mins == null || !isFinite(mins)) return '—'
+  const m = Math.round(mins)
+  const h = Math.floor(m / 60)
+  const rem = m % 60
+  return h > 0 ? `${h}h ${String(rem).padStart(2, '0')}m` : `${rem}m`
+}
+
+/**
+ * wattnap-spec.md §8: "On the full-screen map the trip bar stays. It is a
+ * 52px translucent bar pinned to the top showing the waypoint dots and the
+ * route summary; tapping it opens the same editor as a sheet, so
+ * destinations are editable without leaving full-screen." Resolves §9
+ * item 4: full-screen previously hid .wn-side outright (D-038), which hid
+ * the trip form along with everything else it hides on purpose.
+ */
+function TripBar({ s, onOpen }) {
+  const waypoints = computeWaypoints(s)
+  return (
+    <button type="button" class="wn-tripbar" onClick={onOpen}>
+      <div class="wn-tripbar__spine" aria-hidden="true">
+        {waypoints.map((_, i) => (
+          <span key={i} class="wn-tripbar__dot" />
+        ))}
+      </div>
+      <span class="wn-tripbar__route">{waypoints.map((wp) => wp.label).join(' → ')}</span>
+      {s.route ? (
+        <span class="wn-tripbar__summary">
+          {fmtMin(s.route.duration_s / 60)} · {Math.round(s.route.distance_m / 1609.344)} mi
+        </span>
+      ) : null}
+    </button>
+  )
+}
 
 export function MapView({ expanded = false, onToggleExpand }) {
   const s = useWattnap()
   const containerRef = useRef(null)
   const controllerRef = useRef(null)
+  const [tripBarSheetOpen, setTripBarSheetOpen] = useState(false)
 
   useEffect(() => {
     const controller = createMapController(containerRef.current, {
@@ -61,6 +99,20 @@ export function MapView({ expanded = false, onToggleExpand }) {
   return (
     <div class="wn-map-wrap">
       <div class="wn-map" ref={containerRef} />
+      {expanded && s.from ? <TripBar s={s} onOpen={() => setTripBarSheetOpen(true)} /> : null}
+      {tripBarSheetOpen ? (
+        <div class="wn-modal-backdrop" onClick={() => setTripBarSheetOpen(false)}>
+          <div class="wn-drawer" onClick={(e) => e.stopPropagation()}>
+            <div class="wn-modal__head">
+              <h2>Edit trip</h2>
+              <button type="button" class="wn-icon-btn" aria-label="Close" onClick={() => setTripBarSheetOpen(false)}>
+                ×
+              </button>
+            </div>
+            <WaypointEditor />
+          </div>
+        </div>
+      ) : null}
       {onToggleExpand ? (
         <button
           type="button"

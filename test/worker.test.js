@@ -10,7 +10,7 @@ import {
   filterStationsByKw,
   inferMaxKw,
 } from '../worker/src/normalize.js';
-import { buildWkt, buildOrsDirectionsBody, UpstreamError } from '../worker/src/upstream.js';
+import { buildWkt, buildOrsDirectionsBody, splitIntoLegs, UpstreamError } from '../worker/src/upstream.js';
 import {
   isOriginAllowed,
   parseAllowedOrigins,
@@ -382,14 +382,17 @@ describe('buildWkt', () => {
 });
 
 describe('buildOrsDirectionsBody', () => {
-  it('sets a generous snap radius on both waypoints', () => {
+  it('sets a generous snap radius on both waypoints of a plain 2-point trip', () => {
     // Regression test: a bare Pelias administrative-centroid geocode result
     // (e.g. "Ventura, CA, USA" -> a beach point) previously failed with
     // ORS "Could not find routable point within a radius of 350.0 meters"
     // because no radiuses param was sent at all, so ORS used its tight
     // default. Confirmed live: [-119.29342, 34.262734] -> [-119.98435,
     // 38.93324] 502'd before this fix and 200's after it.
-    const body = buildOrsDirectionsBody([-119.29342, 34.262734], [-119.98435, 38.93324]);
+    const body = buildOrsDirectionsBody([
+      [-119.29342, 34.262734],
+      [-119.98435, 38.93324],
+    ]);
     expect(body.coordinates).toEqual([
       [-119.29342, 34.262734],
       [-119.98435, 38.93324],
@@ -398,5 +401,79 @@ describe('buildOrsDirectionsBody', () => {
     expect(body.radiuses).toHaveLength(2);
     expect(body.radiuses[0]).toBeGreaterThan(350);
     expect(body.radiuses[1]).toBeGreaterThan(350);
+  });
+
+  it('sets the same snap radius on every waypoint of a multi-stop trip, not just the two ends (D-030)', () => {
+    const waypoints = [
+      [-119.29342, 34.262734],
+      [-115.1398, 36.1699], // via
+      [-96.797, 32.7767], // via
+      [-119.29342, 34.262734], // round trip: origin pushed onto the end
+    ];
+    const body = buildOrsDirectionsBody(waypoints);
+    expect(body.coordinates).toEqual(waypoints);
+    expect(body.radiuses).toHaveLength(4);
+    expect(body.radiuses.every((r) => r >= 5000)).toBe(true);
+  });
+});
+
+describe('splitIntoLegs', () => {
+  // Shape modeled on a real ORS geojson directions response: one combined
+  // coordinate array, feature.properties.segments[] (one per leg), each
+  // segment's steps carrying way_points [startIdx, endIdx] into that SAME
+  // combined array. This is the entire mechanism phase 6 relies on to hand
+  // the (untouched) planner one two-point-equivalent route per leg.
+  const coords = [
+    [-119.3, 34.3, 10],
+    [-119.1, 34.6, 20],
+    [-118.9, 34.9, 30], // via boundary -- shared by leg 1's end and leg 2's start
+    [-118.5, 35.2, 40],
+    [-118.0, 35.6, 50],
+  ];
+
+  it('slices each leg from its own steps way_points, sharing the via boundary index', () => {
+    const segments = [
+      {
+        distance: 1000,
+        duration: 100,
+        steps: [
+          { way_points: [0, 1] },
+          { way_points: [1, 2] },
+        ],
+      },
+      {
+        distance: 2000,
+        duration: 200,
+        steps: [
+          { way_points: [2, 3] },
+          { way_points: [3, 4] },
+        ],
+      },
+    ];
+    const legs = splitIntoLegs(coords, segments);
+    expect(legs).toHaveLength(2);
+    expect(legs[0]).toEqual({ distance_m: 1000, duration_s: 100, geometry: coords.slice(0, 3) });
+    expect(legs[1]).toEqual({ distance_m: 2000, duration_s: 200, geometry: coords.slice(2, 5) });
+    // The via point (index 2) is the shared boundary -- present at the end
+    // of leg 1's geometry AND the start of leg 2's, not dropped or doubled
+    // in a way that would put a gap in the combined route.
+    expect(legs[0].geometry[legs[0].geometry.length - 1]).toEqual(legs[1].geometry[0]);
+  });
+
+  it('returns one leg spanning everything for a plain 2-point trip (the N=2 case)', () => {
+    const segments = [{ distance: 5000, duration: 500, steps: [{ way_points: [0, 4] }] }];
+    const legs = splitIntoLegs(coords, segments);
+    expect(legs).toHaveLength(1);
+    expect(legs[0].geometry).toEqual(coords);
+  });
+
+  it('falls back to the full coordinate span if a segment has no steps', () => {
+    const legs = splitIntoLegs(coords, [{ distance: 5000, duration: 500, steps: [] }]);
+    expect(legs[0].geometry).toEqual(coords);
+  });
+
+  it('returns an empty array for no segments', () => {
+    expect(splitIntoLegs(coords, undefined)).toEqual([]);
+    expect(splitIntoLegs(coords, [])).toEqual([]);
   });
 });

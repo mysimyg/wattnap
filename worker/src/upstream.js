@@ -98,18 +98,36 @@ async function geocodeNominatim(q, limit) {
 // Routing
 // ---------------------------------------------------------------------------
 
-export async function route(env, from, to) {
-  if (!isCoordPair(from) || !isCoordPair(to)) {
-    throw new UpstreamError('BAD_REQUEST', 'from and to must be [lon, lat] pairs', { status: 400 });
+/**
+ * @param {Array<[number, number]>} waypoints  2 or more [lon, lat] pairs --
+ *   origin, any number of vias, destination. A plain A-to-B trip is just
+ *   the N=2 case; there is no separate code path for it.
+ */
+export async function route(env, waypoints) {
+  if (!Array.isArray(waypoints) || waypoints.length < 2 || !waypoints.every(isCoordPair)) {
+    throw new UpstreamError('BAD_REQUEST', 'waypoints must be an array of at least 2 [lon, lat] pairs', {
+      status: 400,
+    });
   }
   if (env && env.ORS_API_KEY) {
-    return routeOrs(env, from, to);
+    return routeOrs(env, waypoints);
+  }
+  if (waypoints.length > 2) {
+    // The OSRM fallback is DEV-ONLY (DESIGN.md §2.3) and multi-stop is a
+    // newer, more demanding feature -- rather than ship an approximated
+    // per-leg split against a server with no uptime guarantee, this fails
+    // honestly instead of silently degrading trip-planning math.
+    throw new UpstreamError(
+      'BAD_REQUEST',
+      'Multi-stop routing needs a configured ORS_API_KEY; the OSRM dev fallback only supports a single origin/destination pair.',
+      { status: 400 }
+    );
   }
   console.error(
     'route: ORS_API_KEY not set, falling back to the public OSRM demo server. ' +
       'This path is DEV-ONLY per DESIGN.md §2.3 (1 req/sec, no uptime guarantee, no elevation).'
   );
-  return routeOsrm(from, to);
+  return routeOsrm(waypoints);
 }
 
 function isCoordPair(c) {
@@ -123,13 +141,39 @@ function isCoordPair(c) {
  * beach, and ORS's default radius can't reach the nearest real street from
  * there. 5km comfortably covers a city/county centroid landing in a park,
  * beach, or waterway near a town, without being so large it could snap a
- * genuinely bad coordinate to an unrelated road far away.
+ * genuinely bad coordinate to an unrelated road far away. D-030 applied
+ * this to both ends of a 2-point trip; a via is exactly as likely to be a
+ * geocoded place name as either end, so every waypoint gets one, not just
+ * the first and last.
  */
-export function buildOrsDirectionsBody(from, to) {
-  return { coordinates: [from, to], elevation: true, radiuses: [5000, 5000] }
+export function buildOrsDirectionsBody(waypoints) {
+  return { coordinates: waypoints, elevation: true, radiuses: waypoints.map(() => 5000) }
 }
 
-async function routeOrs(env, from, to) {
+/**
+ * Splits ORS's one combined-geometry response into per-leg geometry slices
+ * using each segment's own steps[].way_points (indices into the combined
+ * coordinate array). This is the entire "multi-stop" trick: the planner
+ * itself (src/planner/planner.js, DO NOT TOUCH) never learns about legs --
+ * it's handed one two-point-equivalent {distance_m, duration_s, geometry}
+ * per leg and called once per leg, exactly as it already is for a plain
+ * A-to-B trip. A via is a leg boundary because the orchestration outside
+ * the planner treats it as one, not because the planner grew a new concept.
+ */
+export function splitIntoLegs(coords, segments) {
+  return (segments || []).map((seg) => {
+    const steps = seg.steps || [];
+    const startIdx = steps.length ? steps[0].way_points[0] : 0;
+    const endIdx = steps.length ? steps[steps.length - 1].way_points[1] : coords.length - 1;
+    return {
+      distance_m: seg.distance ?? null,
+      duration_s: seg.duration ?? null,
+      geometry: coords.slice(startIdx, endIdx + 1),
+    };
+  });
+}
+
+async function routeOrs(env, waypoints) {
   let res;
   try {
     res = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
@@ -138,7 +182,7 @@ async function routeOrs(env, from, to) {
         'Content-Type': 'application/json',
         Authorization: env.ORS_API_KEY,
       },
-      body: JSON.stringify(buildOrsDirectionsBody(from, to)),
+      body: JSON.stringify(buildOrsDirectionsBody(waypoints)),
     });
   } catch (err) {
     console.error('ORS directions network error', err);
@@ -155,17 +199,20 @@ async function routeOrs(env, from, to) {
     throw new UpstreamError('UPSTREAM_ERROR', 'no route found');
   }
   const summary = (feature.properties && feature.properties.summary) || {};
+  const coords = feature.geometry.coordinates;
+  const segments = feature.properties && feature.properties.segments;
   return {
     distance_m: summary.distance ?? null,
     duration_s: summary.duration ?? null,
-    geometry: feature.geometry.coordinates,
+    geometry: coords,
     bbox: feature.bbox || body.bbox || null,
     elevationAvailable: true,
+    legs: splitIntoLegs(coords, segments),
   };
 }
 
-async function routeOsrm(from, to) {
-  const coordStr = `${from[0]},${from[1]};${to[0]},${to[1]}`;
+async function routeOsrm(waypoints) {
+  const coordStr = waypoints.map((p) => `${p[0]},${p[1]}`).join(';');
   const url = `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson`;
 
   let res;
@@ -194,6 +241,15 @@ async function routeOsrm(from, to) {
     geometry: coords.map((c) => [c[0], c[1], null]),
     bbox: [Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)],
     elevationAvailable: false,
+    // route() already refuses waypoints.length > 2 before this is reached,
+    // so there is always exactly one leg here -- see the guard above.
+    legs: [
+      {
+        distance_m: r.distance ?? null,
+        duration_s: r.duration ?? null,
+        geometry: coords.map((c) => [c[0], c[1], null]),
+      },
+    ],
   };
 }
 

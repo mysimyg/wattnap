@@ -1,6 +1,7 @@
 import { KwBadge } from './KwBadge.jsx'
 import { Icon } from './Icon.jsx'
 import { kwToneVar } from '../map/pins.js'
+import { addStationAsStop, planTripFlow, useWattnap } from '../state.js'
 
 function CloseButton({ onClose }) {
   return (
@@ -13,7 +14,14 @@ function CloseButton({ onClose }) {
 }
 
 function StationDetail({ station, onClose }) {
+  const s = useWattnap()
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lon}`
+  const canAddStop = !!s.from && !!s.to
+  function handleAddAsStop() {
+    addStationAsStop(station)
+    onClose()
+    planTripFlow()
+  }
   return (
     <div class="wn-card wn-detailcard">
       <div class="wn-detailcard__head">
@@ -38,16 +46,20 @@ function StationDetail({ station, onClose }) {
           This station has no reported power figure. Treat it as an unknown, not a guaranteed fast charge.
         </p>
       ) : null}
-      {/* wattnap-spec.md §7/§9-2: the second action is "Add as stop" -- pin
-          this charger into the plan and re-run the planner around it. That
-          needs the multi-stop waypoint model (phase 6) to do honestly
-          without touching src/planner/* (DO NOT TOUCH); adding a button
-          that doesn't do that yet would be a half-finished implementation,
-          so it lands with phase 6 instead of as an inert placeholder here. */}
+      {/* wattnap-spec.md §7/§9-2: pins this charger into the plan as a
+          forced via and re-runs the planner (see addStationAsStop/
+          recomputePlan in state.js) -- the multi-stop waypoint model this
+          needed didn't exist before phase 6, which is why this button
+          wasn't added until now rather than shipped inert. */}
       <div class="wn-card__actions">
         <a class="wn-btn wn-btn--primary" href={mapsUrl} target="_blank" rel="noopener noreferrer">
           navigate
         </a>
+        {canAddStop ? (
+          <button type="button" class="wn-btn wn-btn--outline" onClick={handleAddAsStop}>
+            add as stop
+          </button>
+        ) : null}
       </div>
     </div>
   )

@@ -45,6 +45,8 @@ function initialState() {
     // trip endpoints
     from: null, // { label, lat, lon }
     to: null,
+    vias: [], // { label, lat, lon }[] -- intermediate stops, in order
+    roundTrip: false, // appends `from` as a final leg
 
     // route
     route: null, // { distance_m, duration_s, geometry, bbox }
@@ -143,6 +145,60 @@ export function swapFromTo() {
 }
 
 // ---------------------------------------------------------------------------
+// Actions — multi-stop and round trip (wattnap-spec.md §8)
+//
+// `from`/`to` keep meaning exactly what they always have -- origin and
+// final destination -- so every existing from/to consumer (jurisdiction
+// warnings, saved trips, the swap button) needs no changes. Multi-stop is
+// additive: `vias` is the ordered list of stops in between, `roundTrip`
+// appends `from` as a final leg. computeWaypoints() is the one place that
+// turns those three fields into the ordered point list routing/planning
+// actually consumes, so "what is the trip" has a single source of truth.
+// ---------------------------------------------------------------------------
+
+/** @returns {Array<{label,lat,lon}>} origin, vias in order, destination, [origin again if round trip] */
+export function computeWaypoints(s = getState()) {
+  const points = [s.from, ...s.vias, s.to].filter(Boolean)
+  if (s.roundTrip && s.from) points.push(s.from)
+  return points
+}
+
+export function addVia(point) {
+  if (!point) return
+  setState((s) => ({ vias: [...s.vias, point] }))
+}
+
+export function removeVia(index) {
+  setState((s) => ({ vias: s.vias.filter((_, i) => i !== index) }))
+}
+
+/** Swaps via[index] with its neighbor -- the up/down move a spine row exposes. */
+export function moveVia(index, dir) {
+  setState((s) => {
+    const next = index + dir
+    if (next < 0 || next >= s.vias.length) return {}
+    const vias = s.vias.slice()
+    ;[vias[index], vias[next]] = [vias[next], vias[index]]
+    return { vias }
+  })
+}
+
+export function setRoundTrip(on) {
+  setState({ roundTrip: on })
+}
+
+/**
+ * DetailCard's "Add as stop" (wattnap-spec.md §7/§9-2): pins a charger into
+ * the plan as a forced via. The planner itself never learns about this --
+ * it's still just planTrip() called once per leg (see recomputePlan) with
+ * one more leg boundary than before.
+ */
+export function addStationAsStop(station) {
+  if (!station || typeof station.lat !== 'number' || typeof station.lon !== 'number') return
+  addVia({ label: station.name || 'Charger stop', lat: station.lat, lon: station.lon })
+}
+
+// ---------------------------------------------------------------------------
 // Actions — route + stations flow (phase 2 gate)
 // ---------------------------------------------------------------------------
 
@@ -165,7 +221,8 @@ export async function planTripFlow() {
     selectedPin: null,
   })
   try {
-    const resp = await api.fetchRoute([s.from.lon, s.from.lat], [s.to.lon, s.to.lat])
+    const waypoints = computeWaypoints(s).map((p) => [p.lon, p.lat])
+    const resp = await api.fetchRoute(waypoints)
     setState({
       route: resp,
       routeStatus: 'success',
@@ -275,6 +332,18 @@ export function setStartSoc(v) {
   recomputePlan()
 }
 
+/**
+ * Multi-stop plan = planTrip() called once per leg, unmodified (DO NOT
+ * TOUCH src/planner/*). A via is a leg boundary with a forced arrival: leg
+ * i+1 starts from whatever SOC leg i's plan actually ends at, not from a
+ * fresh startSoc. Stations are re-annotated per leg (distanceAlongRoute_m/
+ * detour_m are only meaningful relative to the geometry they were computed
+ * against) and narrowed to the current corridor width around THAT leg
+ * specifically -- otherwise a station near leg 2 would appear as a
+ * nominally-valid but wildly-expensive "detour" candidate while planning
+ * leg 1, since annotateStations always returns a nearest point on the given
+ * line rather than excluding far-away stations itself.
+ */
 export async function recomputePlan() {
   const s = getState()
   if (!s.route || s.stations.length === 0) {
@@ -288,19 +357,86 @@ export async function recomputePlan() {
   // whether the caller or the planner applies the kW floor, so we apply it
   // here and pass the resulting candidate set straight through.
   const candidates = filteredStations(s)
+  const legs =
+    s.route.legs && s.route.legs.length
+      ? s.route.legs
+      : [{ distance_m: s.route.distance_m, duration_s: s.route.duration_s, geometry: s.route.geometry }]
+  const maxDetourM = s.corridorMi * MILES_PER_METER_DIVISOR
   try {
-    const plan = await planTripSafe({
-      route: s.route,
-      stations: candidates,
-      vehicle,
-      strategy: s.strategy,
-      startSoc: s.startSoc,
-    })
+    const legPlans = []
+    let soc = s.startSoc
+    for (const leg of legs) {
+      const legCandidates = annotateStationsSafe(candidates, leg.geometry).filter(
+        (st) => (st.detour_m ?? 0) <= maxDetourM
+      )
+      const legPlan = await planTripSafe({
+        route: leg,
+        stations: legCandidates,
+        vehicle,
+        strategy: s.strategy,
+        startSoc: soc,
+      })
+      legPlans.push(legPlan)
+      if (!legPlan.feasible) break // planning leg N+1 from an infeasible SOC would just compound the error
+      soc = legPlan.summary.arriveSocAtDestination ?? legPlan.summary.minSocReached
+    }
     // Guard against a stale response landing after a newer trip was planned.
     if (getState().route !== s.route) return
+    const plan = combineLegPlans(legPlans, legs.length, computeWaypoints(s))
     setState({ plan, planStatus: 'success' })
   } catch (err) {
     setState({ planStatus: 'error', plan: null })
+  }
+}
+
+/**
+ * Concatenates per-leg plans into the one plan shape PlanPanel already
+ * renders, inserting a via-milestone entry between legs -- "forced
+ * arrival" (wattnap-spec.md §8/§9-1) should be visible in the stop list,
+ * not just implicit in the next leg's startSoc. Exported for direct
+ * testing: this is the one piece of phase 6's orchestration logic that
+ * doesn't need a live route response to verify.
+ */
+export function combineLegPlans(legPlans, totalLegs, waypoints) {
+  const multiLeg = totalLegs > 1
+  const feasible = legPlans.length === totalLegs && legPlans.every((p) => p.feasible)
+  const stops = []
+  legPlans.forEach((p, i) => {
+    stops.push(...p.stops)
+    const isLastLeg = i === legPlans.length - 1
+    if (multiLeg && !isLastLeg && p.feasible) {
+      stops.push({
+        isViaMilestone: true,
+        viaLabel: (waypoints[i + 1] && waypoints[i + 1].label) || `Stop ${i + 2}`,
+        arriveSoc: p.summary.arriveSocAtDestination,
+      })
+    }
+  })
+  const warnings = legPlans.flatMap((p, i) =>
+    p.warnings.map((w) => (multiLeg ? `Leg ${i + 1} of ${totalLegs}: ${w}` : w))
+  )
+  const sum = (key) => legPlans.reduce((acc, p) => acc + (p.summary[key] || 0), 0)
+  const first = legPlans[0]
+  const last = legPlans[legPlans.length - 1]
+  return {
+    feasible,
+    stops,
+    warnings,
+    summary: {
+      driveMinutes: sum('driveMinutes'),
+      chargeMinutes: sum('chargeMinutes'),
+      overheadMinutes: sum('overheadMinutes'),
+      detourMinutes: sum('detourMinutes'),
+      totalMinutes: sum('totalMinutes'),
+      stopCount: sum('stopCount'),
+      minSocReached: legPlans.length ? Math.min(...legPlans.map((p) => p.summary.minSocReached)) : null,
+      arriveSocAtDestination: last ? last.summary.arriveSocAtDestination : null,
+      startSoc: first ? first.summary.startSoc : null,
+      distanceMiles: sum('distanceMiles'),
+      ascentM: sum('ascentM'),
+      descentM: sum('descentM'),
+      elevationAvailable: legPlans.length > 0 && legPlans.every((p) => p.summary.elevationAvailable),
+    },
   }
 }
 
@@ -556,6 +692,8 @@ export function saveCurrentTrip() {
     savedAt: new Date().toISOString(),
     from: s.from,
     to: s.to,
+    vias: s.vias,
+    roundTrip: s.roundTrip,
     route: s.route,
     stations: s.stations,
     stationsMeta: s.stationsMeta,
@@ -582,6 +720,8 @@ export function loadTripIntoState(trip) {
   setState({
     from: trip.from,
     to: trip.to,
+    vias: trip.vias || [],
+    roundTrip: trip.roundTrip || false,
     route: trip.route,
     stations: trip.stations || [],
     stationsMeta: trip.stationsMeta || null,

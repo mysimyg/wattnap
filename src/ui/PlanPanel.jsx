@@ -59,6 +59,23 @@ function ChargeWindowTrack({ arriveSoc, departSoc }) {
   )
 }
 
+/**
+ * A via boundary in the stop list -- "forced arrival" (wattnap-spec.md §8)
+ * made visible instead of only implicit in the next leg's startSoc.
+ */
+function ViaMilestoneRow({ stop }) {
+  return (
+    <div class="wn-viamilestone">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+      </svg>
+      <span>
+        Arrive <b>{stop.viaLabel}</b> at <b class="wn-soc">{Math.round(stop.arriveSoc)}%</b>
+      </span>
+    </div>
+  )
+}
+
 function StopRow({ stop, index }) {
   return (
     <div class="wn-stop wn-card">
@@ -182,9 +199,19 @@ export function PlanPanel() {
           ) : null}
 
           <div class="wn-stoplist">
-            {plan.stops.map((stop, i) => (
-              <StopRow stop={stop} index={i} key={stop.station?.id || i} />
-            ))}
+            {(() => {
+              // Charging stops number sequentially (1, 2, 3...); via
+              // milestones sit inline between them without consuming a
+              // number -- they're waypoints, not charging stops.
+              let chargeIndex = 0
+              return plan.stops.map((stop, i) =>
+                stop.isViaMilestone ? (
+                  <ViaMilestoneRow stop={stop} key={`via-${i}`} />
+                ) : (
+                  <StopRow stop={stop} index={chargeIndex++} key={stop.station?.id || i} />
+                )
+              )
+            })()}
           </div>
 
           <button type="button" class="wn-btn wn-btn--primary wn-planpanel__compare" onClick={() => setComparing(true)}>

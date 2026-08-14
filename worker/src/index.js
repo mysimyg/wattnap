@@ -119,6 +119,10 @@ async function handleGeocode(request, env, headers) {
   return withCache(env, 'geocode', cacheKey, headers, () => geocode(env, q, limit));
 }
 
+function isCoordPair(c) {
+  return Array.isArray(c) && c.length >= 2 && typeof c[0] === 'number' && typeof c[1] === 'number';
+}
+
 async function handleRoute(request, env, headers) {
   let body;
   try {
@@ -126,30 +130,21 @@ async function handleRoute(request, env, headers) {
   } catch {
     return errorResponse('BAD_REQUEST', 'request body must be JSON', 400, { headers });
   }
-  const { from, to } = body || {};
-  if (
-    !Array.isArray(from) ||
-    from.length < 2 ||
-    !Array.isArray(to) ||
-    to.length < 2 ||
-    typeof from[0] !== 'number' ||
-    typeof from[1] !== 'number' ||
-    typeof to[0] !== 'number' ||
-    typeof to[1] !== 'number'
-  ) {
-    return errorResponse('BAD_REQUEST', '"from" and "to" must each be [lon, lat] number pairs', 400, {
-      headers,
-    });
+  const { waypoints } = body || {};
+  if (!Array.isArray(waypoints) || waypoints.length < 2 || !waypoints.every(isCoordPair)) {
+    return errorResponse(
+      'BAD_REQUEST',
+      '"waypoints" must be an array of at least 2 [lon, lat] number pairs',
+      400,
+      { headers }
+    );
   }
 
   // Cache key = rounded coords (5 decimals), per DESIGN.md §3, so nearby
   // requests for "the same" trip share a cache entry.
-  const roundedPayload = {
-    from: [round5(from[0]), round5(from[1])],
-    to: [round5(to[0]), round5(to[1])],
-  };
+  const roundedPayload = { waypoints: waypoints.map((p) => [round5(p[0]), round5(p[1])]) };
   const cacheKey = await computeCacheKey('POST', '/v1/route', roundedPayload);
-  return withCache(env, 'route', cacheKey, headers, () => fetchRoute(env, from, to));
+  return withCache(env, 'route', cacheKey, headers, () => fetchRoute(env, waypoints));
 }
 
 async function handleStations(request, env, headers) {

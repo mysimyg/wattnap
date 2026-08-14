@@ -97,11 +97,11 @@ export function geocode(q, { limit = 5, field = 'default' } = {}) {
   return request(`/v1/geocode?${params.toString()}`, { key: `geocode:${field}` }).then((r) => r.results || [])
 }
 
-/** from/to are [lon, lat] pairs. */
-export function fetchRoute(from, to) {
+/** waypoints: 2+ [lon, lat] pairs -- origin, any vias, destination. */
+export function fetchRoute(waypoints) {
   return request('/v1/route', {
     method: 'POST',
-    body: { from, to },
+    body: { waypoints },
     key: 'route',
     timeoutMs: 25000,
   })
