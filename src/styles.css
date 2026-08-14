@@ -824,21 +824,59 @@ a {
   padding: var(--s-4);
   box-shadow: var(--shadow-card);
 }
+/* wattnap-spec.md §7: --r-xl, translucent surface + blur(24px), icon
+   square on the left. Compound selector so it wins over the plain .wn-card
+   background above rather than making every .wn-card translucent. */
+.wn-card.wn-detailcard {
+  border-radius: var(--r-xl);
+  background: var(--glass);
+  border-color: var(--glass-edge);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+.wn-detailcard__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  margin-bottom: var(--s-2);
+}
+.wn-detailcard__icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  background: color-mix(in oklch, var(--tone) 20%, transparent);
+  color: var(--tone);
+}
+.wn-detailcard__headtext {
+  flex: 1;
+  min-width: 0;
+}
+.wn-detailcard__headtext .wn-card__title,
+.wn-detailcard__headtext .wn-card__meta {
+  margin: 0;
+}
+.wn-detailcard__close {
+  flex: 0 0 auto;
+}
 .wn-card__title {
   margin: 0 0 4px;
-  font-size: 17px;
+  font-size: var(--t-title);
 }
 .wn-card__meta {
   margin: 0 0 6px;
   color: var(--text-dim);
-  font-size: 14px;
+  font-size: var(--t-meta);
 }
 .wn-card__line {
   margin: 0 0 4px;
-  font-size: 15px;
+  font-size: var(--t-body);
 }
 .wn-card__note {
-  font-size: 13px;
+  font-size: var(--t-caption);
   color: var(--text-dim);
   margin: 6px 0 0;
 }
@@ -847,8 +885,8 @@ a {
 }
 .wn-card__actions {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
 }
 .wn-card__actions a,
 .wn-card__actions button {

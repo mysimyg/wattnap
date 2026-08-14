@@ -7,25 +7,8 @@ import {
   activeJurisdictionWarnings,
 } from '../state.js'
 import { StateMessage } from './StateMessage.jsx'
-import { sleepConfidenceClass, ICONS } from '../map/pins.js'
-
-/** Reuses the exact glyph paths pins.js inlines for the map markers. */
-function ChipIcon({ name }) {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-      dangerouslySetInnerHTML={{ __html: ICONS[name] || ICONS.tent }}
-    />
-  )
-}
+import { sleepConfidenceClass } from '../map/pins.js'
+import { Icon } from './Icon.jsx'
 
 // wattnap-spec.md §5: "a 4-segment meter, filled segments = confidence, the
 // empty one dashed." Exact fill counts per tier aren't given in the spec,
@@ -141,7 +124,7 @@ export function SleepPanel() {
               style={on ? { '--tone': `var(--cat-${c.category})` } : undefined}
               onClick={() => toggleSleepCategory(c.category)}
             >
-              <ChipIcon name={c.icon} />
+              <Icon name={c.icon} />
               {c.label}
             </button>
           )
